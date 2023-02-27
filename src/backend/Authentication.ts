@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 
-//const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY)
+const supabase = createClient(import.meta.env.VITE_SUPABASE_URL, import.meta.env.VITE_SUPABASE_KEY)
 
 export function RegisterWithEmail() {
-    //console.log(process.env.SUPABASE_URL, process.env.SUPABASE_KEY)
+    console.log(import.meta.env.VITE_SUPABASE_URL, import.meta.env.VITE_SUPABASE_KEY)
 }
