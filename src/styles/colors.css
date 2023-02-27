@@ -1,0 +1,19 @@
+[data-darkMode] {
+  --background: #000;
+}
+
+[data-lightmode] {
+  --primary: #00d689;
+  --white: #fff;
+
+  --background: #fff;
+  --background-inset: #f6f6f6;
+
+  --border: #cbcbcb;
+
+  --gray: #5c5c5c;
+  
+
+  --error: #FF4848;
+  --error-background: #faa1a12d;
+}

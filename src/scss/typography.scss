@@ -1,0 +1,14 @@
+@mixin regular-semibold {
+  font-weight: 600;
+  font-size: toRem(16);
+}
+
+@mixin body-large {
+  font-weight: 700;
+  font-size: toRem(24);
+}
+
+@mixin button {
+  font-weight: 700;
+  font-size: toRem(16);
+}
