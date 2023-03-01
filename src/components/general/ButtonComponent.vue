@@ -15,8 +15,8 @@ const props = defineProps<ButtonProps>()
 const emit = defineEmits(['clicked'])
 
 function emitClick(event: Event) {
-  event.preventDefault()
-  emit('clicked')
+	//event.preventDefault()
+	emit('clicked', event)
 }
 </script>
 

@@ -1,28 +1,26 @@
 <template>
-    <p  
-    :class="{invalid: validity}"
-    >
-        {{ props.message }}
-    </p>
+	<p :class="{ invalid: validity }">
+		{{ props.message }}
+	</p>
 </template>
 
 <script setup lang="ts">
-export interface ErrorMessageProps {
-    message: string
-    validity: boolean
-}
 
+export interface ErrorMessageProps {
+	message: string,
+	validity?: boolean
+}
 const props = defineProps<ErrorMessageProps>()
 </script>
 
 <style lang="scss" scoped>
 p {
-    color: var(--gray)
+	margin: 0;
+	margin-bottom: toRem(4);
+	color: var(--gray);
 }
+
 .invalid {
-    color: var(--error);
-}
-.valid {
-    color: var(--primary);
+	color: var(--error);
 }
 </style>
