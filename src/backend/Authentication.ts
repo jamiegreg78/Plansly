@@ -34,8 +34,14 @@ export async function GetUserStatus() {
 	return data
 }
 
+// Gets the current user section, returning the session data either from local storage or from the server.
 export async function GetUserSession() {
-	const {data, error} = await supabase.auth.getSession()
+	const { data, error } = await supabase.auth.getSession()
 
 	return { data, error }
+}
+
+// Logs the user out, returning an error if it fails
+export async function LogOutUser() {
+	const data = await supabase.auth.signOut()
 }

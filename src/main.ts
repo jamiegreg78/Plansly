@@ -14,10 +14,10 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 // import icons
 import { faCalendar, faWindowMaximize, faFolder} from '@fortawesome/free-regular-svg-icons'
-import { faChevronLeft, faBars } from '@fortawesome/free-solid-svg-icons'
+import { faChevronLeft, faBars, faRightFromBracket } from '@fortawesome/free-solid-svg-icons'
 
 
-library.add(faCalendar, faWindowMaximize, faFolder, faChevronLeft, faBars)
+library.add(faCalendar, faWindowMaximize, faFolder, faChevronLeft, faBars, faRightFromBracket)
 
 const app = createApp(App)
 

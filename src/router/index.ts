@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Home from '@/views/HomeView.vue'
-import { GetUserSession, GetUserStatus } from '@/backend/Authentication'
+import { GetUserSession } from '@/backend/Authentication'
 
 const AuthView = () => import('@/views/auth/AuthView.vue')
 const RegisterView = () => import('@/views/auth/RegisterView.vue')
