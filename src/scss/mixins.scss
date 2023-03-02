@@ -1,0 +1,25 @@
+$breakpoints: (
+  'tablet':  768px,
+  'desktop': 1100px,
+) !default;
+
+@mixin breakpoint($breakpoint) {
+  @if map-has-key($breakpoints, $breakpoint) {
+    @media (min-width: map-get($breakpoints, $breakpoint)) {
+      @content;
+    }
+  }
+ 
+  @else {
+    @warn "No valid breakpoint: `#{$breakpoint}`. "
+  }
+}
+
+@function toRem($value) {
+  $remValue: calc($value / 16) + rem;
+  @return $remValue;
+}
+
+@mixin drop-shadow() {
+  box-shadow: 0 0 5px #0000003e;
+}

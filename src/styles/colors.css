@@ -1,0 +1,36 @@
+[data-darkMode="true"] {
+  --primary: #00d689;
+  --white: #fff;
+
+  --background: #313131;
+  --background-inset: #4f4f4f;
+
+  --border: #cbcbcb;
+
+  --gray: #dcdcdc;
+  
+
+  --error: #FF4848;
+  --error-background: #faa1a140;
+  
+  --text-input: #e0e0e0;
+}
+
+[data-darkMode="false"] {
+  --primary: #00d689;
+  --white: #fff;
+
+  --background: #fff;
+  --background-inset: #f6f6f6;
+
+  --border: #cbcbcb;
+
+  --gray: #5c5c5c;
+  
+
+  --error: #FF4848;
+  --error-background: #faa1a12d;
+  
+	--text-primary: #282828;
+  --text-input: #393939;
+}

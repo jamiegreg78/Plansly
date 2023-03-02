@@ -1,0 +1,27 @@
+@mixin text-input {
+    width: 100%;
+    border: 2px solid transparent;
+    border-radius: 8px;
+
+    font-size: 1rem;
+    padding: toRem(12) toRem(10);
+
+    background-color: var(--background-inset);
+    
+    color: var(--text-input);
+
+    &:focus {
+        border: 2px solid var(--primary);
+        outline: none;
+    }
+
+    &.error {
+        background-color: var(--error-background);
+        color: var(--error);
+
+        &:focus {
+            border-color: var(--error);
+						outline: none;
+        }
+    }
+}
