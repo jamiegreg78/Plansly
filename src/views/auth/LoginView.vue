@@ -8,7 +8,7 @@
 
 		<div class="button-container">
 			<Button :disabled="submitDisabled" text="Log In" @clicked="submitLogin($event)" :is-primary="true" />
-			<Button text="Register" @clicked="router.push('register')" />
+			<Button text="Register" @clicked="router.push(AuthRoutes.register)" />
 		</div>
 	</form>
 </template>
@@ -23,6 +23,7 @@ import { useRouter } from 'vue-router'
 import type { RegistrationFormValues } from '@/types/AuthTypes'
 import { LoginWithEmail } from '@/backend/Authentication'
 import { useAuthenticationStore } from '@/stores/AuthenticationStore'
+import { AppRoutes, AuthRoutes } from '@/router/RouteNames'
 
 const authState = useAuthenticationStore()
 
@@ -59,7 +60,7 @@ async function submitLogin(event: Event) {
 			requestError.value = error.message
 		} else {
 			authState.setAuthState(data.user!)
-			router.push('/app/dashboard')
+			router.push(AppRoutes.dashboard)
 		}
 
 		submitDisabled.value = false

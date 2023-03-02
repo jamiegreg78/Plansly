@@ -1,7 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Home from '@/views/HomeView.vue'
 import { GetUserSession } from '@/backend/Authentication'
+import { AuthRoutes, AppRoutes } from './RouteNames'
 
+import Home from '@/views/HomeView.vue'
 const AuthView = () => import('@/views/auth/AuthView.vue')
 const RegisterView = () => import('@/views/auth/RegisterView.vue')
 const OtpView = () => import('@/views/auth/OtpView.vue')
@@ -24,17 +25,17 @@ const router = createRouter({
 			meta: { requiresNotAuthenticated: true},
 			children: [
 				{
-					path: 'register',
+					path: AuthRoutes.register,
 					name: 'Register',
 					component: RegisterView
 				},
 				{
-					path: 'verify',
+					path: AuthRoutes.verify,
 					name: 'Verify Your Account',
 					component: OtpView
 				},
 				{
-					path: 'login',
+					path: AuthRoutes.login,
 					name: 'Login',
 					component: LoginView
 				}
@@ -46,7 +47,7 @@ const router = createRouter({
 			meta: { requiresAuth: true},
 			children: [
 				{
-					path: 'dashboard',
+					path: AppRoutes.dashboard,
 					name: 'Dashboard',
 					component: DashboardView,
 				}

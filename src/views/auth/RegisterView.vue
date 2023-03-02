@@ -14,7 +14,7 @@
 
 		<div class="button-container">
 			<Button :disabled="submitDisabled" text="Register" @clicked="submitRegistration($event)" :is-primary="true" />
-			<Button text="Log In" @clicked="router.push('login')" />
+			<Button text="Log In" @clicked="router.push(AuthRoutes.login)" />
 		</div>
 	</form>
 </template>
@@ -29,6 +29,7 @@ import { ref, watch, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { RegisterWithEmail } from '@/backend/Authentication'
 import { useAuthenticationStore } from '@/stores/AuthenticationStore'
+import { AuthRoutes } from '@/router/RouteNames'
 
 const authState = useAuthenticationStore()
 const router = useRouter()
@@ -97,7 +98,7 @@ async function submitRegistration(event: Event) {
 		} else {
 			// Redirect to the OTP page
 			authState.setCreatedEmail(formValues.email)
-			router.push('/auth/verify')
+			router.push(AuthRoutes.verify)
 		}
 		submitDisabled.value = false
 	}

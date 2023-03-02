@@ -19,6 +19,7 @@ import { ref, watch } from 'vue'
 import { VerifyOtp } from '@/backend/Authentication'
 import { useAuthenticationStore } from '@/stores/AuthenticationStore'
 import router from '@/router'
+import { AppRoutes } from '@/router/RouteNames'
 
 const authState = useAuthenticationStore()
 const otpValue = ref<string>()
@@ -53,7 +54,7 @@ async function submitCode(event: Event) {
 			requestError.value = error.message
 		} else {
 			authState.setAuthState(data.user!)
-			router.push('/app/dashboard')
+			router.push(AppRoutes.dashboard)
 		}
 	}
 }
