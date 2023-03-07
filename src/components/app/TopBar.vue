@@ -18,6 +18,8 @@ function toggleNav() {
 
 <style lang="scss">
 .top-bar {
+	position: sticky;
+	top: 0;
 	display: flex;
 	align-items: center;
 	padding: 0 toRem(8);

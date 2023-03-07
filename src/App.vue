@@ -65,5 +65,11 @@ body {
 	margin: 0;
 	padding: 0;
 	background-color: var(--background);
+	height: 100%;
+	width: 100%;
+}
+
+#app {
+	min-height: 100%;
 }
 </style>

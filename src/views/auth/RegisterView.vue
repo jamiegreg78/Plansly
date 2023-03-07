@@ -63,7 +63,6 @@ watch(formValues, () => {
 // If the form is valid, submit the data - if there is an error, render it on the page.
 async function submitRegistration(event: Event) {
 	const form = (document.getElementById('registerForm') as HTMLFormElement)
-	// TODO: Convert these to some sort of ref?
 	const passwordInput = (document.getElementById('Password') as HTMLInputElement)
 	const confirmPasswordInput = (document.getElementById('ConfirmPassword') as HTMLInputElement)
 
