@@ -4,7 +4,7 @@
 			<div v-if="!userData.userData[currentModuleIndex].boards || !userData.userData[currentModuleIndex].boards.length"
 				class="no-boards">
 				<h2>
-					You haven no boards
+					You have no boards
 				</h2>
 				<p>
 					Create a board to start managing your tasks
