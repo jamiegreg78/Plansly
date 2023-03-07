@@ -35,7 +35,6 @@ const sideContainerIsOpen = ref<boolean>(false)
 	width: 100%;
 
 	.content {
-		max-width: toRem(1200);
 		padding: toRem(16);
 		width: 100%;
 

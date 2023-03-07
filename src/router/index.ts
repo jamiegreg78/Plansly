@@ -10,6 +10,7 @@ const LoginView = () => import('@/views/auth/LoginView.vue')
 
 const AppView = () => import('@/views/app/AppView.vue')
 const DashboardView = () => import('@/views/app/DashboardView.vue')
+const ModuleView = () => import('@/views/app/ModuleView.vue')
 
 const router = createRouter({
 	history: createWebHistory(import.meta.env.BASE_URL),
@@ -50,6 +51,11 @@ const router = createRouter({
 					path: AppRoutes.dashboard,
 					name: 'Dashboard',
 					component: DashboardView,
+				},
+				{
+					path: AppRoutes.module,
+					name: 'Module',
+					component: ModuleView,
 				}
 			]
 		}

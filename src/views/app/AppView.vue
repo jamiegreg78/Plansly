@@ -5,7 +5,8 @@
 		<div class="page-content">
 			<TopAppBar />
 			<h1 class="page-title">{{ router.currentRoute.value.name }}</h1>
-			<RouterView />
+			<RouterView v-if="userData.hasInitialised" />
+			<span v-else>PLACEHOLDER LOADER</span>
 		</div>
 
 	</section>
@@ -15,12 +16,12 @@
 import { RouterView, useRouter } from 'vue-router'
 import SideNav from '@/components/app/SideNav.vue'
 import TopAppBar from '@/components/app/TopBar.vue'
-import { onBeforeMount } from 'vue'
+import { onMounted } from 'vue'
 import { useUserDataStore } from '@/stores/UserDataStore'
 const router = useRouter()
 const userData = useUserDataStore()
 
-onBeforeMount(() => {
+onMounted(() => {
 	// TODO: Research this properly: Might be worth in the long run - potential costs?
 	// if (!userData.isSubscribed) {
 	// userData.subscribeToModules()

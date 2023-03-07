@@ -9,7 +9,7 @@
 			</button>
 		</div>
 		<div class="nav-content">
-			<RouterLink to="test" class="root-level-link nav-button">
+			<RouterLink :to="`${AppRoutes.dashboard}`" class="root-level-link nav-button">
 				<font-awesome-icon icon="fa-regular fa-window-maximize" />
 				Dashboard
 			</RouterLink>
@@ -37,6 +37,7 @@ import { useAuthenticationStore } from '@/stores/AuthenticationStore'
 import { useInterfaceStore } from '@/stores/InterfaceStore'
 import { LogOutUser } from '@/backend/Authentication'
 import { useRouter } from 'vue-router'
+import { AppRoutes } from '@/router/RouteNames'
 
 const authenticationStore = useAuthenticationStore()
 const interfaceStore = useInterfaceStore()
