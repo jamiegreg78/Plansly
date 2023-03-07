@@ -8,19 +8,25 @@
 				<font-awesome-icon icon="fa-solid fa-plus" />
 				Create Module
 			</span>
-			<span class="module-card" v-for="(item, index) in props.modules" :key="index">
+			<span class="module-card" v-for="(item, index) in props.modules" :key="index"
+				@click="router.push(AppRoutes.module.replace(':id', item.id.toString()))">
 				{{ item.name }}
 			</span>
 		</div>
 	</div>
 </template>
 <script setup lang="ts">
+import { AppRoutes } from '@/router/RouteNames'
+import type { Module } from '@/types/DatabaseTypes'
+import { useRouter } from 'vue-router'
 
 export interface ModuleListProps {
-	modules: Array<any>
+	modules: Array<Module>
 }
 const props = defineProps<ModuleListProps>()
 const emit = defineEmits(['open'])
+
+const router = useRouter()
 </script>
 
 <style lang="scss">
@@ -51,7 +57,6 @@ const emit = defineEmits(['open'])
 		flex-wrap: wrap;
 		row-gap: toRem(16);
 		justify-content: space-between;
-		//padding: toRem(16);
 		padding: toRem(16) 0;
 
 		@include breakpoint(desktop) {

@@ -1,39 +1,42 @@
 import { supabase } from '@/backend/Authentication'
-import { GetUserData } from '@/backend/UserData'
-import type { Module } from '@/types/Module'
+import type { ColorPickerOptions } from '@/types/ColorPicker'
+import type { Board, Module } from '@/types/DatabaseTypes'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
 // TODO: Create types for this data
 export const useUserDataStore = defineStore('userDataState', () => {
-	const isSubscribed = ref<boolean>(false)
+	const hasInitialised = ref<boolean>(false)
 	const userData = ref<Array<Module>>([])
 	
-	function subscribeToModules() {
-		isSubscribed.value = true
-		console.log('subscribed')
-		const modules = supabase.channel('custom-all-channel')
-			.on(
-				'postgres_changes',
-				{ event: '*', schema: 'public', table: 'modules' },
-				(payload) => {
-					console.log('Change received!', payload)
-					userData.value.push(payload.new as Module)
-				}
-			)
-			.subscribe(status => {
-				console.log(status)
-			})
-	}
-
-	// Get all boards from database belonging to current user
+	// Get all modules & boards for the current user. Contents of boards will be loaded when needed.
 	async function getAllData() {
-		const { data, error } = await GetUserData()
-		if (data) {
-			userData.value = data as Array<Module>
-		}
+		const { data: modules, error } = await supabase
+			.from('modules')
+			.select(`
+    id,
+		name,
+		description,
+		created_at,
+		edited_at,
+		user_id,
+    boards (
+      id,
+			created_at,
+			edited_at,
+			user_id,
+			name,
+			description,
+			module,
+			color
+    )
+  `)
+			
 		if (error) {
 			console.error(error)
+		} else {
+			hasInitialised.value = true
+			userData.value = modules as Array<Module>
 		}
 	}
 	
@@ -50,11 +53,51 @@ export const useUserDataStore = defineStore('userDataState', () => {
 		if (error) {
 			console.error(error)
 		} else {
-			const tempArray = userData.value.slice()
+			const tempArray: Array<Module> = userData.value.slice()
 			tempArray.push(data[0] as Module)
 			userData.value = tempArray
 		}
 	}
+	
+	// Search for the correct Module, then return the index for later use
+	function getBoardIndex(id: number): number {
+		let foundIndex: number = -1
+		if (userData.value.length) {
+			userData.value.forEach((item, index) => {
+				if (item.id === id) {
+					foundIndex = index
+				}
+			})
+		}
 
-	return { isSubscribed, userData, getAllData, createNewModule }
+		return foundIndex
+	} 
+	
+	async function createNewBoardForModule(name: string, description: string, color: ColorPickerOptions | null, currentModuleIndex: number) {
+		const { data, error } = await supabase
+			.from('boards')
+			.insert([
+				{
+					name: name,
+					description: description,
+					module: userData.value[currentModuleIndex].id,
+					color: color,
+				}
+			]).select()
+		if (error) {
+			console.error(error)
+		} else {
+			// if the boards array exists, add the new board to it. Otherwise, create a new array and add it instead.
+			if (userData.value[currentModuleIndex].boards) {
+				userData.value[currentModuleIndex].boards.push(data[0] as Board)
+			} else {
+				const tempArray = []
+				tempArray.push(data)
+				userData.value[currentModuleIndex].boards = tempArray as unknown as Array<Board>
+			}
+		}
+		
+	}
+
+	return { hasInitialised, userData, getAllData, createNewModule, createNewBoardForModule, getBoardIndex }
 })

@@ -1,32 +1,44 @@
-<template>
+<template v-if="userData.userData.length">
 	<section class="dashboard">
 		<div class="content" :class="{ 'close-on-mobile': sideContainerIsOpen }">
-			<div v-if="!userData.userData.length" class="no-modules">
+			<div v-if="!userData.userData[currentModuleIndex].boards || !userData.userData[currentModuleIndex].boards.length"
+				class="no-boards">
 				<h2>
-					Start using Plansly
+					You haven no boards
 				</h2>
 				<p>
-					Create a module to begin working
+					Create a board to start managing your tasks
 				</p>
-				<ButtonComponent text="Create a New Module" :is-primary="true" @clicked="sideContainerIsOpen = true" />
+				<ButtonComponent text="Create a New Board" :is-primary="true" @clicked="sideContainerIsOpen = true" />
 			</div>
-			<ModuleList v-else :modules="userData.userData" @open="sideContainerIsOpen = true" />
+			<BoardList v-else :boards="userData.userData[currentModuleIndex].boards" @open="sideContainerIsOpen = true" />
 		</div>
 		<div class="side-container" :class="{ open: sideContainerIsOpen }">
-			<NewModuleForm v-if="sideContainerIsOpen" @close="sideContainerIsOpen = !sideContainerIsOpen" />
+			<NewBoardForm @close="sideContainerIsOpen = false" v-if="sideContainerIsOpen" />
 		</div>
 	</section>
 </template>
 
 <script setup lang="ts">
+import BoardList from '@/components/app/BoardList.vue'
+import NewBoardForm from '@/components/app/NewBoardForm.vue'
 import ButtonComponent from '@/components/general/ButtonComponent.vue'
-import NewModuleForm from '@/components/app/NewModuleForm.vue'
-import ModuleList from '@/components/app/ModuleList.vue'
 import { useUserDataStore } from '@/stores/UserDataStore'
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 const userData = useUserDataStore()
+const currentModuleIndex = ref<number>(0)
 
 const sideContainerIsOpen = ref<boolean>(false)
+const router = useRouter()
+
+onMounted(() => {
+	const currentModuleId = parseInt(router.currentRoute.value.params.id as string)
+	currentModuleIndex.value = userData.getBoardIndex(currentModuleId)
+	if (currentModuleIndex.value === -1) {
+		// TODO: Redirect to 404 for this section
+	}
+})
 </script>
 
 <style lang="scss">
@@ -35,7 +47,6 @@ const sideContainerIsOpen = ref<boolean>(false)
 	width: 100%;
 
 	.content {
-		max-width: toRem(1200);
 		padding: toRem(16);
 		width: 100%;
 
@@ -70,12 +81,13 @@ const sideContainerIsOpen = ref<boolean>(false)
 			@include breakpoint(desktop) {
 				width: 50%;
 				border-left: 1px solid var(--border);
+				transition: width 0.3s ease;
 			}
 		}
 
 	}
 
-	.no-modules {
+	.no-boards {
 		margin: auto;
 		display: flex;
 		flex-direction: column;

@@ -5,5 +5,6 @@ export const AuthRoutes = {
 }
 
 export const AppRoutes = {
-	dashboard: '/app/dashboard'
+	dashboard: '/app/dashboard',
+	module: '/app/module/:id'
 }
