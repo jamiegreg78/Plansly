@@ -91,9 +91,8 @@ export const useUserDataStore = defineStore('userDataState', () => {
 			if (userData.value[currentModuleIndex].boards) {
 				userData.value[currentModuleIndex].boards.push(data[0] as Board)
 			} else {
-				const tempArray = []
-				tempArray.push(data)
-				userData.value[currentModuleIndex].boards = tempArray as unknown as Array<Board>
+				const tempArray = data.slice()
+				userData.value[currentModuleIndex].boards = tempArray as Array<Board>
 			}
 		}
 		
