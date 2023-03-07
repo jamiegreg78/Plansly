@@ -30,7 +30,7 @@ export const useUserDataStore = defineStore('userDataState', () => {
 	async function getAllData() {
 		const { data, error } = await GetUserData()
 		if (data) {
-			userData.value = data
+			userData.value = data as Array<Module>
 		}
 		if (error) {
 			console.error(error)
