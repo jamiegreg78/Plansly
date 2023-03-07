@@ -47,7 +47,6 @@ async function submitCode(event: Event) {
 	if (typeof codeLength !== 'undefined' && codeLength === 6) {
 		event.preventDefault()
 
-		// TODO: Email doesn't persist
 		const { data, error } = await VerifyOtp(authState.createdEmail, otpValue.value!.toString())
 
 		if (error) {

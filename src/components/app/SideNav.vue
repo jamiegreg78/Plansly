@@ -55,7 +55,8 @@ async function logOut() {
 
 <style lang="scss">
 #side-nav {
-	position: absolute;
+	z-index: 5;
+	position: fixed;
 	display: flex;
 	flex-direction: column;
 	width: 0%;
@@ -67,13 +68,13 @@ async function logOut() {
 	border-right: 1px solid var(--border);
 	transition: width 0.3s ease;
 
-
 	&.open {
 		width: 100%;
 	}
 
 	@include breakpoint(tablet) {
 		position: static;
+		max-width: toRem(360);
 	}
 
 	.top-section {
@@ -146,11 +147,6 @@ async function logOut() {
 			}
 
 		}
-	}
-
-
-	@include breakpoint(tablet) {
-		max-width: toRem(360);
 	}
 }
 </style>
