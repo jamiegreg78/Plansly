@@ -1,7 +1,15 @@
 import type { ColorPickerOptions } from './ColorPicker'
 
 export interface Task {
-	
+	id: number
+	created_at: string
+	edited_at: string
+	user_id: string
+	name: string
+	description: string
+	board: number
+	expected_start_date: string
+	expected_finish_date: string
 }
 
 export interface List {
@@ -13,7 +21,7 @@ export interface List {
 	description: string
 	board: number
 	work_in_progress_limit: number
-	tasks: Array<any>
+	tasks: Array<Task>
 }
 
 export interface Board {
