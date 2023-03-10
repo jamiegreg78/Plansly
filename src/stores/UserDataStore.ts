@@ -59,8 +59,26 @@ export const useUserDataStore = defineStore('userDataState', () => {
 		}
 	}
 	
+	// Search for the correct board by and return it 
+	function getBoardById(moduleId: number, boardId: number): Board | null {
+		let foundBoard = null
+
+		userData.value.forEach(module => {
+			if (module.id === moduleId) {
+				module.boards.forEach(board => {
+					if (board.id === boardId) {
+						foundBoard = board
+						return foundBoard
+					}
+				})
+			}
+		})
+
+		return foundBoard
+	}
+
 	// Search for the correct Module, then return the index for later use
-	function getBoardIndex(id: number): number {
+	function getModuleIndex(id: number): number {
 		let foundIndex: number = -1
 		if (userData.value.length) {
 			userData.value.forEach((item, index) => {
@@ -98,5 +116,5 @@ export const useUserDataStore = defineStore('userDataState', () => {
 		
 	}
 
-	return { hasInitialised, userData, getAllData, createNewModule, createNewBoardForModule, getBoardIndex }
+	return { hasInitialised, userData, getAllData, createNewModule, createNewBoardForModule, getModuleIndex, getBoardById }
 })

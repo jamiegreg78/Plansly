@@ -3,8 +3,8 @@
 		<SideNav />
 
 		<div class="page-content">
-			<TopAppBar />
-			<h1 class="page-title">{{ router.currentRoute.value.name }}</h1>
+			<TopAppBar v-if="!router.currentRoute.value.meta.noTopBar" />
+			<h1 class="page-title" v-if="!router.currentRoute.value.meta.noHeader">{{ router.currentRoute.value.name }}</h1>
 			<RouterView v-if="userData.hasInitialised" />
 			<span v-else>PLACEHOLDER LOADER</span>
 		</div>
@@ -18,6 +18,8 @@ import SideNav from '@/components/app/SideNav.vue'
 import TopAppBar from '@/components/app/TopBar.vue'
 import { onMounted } from 'vue'
 import { useUserDataStore } from '@/stores/UserDataStore'
+import { useInterfaceStore } from '@/stores/InterfaceStore'
+const interfaceStore = useInterfaceStore()
 const router = useRouter()
 const userData = useUserDataStore()
 
@@ -34,20 +36,22 @@ onMounted(() => {
 <style lang="scss">
 .app-container {
 	width: 100%;
+	max-width: 100vw;
 	height: 100%;
 	display: flex;
-
-	section {
-		// TODO: This is questionable at best
-		// height: calc(100vh - toRem(125));
-		// max-height: calc(100vh - toRem(125));
-		min-height: calc(100vh - toRem(125));
-		overflow-y: auto;
-	}
+	// overflow: hidden;
 
 	.page-content {
 		width: 100%;
-		height: 100%;
+		display: flex;
+		flex-direction: column;
+		max-width: 100vw;
+		min-width: 0;
+
+		section {
+			overflow-y: auto;
+			flex-grow: 1;
+		}
 
 		.page-title {
 			@include body-large;
@@ -56,7 +60,6 @@ onMounted(() => {
 			padding: toRem(18) toRem(24);
 
 			border-bottom: 1px solid var(--border);
-			position: sticky;
 			top: toRem(55);
 			background-color: var(--background);
 		}

@@ -31,7 +31,7 @@ onMounted(() => {
 
 async function submitNewBoard(event: Event) {
 	const form: HTMLFormElement = document.getElementById('newBoardForm') as HTMLFormElement
-	const currentModuleIndex: number = userData.getBoardIndex(parseInt(router.currentRoute.value.params.id as string))
+	const currentModuleIndex: number = userData.getModuleIndex(parseInt(router.currentRoute.value.params.moduleId as string))
 
 	if (form.checkValidity()) {
 		event.preventDefault()

@@ -10,7 +10,10 @@
 				</span>
 				<p>Create board</p>
 			</div>
-			<div class="board-item" v-for="(item, index) in props.boards" :key="index">
+			<div class="board-item" v-for="(item, index) in props.boards" :key="index" @click="router
+				.push(AppRoutes.board.replace(':moduleId', router.currentRoute.value.params.moduleId as string)
+					.replace(':boardId', item.id.toString())
+				)">
 				<span class="board-icon" :style="{ 'background-color': item.color?.hexValue }">
 					<font-awesome-icon icon="fa-solid fa-list-check"
 						:style="{ 'color': item.color?.hexValue ? '#fff' : 'var(--text-primary)' }" />

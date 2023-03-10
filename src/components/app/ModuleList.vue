@@ -9,7 +9,7 @@
 				Create Module
 			</span>
 			<span class="module-card" v-for="(item, index) in props.modules" :key="index"
-				@click="router.push(AppRoutes.module.replace(':id', item.id.toString()))">
+				@click="router.push(AppRoutes.module.replace(':moduleId', item.id.toString()))">
 				{{ item.name }}
 			</span>
 		</div>

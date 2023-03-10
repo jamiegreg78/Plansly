@@ -1,7 +1,7 @@
 <template v-if="userData.userData.length">
 	<section class="dashboard">
 		<div class="content" :class="{ 'close-on-mobile': sideContainerIsOpen }">
-			<div v-if="!userData.userData[currentModuleIndex].boards || !userData.userData[currentModuleIndex].boards.length"
+			<div v-if="!userData.userData[currentModuleIndex]?.boards || !userData.userData[currentModuleIndex].boards.length"
 				class="no-boards">
 				<h2>
 					You have no boards
@@ -33,8 +33,8 @@ const sideContainerIsOpen = ref<boolean>(false)
 const router = useRouter()
 
 onMounted(() => {
-	const currentModuleId = parseInt(router.currentRoute.value.params.id as string)
-	currentModuleIndex.value = userData.getBoardIndex(currentModuleId)
+	const currentModuleId = parseInt(router.currentRoute.value.params.moduleId as string)
+	currentModuleIndex.value = userData.getModuleIndex(currentModuleId)
 	if (currentModuleIndex.value === -1) {
 		// TODO: Redirect to 404 for this section
 	}
@@ -47,7 +47,6 @@ onMounted(() => {
 	width: 100%;
 
 	.content {
-		padding: toRem(16);
 		width: 100%;
 
 		@include breakpoint(desktop) {

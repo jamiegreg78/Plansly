@@ -60,10 +60,11 @@ async function logOut() {
 	position: fixed;
 	display: flex;
 	flex-direction: column;
-	width: 0%;
+	width: 0;
 	max-width: 100vw;
-	height: 100vh;
+	height: 100%;
 	overflow: hidden;
+	flex-shrink: 0;
 
 	background-color: var(--background);
 	border-right: 1px solid var(--border);

@@ -14,7 +14,6 @@
 
 	.auth-hero-image {
 		width: 55vw;
-		height: 100%;
 		display: none;
 		flex-shrink: 0;
 
