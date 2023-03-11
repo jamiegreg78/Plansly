@@ -1,6 +1,6 @@
 import { onBeforeUnmount, onMounted } from 'vue'
 import type { Ref } from 'vue'
-export function attachClickAwayEvent(component, callback, exclude: HTMLElement) {
+export function attachClickAwayEvent(component: any, callback: Function, exclude: HTMLElement) {
 	if (!component) return
 	const listener = async (event: Event) => {
 		// If the target is the button clicked to open the menu - ignore the event
