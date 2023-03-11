@@ -112,6 +112,10 @@ section.board-view {
 		gap: toRem(16);
 		overflow-x: auto;
 
+		&.prevent-scroll {
+			overflow: hidden;
+		}
+
 
 		.list {
 			flex-shrink: 0;

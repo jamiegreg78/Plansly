@@ -3,11 +3,11 @@
 		<div class="top-section">
 			<input @blur="closeInput" v-model="newTitle" @keydown.enter="closeInput" @keydown.esc="closeInput" type="text"
 				:placeholder="props.list.name" />
-			<button class="options-button">
-				<font-awesome-icon icon="fa-solid fa-ellipsis-vertical" />
-			</button>
 			<button class="new-task-button">
 				<font-awesome-icon icon="fa-solid fa-plus" />
+			</button>
+			<button class="options-button">
+				<font-awesome-icon icon="fa-solid fa-ellipsis-vertical" />
 			</button>
 		</div>
 		<div class="list-contents">

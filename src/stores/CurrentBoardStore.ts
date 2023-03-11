@@ -8,7 +8,8 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 	const router = useRouter()
 
 	// state
-	const currentBoard = ref<Board>()
+	const currentBoard = ref<Board>() // Contains the board currently being viewed
+	const currentTaskOverview = ref()// contains the task thats visible within the overview 
 	
 	async function loadCurrentBoard() {
 		const { data, error } = await supabase
