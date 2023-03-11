@@ -24,7 +24,6 @@ const props = defineProps<TaskCardProps>()
 
 const currentBoardStore = useCurrentBoardStore()
 
-const inputValue = ref<string>('')
 const contextMenuIsOpen = ref<boolean>(false)
 const contextMenuButtonRef = ref()
 
@@ -33,30 +32,9 @@ const contextMenuItems: Array<ContextMenuItems> = [
 		text: 'View Task',
 		icon: 'fa-solid fa-pen-to-square',
 		callback: () => {
-			console.log('CLICKED VIEW TASK')
+			currentBoardStore.setCurrentTaskOverview(props.task)
 		}
 	},
-	{
-		text: 'View Task',
-		icon: 'fa-solid fa-pen-to-square',
-		callback: () => {
-			console.log('CLICKED VIEW TASK')
-		}
-	},
-	{
-		text: 'View Task',
-		icon: 'fa-solid fa-pen-to-square',
-		callback: () => {
-			console.log('CLICKED VIEW TASK')
-		}
-	},
-	{
-		text: 'View Task',
-		icon: 'fa-solid fa-pen-to-square',
-		callback: () => {
-			console.log('CLICKED VIEW TASK')
-		}
-	}
 ]
 
 </script>

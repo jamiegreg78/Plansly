@@ -1,11 +1,12 @@
 <template>
 	<div class="text-input-container">
 		<label :for="props.label">{{ props.label }}</label>
-		<input v-if="!props.multiLine" :type="type" :value="modelValue" :class="{ error: props.hasError }"
+		<input v-if="!props.multiLine" @blur="$emit('blur')" :type="type" :value="modelValue"
+			:class="{ error: props.hasError }" :id="props.label.replace(' ', '')" :required="props.required"
+			@input="$emit('update:modelValue', ($event.target as HTMLInputElement).value)" />
+		<textarea v-else :value="modelValue" @blur="$emit('blur')" :class="{ error: props.hasError }"
 			:id="props.label.replace(' ', '')" :required="props.required"
 			@input="$emit('update:modelValue', ($event.target as HTMLInputElement).value)" />
-		<textarea v-else :value="modelValue" :class="{ error: props.hasError }" :id="props.label.replace(' ', '')"
-			:required="props.required" @input="$emit('update:modelValue', ($event.target as HTMLInputElement).value)" />
 	</div>
 </template>
 
@@ -21,7 +22,7 @@ export type TextInputProps = {
 
 const props = defineProps<TextInputProps>()
 
-defineEmits(['update:modelValue'])
+defineEmits(['update:modelValue', 'blur'])
 </script>
 
 <style lang="scss">

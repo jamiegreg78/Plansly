@@ -1,6 +1,6 @@
 import { supabase } from '@/backend/Authentication'
 import type { ColorPickerOptions } from '@/types/ColorPicker'
-import type { Board, Module } from '@/types/DatabaseTypes'
+import type { Board, Module, Task } from '@/types/DatabaseTypes'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 

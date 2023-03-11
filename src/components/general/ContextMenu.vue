@@ -4,7 +4,8 @@
 		left: `${coordinates.x}px`,
 
 	}">
-		<span class="menu-item" v-for="item, index in props.items" :key="index" @click="item.callback()">
+		<span class="menu-item" v-for="item, index in props.items" :key="index"
+			@click="{ item.callback(); $emit('closeContextMenu') }">
 			<font-awesome-icon :icon="item.icon" />
 			{{ item.text }}
 		</span>

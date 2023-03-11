@@ -30,6 +30,7 @@
 		<div class="board-content">
 			<TaskList v-for="(item, index) in currentBoardStore?.currentBoard?.lists" :key="index" :list="item" />
 			<NewList />
+			<TaskOverview v-if="currentBoardStore.currentTaskOverview" />
 		</div>
 	</section>
 </template>
@@ -38,6 +39,7 @@
 <script setup lang="ts">
 import NewList from '@/components/app/board/lists/NewList.vue'
 import TaskList from '@/components/app/board/lists/TaskList.vue'
+import TaskOverview from '@/components/app/board/tasks/TaskOverview.vue'
 import { AppRoutes } from '@/router/RouteNames'
 import { useCurrentBoardStore } from '@/stores/CurrentBoardStore'
 import { onBeforeMount } from 'vue'

@@ -9,7 +9,7 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 
 	// state
 	const currentBoard = ref<Board>() // Contains the board currently being viewed
-	const currentTaskOverview = ref()// contains the task thats visible within the overview 
+	const currentTaskOverview = ref<Task | undefined>()// contains the task thats visible within the overview 
 	
 	async function loadCurrentBoard() {
 		const { data, error } = await supabase
@@ -77,5 +77,38 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 		return foundListIndex
 	}
 
-	return { currentBoard, loadCurrentBoard, createNewList, createNewCard }
+	function setCurrentTaskOverview(task: Task | undefined) {
+		currentTaskOverview.value = task
+	}
+	
+	async function changeTaskName(name: string) {
+		const { data, error } = await supabase
+			.from('tasks')
+			.update({name: name})
+			.eq('id', currentTaskOverview.value?.id)
+			.select()
+			
+		if (error) {
+			console.error(error)
+		} else {
+			currentTaskOverview.value!.name = (data[0] as Task).name
+		}
+	}
+	
+	async function changeTaskDescription(description: string) {
+		const { data, error } = await supabase
+			.from('tasks')
+			.update({description: description})
+			.eq('id', currentTaskOverview.value?.id)
+			.select()
+
+		console.log(data)
+		if (error) {
+			console.error(error)
+		} else {
+			currentTaskOverview.value!.description = (data[0] as Task).description
+		}
+	}
+
+	return { currentBoard, currentTaskOverview, changeTaskName, changeTaskDescription, setCurrentTaskOverview, loadCurrentBoard, createNewList, createNewCard }
 })
