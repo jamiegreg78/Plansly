@@ -13,11 +13,11 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 // import icons
-import { faCalendar, faWindowMaximize, faFolder} from '@fortawesome/free-regular-svg-icons'
-import { faChevronLeft, faBars, faRightFromBracket, faXmark, faPlus, faCheck, faListCheck} from '@fortawesome/free-solid-svg-icons'
+import { faCalendar, faWindowMaximize, faFolder, faCircleCheck } from '@fortawesome/free-regular-svg-icons'
+import { faCircleCheck as faSolidCircleCheck, faChevronLeft, faPenToSquare, faBars, faRightFromBracket, faXmark, faPlus, faCheck, faListCheck, faGear, faEllipsisVertical} from '@fortawesome/free-solid-svg-icons'
 
 
-library.add(faCalendar, faWindowMaximize, faFolder, faChevronLeft, faBars, faRightFromBracket, faXmark, faPlus, faCheck, faListCheck)
+library.add(faCalendar, faCircleCheck, faSolidCircleCheck, faWindowMaximize, faPenToSquare, faFolder, faChevronLeft, faBars, faRightFromBracket, faXmark, faPlus, faCheck, faListCheck, faGear, faEllipsisVertical)
 
 const app = createApp(App)
 

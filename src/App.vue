@@ -55,21 +55,23 @@ onBeforeMount(async () => {
 	box-sizing: border-box;
 	font-family: 'Open Sans', sans-serif;
 
-	transition-property: color, background-color, background, border-color;
-	transition-duration: 0.3s;
-	transition-timing-function: ease;
+	/* transition-property: color, background-color, background, border-color; */
+	/* transition-duration: 0.3s; */
+	/* transition-timing-function: ease; */
+}
+
+button {
+	cursor: pointer;
 }
 
 html,
-body {
+body,
+#app {
 	margin: 0;
 	padding: 0;
 	background-color: var(--background);
 	height: 100%;
 	width: 100%;
-}
-
-#app {
-	min-height: 100%;
+	max-width: 100vw;
 }
 </style>

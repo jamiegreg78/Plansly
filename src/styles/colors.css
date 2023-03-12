@@ -19,6 +19,7 @@
 [data-darkMode="false"] {
   --primary: #00d689;
   --white: #fff;
+	--green: #00a81f;
 
   --background: #fff;
   --background-inset: #f6f6f6;
@@ -26,6 +27,8 @@
   --border: #cbcbcb;
 
   --gray: #5c5c5c;
+	--gray-light: #f3f3f3;
+	--gray-light-hover: #e6e6e6;
   
 
   --error: #FF4848;
