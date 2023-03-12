@@ -7,9 +7,10 @@ export interface Task {
 	user_id: string
 	name: string
 	description: string
-	board: number
+	list: number
 	expected_start_date: string
 	expected_finish_date: string
+	completed: boolean
 }
 
 export interface List {

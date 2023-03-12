@@ -6,6 +6,13 @@
 				<font-awesome-icon icon="fa-solid fa-ellipsis-vertical" />
 			</button>
 		</div>
+		<div class="task-additional-info">
+			<button class="completed-status" :class="{ completed: props.task.completed }"
+				@click="currentBoardStore.toggleTaskCompleted(props.task)">
+				<font-awesome-icon v-if="props.task.completed" icon="fa-solid fa-circle-check" />
+				<font-awesome-icon v-else icon="fa-regular fa-circle-check" />
+			</button>
+		</div>
 	</div>
 	<ContextMenu :items="contextMenuItems" :exclude="contextMenuButtonRef" v-if="contextMenuIsOpen"
 		@close-context-menu="contextMenuIsOpen = false" />
@@ -107,9 +114,28 @@ const contextMenuItems: Array<ContextMenuItems> = [
 
 	}
 
+	.task-additional-info {
+
+		.completed-status {
+			padding: 0;
+			border: none;
+			background: transparent;
+			@include body-small;
+
+			transition: color 0 ease;
+
+			&.completed {
+				color: var(--green);
+			}
+
+			&:hover {
+				cursor: pointer;
+			}
+		}
+	}
 
 	&:hover {
-		cursor: pointer;
+		cursor: grab;
 		@include drop-shadow;
 	}
 }

@@ -9,6 +9,27 @@
 			</div>
 			<div class="task-details">
 				<TextInput v-model="description" label="Description" type="text" multi-line @blur="submitNewDescription" />
+				<span class="complete-status" :class="{ complete: currentBoardStore.currentTaskOverview?.completed }"
+					@click="currentBoardStore.toggleTaskCompleted(currentBoardStore.currentTaskOverview as Task)">
+					{{
+						currentBoardStore.currentTaskOverview?.completed ? 'Complete' :
+						'Mark as complete'
+					}}
+				</span>
+			</div>
+			<div class="delete-container">
+				<div class="options">
+					<button class="delete-button" @click="deleteMenuIsOpen = true">
+						Delete
+					</button>
+					<span v-if="deleteMenuIsOpen">Are you sure?</span>
+					<button class="confirm" v-if="deleteMenuIsOpen" @click="deleteTask">
+						<font-awesome-icon icon="fa-solid fa-check" />
+					</button>
+					<button class="cancel" v-if="deleteMenuIsOpen" @click="deleteMenuIsOpen = false">
+						<font-awesome-icon icon="fa-solid fa-xmark" />
+					</button>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -17,8 +38,10 @@
 <script setup lang="ts">
 import TextInput from '@/components/inputs/TextInput.vue'
 import { useCurrentBoardStore } from '@/stores/CurrentBoardStore'
+import type { Task } from '@/types/DatabaseTypes'
 import { ref, onBeforeMount } from 'vue'
 const currentBoardStore = useCurrentBoardStore()
+const deleteMenuIsOpen = ref<boolean>(false)
 
 const name = ref<string>('')
 const description = ref<string>('')
@@ -42,8 +65,7 @@ async function submitNewName() {
 async function submitNewDescription() {
 	const initialDescription = currentBoardStore.currentTaskOverview?.description
 
-	console.log(description.value)
-	if (description.value.length && description.value !== initialDescription) {
+	if (description.value !== initialDescription) {
 		await currentBoardStore.changeTaskDescription(description.value)
 	} else {
 		description.value = initialDescription!
@@ -51,6 +73,12 @@ async function submitNewDescription() {
 
 	name.value = currentBoardStore.currentTaskOverview?.name!
 
+}
+
+async function deleteTask() {
+	deleteMenuIsOpen.value = false
+	await currentBoardStore.deleteTask(currentBoardStore.currentTaskOverview!)
+	currentBoardStore.setCurrentTaskOverview(undefined)
 }
 
 onBeforeMount(() => {
@@ -80,6 +108,7 @@ onBeforeMount(() => {
 
 
 	.task-overview {
+		max-width: 100%;
 		padding: toRem(16);
 		background-color: var(--background);
 
@@ -105,14 +134,84 @@ onBeforeMount(() => {
 			.task-name {
 				margin: 0;
 				@include body-large;
+
+				border: none;
+				border-bottom: 2px solid transparent;
+
+				&:focus {
+					outline: none;
+					border-bottom-color: var(--border);
+				}
 			}
 		}
 
 		.task-details {
-
 			textarea {
 				resize: vertical;
 				max-height: toRem(200);
+			}
+
+			.complete-status {
+				width: fit-content;
+				display: block;
+				padding: toRem(8);
+
+				border: 1px solid var(--border);
+				border-radius: 8px;
+
+				@include regular-semibold;
+
+				&.complete {
+					color: var(--green);
+					border-color: var(--green);
+				}
+
+				&:hover {
+					cursor: pointer;
+				}
+			}
+		}
+
+		.delete-container {
+			@include body-small;
+
+			.options {
+				display: flex;
+				align-items: center;
+				gap: toRem(8);
+
+				.delete-button {
+					width: fit-content;
+					display: block;
+					padding: toRem(8);
+					@include regular-semibold;
+
+					background-color: var(--error-background);
+					color: var(--error);
+					border: 1px solid var(--error);
+					border-radius: 8px;
+				}
+
+				button {
+					width: toRem(40);
+					height: toRem(40);
+					display: flex;
+					justify-content: center;
+					align-items: center;
+					padding: toRem(8);
+					border: 1px solid transparent;
+					border-radius: 8px;
+					background-color: transparent;
+
+					&:hover {
+						border: 1px solid var(--border);
+						background: var(--background-inset);
+					}
+
+					svg {
+						font-size: toRem(20);
+					}
+				}
 			}
 		}
 

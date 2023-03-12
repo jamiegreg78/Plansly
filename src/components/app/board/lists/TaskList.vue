@@ -36,7 +36,7 @@ async function closeInput(event: Event) {
 	await nextTick()
 	document.getElementById('newListInput')?.blur()
 
-	// check if it has a value, if so then create a new list
+	// Handle the changing of the list title
 	if (newTitle.value.length && (event as KeyboardEvent).key !== 'Escape') {
 		console.log('asda')
 	}

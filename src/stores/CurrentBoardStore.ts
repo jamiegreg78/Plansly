@@ -102,7 +102,6 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 			.eq('id', currentTaskOverview.value?.id)
 			.select()
 
-		console.log(data)
 		if (error) {
 			console.error(error)
 		} else {
@@ -110,5 +109,50 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 		}
 	}
 
-	return { currentBoard, currentTaskOverview, changeTaskName, changeTaskDescription, setCurrentTaskOverview, loadCurrentBoard, createNewList, createNewCard }
+	async function toggleTaskCompleted(task: Task) {
+		const { data, error } = await supabase
+			.from('tasks')
+			.update({completed: !task.completed})
+			.eq('id', task.id)
+			.select()
+
+		if (error) {
+			console.error(error)
+		} else {
+			currentBoard.value?.lists.forEach((list, listIndex) => {
+				if (list.id === task.list) {
+					list.tasks.forEach((foundTask, taskIndex) => {
+						if (foundTask.id === task.id) {
+							foundTask.completed = (data[0] as Task).completed
+						}
+					})
+				}
+			})
+		}
+	}
+	
+	async function deleteTask(task: Task) {
+		const { data, error } = await supabase
+			.from('tasks')
+			.delete()
+			.eq('id', currentTaskOverview.value!.id)
+			
+		if (error) {
+			console.error(error)
+		} else {
+			let listIndex
+			currentBoard.value?.lists.forEach((foundList, foundListIndex) => {
+				if (foundList.id === task.list) {
+					listIndex = foundListIndex
+				}
+			})
+			
+			if (typeof listIndex !== 'undefined') {
+				const taskIndex = currentBoard.value!.lists[listIndex].tasks.indexOf(task)
+				currentBoard.value!.lists[listIndex].tasks.splice(taskIndex, 1)
+			}
+		}
+	}
+
+	return { currentBoard, currentTaskOverview, deleteTask,changeTaskName, changeTaskDescription, toggleTaskCompleted, setCurrentTaskOverview, loadCurrentBoard, createNewList, createNewCard }
 })
