@@ -41,20 +41,7 @@ const emit = defineEmits(['close'])
 	width: 100%;
 
 	.close-button {
-		padding-left: 0;
-		background: transparent;
-		border: none;
-		margin-bottom: toRem(16);
-		border-radius: 50%;
-
-		svg {
-			font-size: toRem(24);
-			color: var(--text-primary);
-		}
-
-		&:hover {
-			cursor: pointer;
-		}
+		@include squared-button;
 	}
 
 	input {

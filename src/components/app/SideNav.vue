@@ -95,22 +95,23 @@ async function logOut() {
 		}
 
 		.close-nav-button {
-			border: none;
-			background: none;
-			display: flex;
-			justify-content: center;
-			align-items: center;
-			width: toRem(40);
-			height: toRem(40);
+			@include squared-button;
+			// border: none;
+			// background: none;
+			// display: flex;
+			// justify-content: center;
+			// align-items: center;
+			// width: toRem(40);
+			// height: toRem(40);
 
-			font-size: toRem(18);
-			color: var(--text-primary);
+			// font-size: toRem(18);
+			// color: var(--text-primary);
 
-			&:hover {
-				cursor: pointer;
-				background: var(--background-inset);
-				border-radius: 50%;
-			}
+			// &:hover {
+			// cursor: pointer;
+			// background: var(--background-inset);
+			// border-radius: 50%;
+			// }
 		}
 	}
 

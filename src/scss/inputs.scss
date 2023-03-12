@@ -1,18 +1,18 @@
 @mixin text-input {
     width: 100%;
-    border: 2px solid transparent;
+    border: 1px solid var(--border);
     border-radius: 8px;
 
     font-size: 1rem;
-    padding: toRem(12) toRem(10);
+    padding: toRem(8);
 
-    background-color: var(--background-inset);
+    background-color: var(--background);
     
     color: var(--text-input);
 
     &:focus {
-        border: 2px solid var(--primary);
-        outline: none;
+        border: 1px solid var(--primary);
+        outline: 1px solid var(--primary);
     }
 
     &.error {
@@ -21,7 +21,7 @@
 
         &:focus {
             border-color: var(--error);
-						outline: none;
+						outline-color: var(--error);
         }
     }
 }

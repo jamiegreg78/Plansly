@@ -98,6 +98,7 @@ onBeforeMount(() => {
 	position: absolute;
 	top: 0;
 	left: 0;
+	z-index: 5;
 
 	backdrop-filter: blur(2px);
 	background-color: rgba(#000000, 0.25);
@@ -190,27 +191,12 @@ onBeforeMount(() => {
 					color: var(--error);
 					border: 1px solid var(--error);
 					border-radius: 8px;
+
+
 				}
 
-				button {
-					width: toRem(40);
-					height: toRem(40);
-					display: flex;
-					justify-content: center;
-					align-items: center;
-					padding: toRem(8);
-					border: 1px solid transparent;
-					border-radius: 8px;
-					background-color: transparent;
-
-					&:hover {
-						border: 1px solid var(--border);
-						background: var(--background-inset);
-					}
-
-					svg {
-						font-size: toRem(20);
-					}
+				button:not(.delete-button) {
+					@include squared-button;
 				}
 			}
 		}
