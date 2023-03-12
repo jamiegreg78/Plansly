@@ -21,6 +21,7 @@ export default defineConfig({
 				additionalData: `
           @import "./src/scss/mixins.scss";
           @import "./src/scss/typography.scss";
+					@import "./src/scss/general.scss";
         `
 			}
 		}

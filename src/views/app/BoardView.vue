@@ -2,7 +2,9 @@
 	<section class="board-view">
 		<div class="board-info">
 			<h1>{{ currentBoardStore.currentBoard?.name }}</h1>
-			<font-awesome-icon icon="fa-solid fa-gear" />
+			<button class="settings-button">
+				<font-awesome-icon icon="fa-solid fa-gear" />
+			</button>
 		</div>
 		<div class="link-container">
 			<RouterLink
@@ -65,6 +67,10 @@ section.board-view {
 
 		border-bottom: 1px solid var(--border);
 		color: var(--text-primary);
+
+		.settings-button {
+			@include squared-button;
+		}
 
 		h1 {
 			margin: 0;

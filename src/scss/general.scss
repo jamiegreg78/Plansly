@@ -1,0 +1,53 @@
+// Contains styles used across the application in the form of mixins
+
+@mixin squared-button {
+	width: toRem(40);
+	height: toRem(40);
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	
+	padding: 0;
+	background-color: transparent;
+	
+	@include regular-semibold;
+	font-size: toRem(20);
+
+	border: 1px solid transparent;
+	border-radius: 8px;
+	
+	svg {
+		pointer-events: none;
+	}
+	
+	&:hover {
+		cursor: pointer;
+		background-color: var(--background-inset);
+		border-color: var(--border);
+	}
+}
+
+@mixin button {
+	width: 100%;
+	padding: toRem(8);
+	border: 1px solid var(--border);
+	border-radius: 8px;
+
+	background-color: transparent;
+
+	font-weight: 700;
+	font-size: toRem(16);
+	color: var(--text-primary);
+	
+	&.primary {
+		background-color: var(--primary);
+		color: var(--white);
+
+		border-color: transparent;
+	}
+}
+
+
+@mixin drop-shadow() {
+  box-shadow: 0 0 5px #0000003e;
+}

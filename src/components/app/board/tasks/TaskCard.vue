@@ -88,30 +88,9 @@ const contextMenuItems: Array<ContextMenuItems> = [
 
 		.options-button,
 		.new-task-button {
+			@include squared-button;
 			flex-shrink: 0;
-			width: toRem(40);
-			height: toRem(40);
-			// margin-left: toRem(4);
-
-			background: none;
-			border: none;
-			border-radius: 8px;
-
-			@include regular-semibold;
-			font-size: toRem(20);
-			border: transparent;
-
-			svg {
-				pointer-events: none;
-			}
-
-			&:hover {
-				cursor: pointer;
-				background: var(--background-inset);
-				border: 1px solid var(--border);
-			}
 		}
-
 	}
 
 	.task-additional-info {
