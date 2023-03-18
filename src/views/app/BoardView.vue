@@ -30,20 +30,28 @@
 			</button>
 		</div>
 		<div class="board-content">
-			<TaskList v-for="(item, index) in currentBoardStore?.currentBoard?.lists" :key="index" :list="item" />
+			<Sortable class="list-container" tag="div" @end="handleListMove" :list="currentBoardStore.currentBoard?.lists"
+				itemKey="id" :options="listOptions">
+				<template #item="{ element, index }">
+					<TaskList :list="element" :listIndex="index" />
+				</template>
+			</Sortable>
 			<NewList />
 			<TaskOverview v-if="currentBoardStore.currentTaskOverview" />
+			<ListOverview v-if="currentBoardStore.currentListOverview" />
 		</div>
 	</section>
 </template>
 
 
 <script setup lang="ts">
+import ListOverview from '@/components/app/board/lists/ListOverview.vue'
 import NewList from '@/components/app/board/lists/NewList.vue'
 import TaskList from '@/components/app/board/lists/TaskList.vue'
 import TaskOverview from '@/components/app/board/tasks/TaskOverview.vue'
 import { AppRoutes } from '@/router/RouteNames'
 import { useCurrentBoardStore } from '@/stores/CurrentBoardStore'
+import { Sortable } from 'sortablejs-vue3'
 import { onBeforeMount } from 'vue'
 import { useRouter } from 'vue-router'
 const router = useRouter()
@@ -52,6 +60,24 @@ const currentBoardStore = useCurrentBoardStore()
 onBeforeMount(() => {
 	currentBoardStore.loadCurrentBoard()
 })
+
+const listOptions = {
+	group: 'lists',
+	delayOnTouchOnly: true,
+	delay: 50,
+	animation: 150,
+
+	ghostClass: 'sortable-ghost',
+	chosenClass: 'sortable-chosen',
+	dragClass: 'sortable-drag',
+}
+
+function handleListMove(movementData: any) {
+	const oldIndex: number = movementData.oldIndex
+	const newIndex: number = movementData.newIndex
+
+	currentBoardStore.moveList(oldIndex, newIndex)
+}
 </script>
 
 <style lang="scss">
@@ -124,6 +150,10 @@ section.board-view {
 			overflow: hidden;
 		}
 
+		.list-container {
+			display: flex;
+			gap: toRem(16);
+		}
 
 		.list {
 			flex-shrink: 0;

@@ -11,7 +11,7 @@ import { ref, nextTick } from 'vue'
 import { useCurrentBoardStore } from '@/stores/CurrentBoardStore'
 
 export interface NewTaskProps {
-	listId: number
+	listIndex: number
 }
 const props = defineProps<NewTaskProps>()
 
@@ -33,7 +33,7 @@ async function closeInput(event: Event) {
 	document.getElementById('newListInput')?.blur()
 
 	if (inputValue.value.length && (event as KeyboardEvent).key !== 'Escape') {
-		currentBoardStore.createNewCard(inputValue.value, props.listId)
+		currentBoardStore.createNewCard(inputValue.value, props.listIndex)
 	}
 
 	inputValue.value = ''
