@@ -11,6 +11,7 @@ export interface Task {
 	expected_start_date: string
 	expected_finish_date: string
 	completed: boolean
+	order: number
 }
 
 export interface List {
@@ -23,6 +24,7 @@ export interface List {
 	board: number
 	work_in_progress_limit: number
 	tasks: Array<Task>
+	order: number
 }
 
 export interface Board {

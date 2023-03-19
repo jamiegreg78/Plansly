@@ -22,8 +22,10 @@
     "@supabase/supabase-js": "^2.8.0",
     "pinia": "^2.0.32",
     "pinia-plugin-persist": "^1.0.0",
+    "sortablejs-vue3": "^1.2.8",
     "vue": "^3.2.47",
-    "vue-router": "^4.1.6"
+    "vue-router": "^4.1.6",
+    "vuedraggable": "^4.1.0"
   },
   "devDependencies": {
     "@rushstack/eslint-patch": "^1.2.0",
