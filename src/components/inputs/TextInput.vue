@@ -1,11 +1,11 @@
 <template>
 	<div class="text-input-container">
 		<label :for="props.label">{{ props.label }}</label>
-		<input v-if="!props.multiLine" @blur="$emit('blur')" :type="type" :value="modelValue"
+		<input v-if="!props.multiLine" @blur="$emit('blur')" :type="type" :value="modelValue" :tabindex="props.tabIndex"
 			:class="{ error: props.hasError }" :id="props.label.replace(' ', '')" :required="props.required"
 			@input="$emit('update:modelValue', ($event.target as HTMLInputElement).value)" />
 		<textarea v-else :value="modelValue" @blur="$emit('blur')" :class="{ error: props.hasError }"
-			:id="props.label.replace(' ', '')" :required="props.required"
+			:tabindex="props.tabIndex" :id="props.label.replace(' ', '')" :required="props.required"
 			@input="$emit('update:modelValue', ($event.target as HTMLInputElement).value)" />
 	</div>
 </template>
@@ -18,6 +18,7 @@ export type TextInputProps = {
 	hasError?: boolean
 	required?: boolean
 	multiLine?: boolean
+	tabIndex?: number
 }
 
 const props = defineProps<TextInputProps>()

@@ -1,5 +1,5 @@
 <template>
-	<button v-if="!isInputActive" @click="openInput">New Task</button>
+	<button class="new-task-button" v-if="!isInputActive" @click="openInput">New Task</button>
 	<div class="task-card new-task" v-if="isInputActive">
 		<input id="newTaskInput" type="text" v-model="inputValue" @blur="closeInput" @keydown.enter="closeInput"
 			@keydown.esc="closeInput" />
@@ -42,7 +42,22 @@ async function closeInput(event: Event) {
 
 
 <style lang="scss">
-// TODO: Move this to a mixin
+.new-task-button {
+	width: 100%;
+	padding: toRem(8);
+
+	background-color: var(--gray-light);
+	border-radius: 8px;
+	border: none;
+
+	@include regular-semibold;
+
+	&:hover {
+		background-color: var(--gray-light-hover);
+		cursor: pointer;
+	}
+}
+
 .new-task {
 	background: var(--background);
 
@@ -51,6 +66,7 @@ async function closeInput(event: Event) {
 	padding: toRem(16);
 
 	border-radius: 8px;
+
 
 	input {
 		width: 100%;

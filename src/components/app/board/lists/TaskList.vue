@@ -2,9 +2,9 @@
 	<div class="list">
 		<div class="top-section">
 			<p>{{ props.list.name }}</p>
-			<button class="new-task-button">
-				<font-awesome-icon icon="fa-solid fa-plus" />
-			</button>
+			<span class="wip-limit" :class="workInProgressSeverity" v-if="props.list.work_in_progress_limit">
+				{{ `${props.list.tasks?.length} /
+								${props.list.work_in_progress_limit}` }}</span>
 			<button class="options-button" @click="currentBoardStore.setCurrentListOverview(props.list)">
 				<font-awesome-icon icon="fa-solid fa-ellipsis-vertical" />
 			</button>
@@ -25,6 +25,7 @@ import NewTask from '@/components/app/board/tasks/NewTask.vue'
 import { useCurrentBoardStore } from '@/stores/CurrentBoardStore'
 import { Sortable } from 'sortablejs-vue3'
 import TaskCard from '../tasks/TaskCard.vue'
+import { computed } from 'vue'
 
 export interface TaskListProps {
 	list: List,
@@ -32,6 +33,20 @@ export interface TaskListProps {
 }
 const props = defineProps<TaskListProps>()
 const currentBoardStore = useCurrentBoardStore()
+
+const workInProgressSeverity = computed(() => {
+	if (typeof props.list.tasks !== 'undefined' && props.list.work_in_progress_limit) {
+		const currentWorkInProgressPercentage: number = props.list.tasks?.length / props.list.work_in_progress_limit
+		if (currentWorkInProgressPercentage > 1) {
+			return 'high'
+		} else if (currentWorkInProgressPercentage >= 0.75) {
+			return 'medium'
+		} else {
+			return 'low'
+		}
+	}
+	return ''
+})
 
 const listOptions = {
 	group: 'tasks',
@@ -42,10 +57,10 @@ const listOptions = {
 	ghostClass: 'sortable-ghost',
 	chosenClass: 'sortable-chosen',
 	dragClass: 'sortable-drag',
+	forceFallback: true,
 }
 
 // TODO: Correct type for this param?
-// TODO: HANDLE DRAGGING INTO EMPTY SPACE!
 function handleCardMove(movementData: any) {
 	const fromListIndex: number = movementData.from.dataset.listIndex
 	const toListIndex: number = movementData.to.dataset.listIndex
@@ -61,13 +76,14 @@ function handleCardMove(movementData: any) {
 		currentBoardStore.moveCardsBetweenLists(fromListIndex, toListIndex, oldIndex, newIndex)
 	}
 }
-
 </script>
 
 <style lang="scss">
 .list {
 	// TODO: MAKE THIS A MIXIN
-	width: toRem(300);
+	width: toRem(350);
+	max-width: 100%;
+	max-height: 100%;
 
 	padding: 0 toRem(10);
 
@@ -80,6 +96,7 @@ function handleCardMove(movementData: any) {
 		justify-content: space-between;
 		align-items: center;
 		gap: toRem(4);
+		padding-top: toRem(10);
 
 		p {
 			width: 100%;
@@ -106,6 +123,26 @@ function handleCardMove(movementData: any) {
 			}
 		}
 
+		.wip-limit {
+			flex-shrink: 0;
+			padding: toRem(4) toRem(8);
+			border-radius: 16px;
+
+			color: var(--white);
+
+			&.low {
+				background: var(--green);
+			}
+
+			&.medium {
+				background: var(--orange);
+			}
+
+			&.high {
+				background: var(--red);
+			}
+		}
+
 		.options-button,
 		.new-task-button {
 			@include squared-button;
@@ -123,6 +160,8 @@ function handleCardMove(movementData: any) {
 		display: flex;
 		flex-direction: column;
 		gap: toRem(10);
+		max-height: 85%;
+		overflow-y: scroll;
 	}
 }
 </style>

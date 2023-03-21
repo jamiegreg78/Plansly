@@ -70,6 +70,7 @@ const listOptions = {
 	ghostClass: 'sortable-ghost',
 	chosenClass: 'sortable-chosen',
 	dragClass: 'sortable-drag',
+	forceFallback: true
 }
 
 function handleListMove(movementData: any) {

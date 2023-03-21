@@ -1,5 +1,6 @@
 <template>
-	<button :disabled="props.disabled" class="button" :class="{ primary: props.isPrimary }" @click="emitClick">
+	<button :disabled="props.disabled" class="button" :class="{ primary: props.isPrimary }" @click="emitClick"
+		:tabindex="props.tabIndex">
 		{{ props.text }}
 	</button>
 </template>
@@ -9,6 +10,7 @@ export type ButtonProps = {
 	text: string
 	isPrimary?: boolean
 	disabled?: boolean
+	tabIndex?: number
 }
 const props = defineProps<ButtonProps>()
 
