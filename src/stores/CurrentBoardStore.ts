@@ -1,5 +1,5 @@
 import { supabase } from '@/backend/Authentication'
-import type { Board, List, Task } from '@/types/DatabaseTypes'
+import type { Board, List, UpdatedListInformation, Task } from '@/types/DatabaseTypes'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
@@ -44,15 +44,16 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 			})
 			
 			obtainedBoard.lists.forEach(list => {
-				list.tasks.sort((a, b) => {
-					if (a.order < b.order) {
-						return -1
-					} else if (a.order > b.order) {
-						return 1
-					} 
-
-					return 0
-				})
+				if (list.tasks !== undefined) {
+					list.tasks.sort((a, b) => {
+						if (a.order < b.order) {
+							return -1
+						} else if (a.order > b.order) {
+							return 1
+						} 
+						return 0
+					})
+				}
 			})
 
 			currentBoard.value = data[0] as Board
@@ -78,24 +79,26 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 	}
 
 	async function createNewCard(name: string, listIndex: number) {
-		const listId = currentBoard.value?.lists[listIndex].id
-		const newCardOrder = currentBoard.value?.lists[listIndex].tasks.length || 0
+		if (currentBoard.value !== undefined) {
+			const listId = currentBoard.value?.lists[listIndex].id
+			const newCardOrder = currentBoard.value?.lists[listIndex].tasks?.length || 0
 
-		const { data, error } = await supabase
-			.from('tasks')
-			.insert([
-				{
-					name: name,
-					list: listId,
-					order: newCardOrder + 1
-				}
-			]).select()
+			const { data, error } = await supabase
+				.from('tasks')
+				.insert([
+					{
+						name: name,
+						list: listId,
+						order: newCardOrder + 1
+					}
+				]).select()
 
-		if (error) {
-			console.error(error)
-		} else {
-			// currentBoard.value?.lists[getListIndex(listId)].tasks.push(data[0] as Task)
-			currentBoard.value?.lists[listIndex].tasks.push(data[0] as Task)
+			if (error) {
+				console.error(error)
+			} else {
+				currentBoard.value?.lists[listIndex].tasks?.push(data[0] as Task)
+			}
+
 		}
 	}
 
@@ -135,32 +138,25 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 		}
 	}
 	
-	async function changeListName(name: string) {
-		const { data, error } = await supabase
-			.from('lists')
-			.update({name: name})
-			.eq('id', currentListOverview.value?.id)
-			.select()
+	async function changeListDetails(newDetails: UpdatedListInformation) {
+		const listIndex: number | undefined = currentBoard.value?.lists.indexOf(currentListOverview.value!)
+		const copiedList: List = JSON.parse(JSON.stringify(currentListOverview.value))
+		delete copiedList.tasks
 
-		if (error) {
-			console.error(error)
-		} else {
-			currentListOverview.value!.name = (data[0] as List).name
-			console.log(currentListOverview.value?.name)
-		}
-	}
-
-	async function changeListDescription(description: string) {
-		const { data, error } = await supabase
-			.from('lists')
-			.update({description: description})
-			.eq('id', currentListOverview.value?.id)
-			.select()
-
-		if (error) {
-			console.error(error)
-		} else {
-			currentListOverview.value!.description = (data[0] as List).description
+		if (typeof listIndex !== 'undefined') {
+			const { data, error } = await supabase
+				.from('lists')
+				.upsert({...copiedList, ...newDetails})
+				.eq('id', currentListOverview.value!.id)
+				.select('*, tasks(*)')
+		
+			if (error) {
+				console.error(error)
+			} else {
+				if (currentBoard.value) {
+					currentBoard.value.lists[listIndex] = data[0] as List
+				}
+			}
 		}
 	}
 
@@ -176,7 +172,7 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 		} else {
 			currentBoard.value?.lists.forEach((list) => {
 				if (list.id === task.list) {
-					list.tasks.forEach((foundTask) => {
+					list.tasks?.forEach((foundTask) => {
 						if (foundTask.id === task.id) {
 							foundTask.completed = (data[0] as Task).completed
 						}
@@ -233,7 +229,7 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 		// Create a copy of the list
 		let newList
 		if (typeof listIndex !== 'undefined') {
-			newList = currentBoard.value?.lists[listIndex].tasks.slice()
+			newList = currentBoard.value?.lists[listIndex].tasks?.slice()
 		}
 
 		// Remove the item from the array
@@ -242,7 +238,6 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 		// Fix the ordering
 		if (typeof newList !== 'undefined') {
 			newList = fixOrderValues(newList)
-			console.log(newList)
 		}
 
 		// Commit the results to state
@@ -263,66 +258,68 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 	// Moves the card within the same list
 	async function moveCardWithinSameList(listIndex: number, oldIndex: number, newIndex: number) {
 		// create a copy of the moved task first
-		const task: Task = currentBoard.value!.lists[listIndex].tasks[oldIndex]
+		const task: Task | undefined = currentBoard.value!.lists[listIndex].tasks?.[oldIndex]
 
 		// remove the original copy of the task first. Do all mutation on a duplicate array to maintain reactivity
-		let newList: Array<Task> = currentBoard.value!.lists[listIndex].tasks.slice()
-		newList.splice(oldIndex, 1)
+		let newList: Array<Task> | undefined = currentBoard.value!.lists[listIndex].tasks?.slice()
 		
-		// add the item back in, at the desired index
-		newList.splice(newIndex, 0, task)
-		// correct the order values
-		newList = fixOrderValues(newList) as Array<Task>
+		if (task !== undefined && newList !== undefined) {
+			newList.splice(oldIndex, 1)
 		
-		const { data, error } = await supabase
-			.from('tasks')
-			.upsert([...newList])
-			.select()
-			.order('order')
+			// add the item back in, at the desired index
+			newList.splice(newIndex, 0, task)
+			// correct the order values
+			newList = fixOrderValues(newList) as Array<Task>
 		
-		if (error) {
-			console.error(error)
-		} else {
-			currentBoard.value!.lists[listIndex].tasks = data as Array<Task>
+			const { data, error } = await supabase
+				.from('tasks')
+				.upsert([...newList])
+				.select()
+				.order('order')
+		
+			if (error) {
+				console.error(error)
+			} else {
+				currentBoard.value!.lists[listIndex].tasks = data as Array<Task>
+			}
 		}
 	}
 	
 	async function moveCardsBetweenLists(oldListIndex: number, newListIndex: number, oldIndex: number, newIndex: number) {
 		// create a copy of the moved task first
-		const task: Task = JSON.parse(JSON.stringify(currentBoard.value!.lists[oldListIndex].tasks[oldIndex]))
+		const task: Task = JSON.parse(JSON.stringify(currentBoard.value!.lists[oldListIndex].tasks?.[oldIndex]))
 		// Set the new list id of the task
 		task.list = currentBoard.value!.lists[newListIndex].id
 
 		// create a temp copy of the original list
-		let tempOldList: Array<Task> = currentBoard.value!.lists[oldListIndex].tasks.slice()
+		let tempOldList: Array<Task> | undefined = currentBoard.value!.lists[oldListIndex].tasks?.slice()
 
 		// Remove the task from the original list first
-		tempOldList.splice(oldIndex, 1)
-
-		// Fix the order values
-		tempOldList = fixOrderValues(tempOldList) as Array<Task>
+		tempOldList?.splice(oldIndex, 1)
 
 		// Create a temp copy of the destination list
-		let tempNewList: Array<Task> = currentBoard.value!.lists[newListIndex].tasks.slice()
+		let tempNewList: Array<Task> | undefined = currentBoard.value!.lists[newListIndex].tasks?.slice()
 		
 		// Add the item to the list at the new index
-		tempNewList.splice(newIndex, 0, task)
+		tempNewList?.splice(newIndex, 0, task)
 
+		if (tempOldList !== undefined && tempNewList !== undefined) {
 		// fix the order values
-		tempNewList = fixOrderValues(tempNewList) as Array<Task>
+			tempOldList = fixOrderValues(tempOldList) as Array<Task>
+			tempNewList = fixOrderValues(tempNewList) as Array<Task>
 		
-		currentBoard.value!.lists[oldListIndex].tasks = tempOldList.slice()
-		currentBoard.value!.lists[newListIndex].tasks = tempNewList.slice()
+			currentBoard.value!.lists[oldListIndex].tasks = tempOldList.slice()
+			currentBoard.value!.lists[newListIndex].tasks = tempNewList.slice()
 
-		await supabase
-			.from('tasks')
-			.upsert([...tempOldList, ...tempNewList])
-			.select()
-			.order('order')
+			await supabase
+				.from('tasks')
+				.upsert([...tempOldList, ...tempNewList])
+				.select()
+				.order('order')
+		}
 	}
 	
 	async function moveList(oldIndex: number, newIndex: number) {
-		console.log(oldIndex, newIndex)
 		// Create a copy of the array
 		const list: List = JSON.parse(JSON.stringify(currentBoard.value!.lists[oldIndex]))
 		
@@ -363,5 +360,23 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 		return tempArray
 	}
 
-	return { currentBoard, currentTaskOverview, setCurrentListOverview, currentListOverview, deleteTask, deleteList, changeTaskName, changeTaskDescription, toggleTaskCompleted, setCurrentTaskOverview, loadCurrentBoard, createNewList, createNewCard, moveCardWithinSameList, moveCardsBetweenLists, changeListDescription, changeListName, moveList }
+	return { 
+		currentBoard,
+		currentTaskOverview, 
+		setCurrentListOverview,
+		currentListOverview, 
+		deleteTask,
+		deleteList,
+		changeTaskName,
+		changeTaskDescription,
+		toggleTaskCompleted,
+		setCurrentTaskOverview,
+		loadCurrentBoard,
+		createNewList,
+		createNewCard,
+		moveCardWithinSameList,
+		moveCardsBetweenLists,
+		changeListDetails,
+		moveList
+	}
 })

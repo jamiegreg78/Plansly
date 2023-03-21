@@ -14,6 +14,12 @@ export interface Task {
 	order: number
 }
 
+export interface UpdatedListInformation {
+	name?: string
+	description?: string
+	work_in_progress_limit?: number | null 
+}
+
 export interface List {
 	id: number
 	created_at: string
@@ -22,8 +28,8 @@ export interface List {
 	name: string
 	description: string
 	board: number
-	work_in_progress_limit: number
-	tasks: Array<Task>
+	work_in_progress_limit: number | null
+	tasks?: Array<Task>
 	order: number
 }
 
