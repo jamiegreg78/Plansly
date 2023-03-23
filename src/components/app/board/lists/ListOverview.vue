@@ -1,32 +1,58 @@
 <template>
-	<div class="list-overview-container" @click="closeOverview">
-		<div class="overview" @click.stop>
+	<div class="list-overview-container"
+		@click="closeOverview">
+		<div class="overview"
+			@click.stop>
 			<div class="top-section">
-				<input class="list-name" id="newNameInput" type="text" v-model="name" tabindex="0" />
-				<button class="close-button" @click="closeOverview" tabindex="2">
+				<input class="list-name"
+					id="newNameInput"
+					type="text"
+					v-model="name"
+					tabindex="0" />
+				<button class="close-button"
+					@click="closeOverview"
+					tabindex="2">
 					<font-awesome-icon icon="fa-solid fa-xmark" />
 				</button>
 			</div>
 			<div class="details">
-				<TextInput v-model="description" label="Description" type="text" multi-line :tab-index="0" />
-				<NumberInput label="Work in progress limit" v-model="workInProgressLimit" :min-value="1" :max-value="10"
+				<TextInput v-model="description"
+					label="Description"
+					type="text"
+					multi-line
+					:tab-index="0" />
+				<NumberInput label="Work in progress limit"
+					v-model="workInProgressLimit"
+					:min-value="1"
+					:max-value="10"
 					:tab-index="0" />
 			</div>
 			<div class="delete-container">
 				<div class="options">
-					<button class="delete-button" @click="deleteMenuIsOpen = true" tabindex="0">
+					<button class="delete-button"
+						@click="deleteMenuIsOpen = true"
+						tabindex="0">
 						Delete
 					</button>
 					<span v-if="deleteMenuIsOpen">Are you sure?</span>
-					<button class="confirm" v-if="deleteMenuIsOpen" @click="deleteList" tabindex="0">
+					<button class="confirm"
+						v-if="deleteMenuIsOpen"
+						@click="deleteList"
+						tabindex="0">
 						<font-awesome-icon icon="fa-solid fa-check" />
 					</button>
-					<button class="cancel" v-if="deleteMenuIsOpen" @click="deleteMenuIsOpen = false" tabindex="0">
+					<button class="cancel"
+						v-if="deleteMenuIsOpen"
+						@click="deleteMenuIsOpen = false"
+						tabindex="0">
 						<font-awesome-icon icon="fa-solid fa-xmark" />
 					</button>
 				</div>
 			</div>
-			<ButtonComponent :is-primary="true" text="Save changes" @clicked="saveChanges" :tab-index="0" />
+			<ButtonComponent :is-primary="true"
+				text="Save changes"
+				@clicked="saveChanges"
+				:tab-index="0" />
 		</div>
 	</div>
 </template>
@@ -80,8 +106,6 @@ onBeforeMount(() => {
 })
 </script>
 
-<style lang="scss">
-.list-overview-container {
+<style lang="scss">.list-overview-container {
 	@include modal-form;
-}
-</style>
+}</style>

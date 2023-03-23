@@ -26,6 +26,16 @@ module.exports = {
 	rules: {
 		'semi': ['error', 'never'],
 		'quotes': ['error', 'single'],
-		'indent': ['error', 'tab']
+		'indent': ['error', 'tab'],
+		'eqeqeq': ['error', 'always'],
+		'sort-imports': ['error', 'always'],
+		"vue/max-attributes-per-line": ["error", {
+			"singleline": {
+				"max": 1
+			},
+			"multiline": {
+				"max": 1
+			}
+		}]
 	}
 }

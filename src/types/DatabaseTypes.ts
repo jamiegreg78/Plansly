@@ -1,5 +1,13 @@
 import type { ColorPickerOptions } from './ColorPicker'
 
+export interface UpdatedTaskInformation {
+	name?: string
+	description?: string
+	expected_start_date?: string | null
+	expected_finish_date?: string | null
+	tags?: Array<string>
+}
+
 export interface Task {
 	id: number
 	created_at: string
@@ -8,10 +16,11 @@ export interface Task {
 	name: string
 	description: string
 	list: number
-	expected_start_date: string
-	expected_finish_date: string
+	expected_start_date: string | null
+	expected_finish_date: string | null
 	completed: boolean
 	order: number
+	tags: Array<string>
 }
 
 export interface UpdatedListInformation {
