@@ -2,17 +2,26 @@
 	<div class="list">
 		<div class="top-section">
 			<p>{{ props.list.name }}</p>
-			<span class="wip-limit" :class="workInProgressSeverity" v-if="props.list.work_in_progress_limit">
+			<span class="wip-limit"
+				:class="workInProgressSeverity"
+				v-if="props.list.work_in_progress_limit">
 				{{ `${props.list.tasks?.length} /
 								${props.list.work_in_progress_limit}` }}</span>
-			<button class="options-button" @click="currentBoardStore.setCurrentListOverview(props.list)">
+			<button class="options-button"
+				@click="currentBoardStore.setCurrentListOverview(props.list)">
 				<font-awesome-icon icon="fa-solid fa-ellipsis-vertical" />
 			</button>
 		</div>
-		<Sortable class="list-contents" tag="div" @end="handleCardMove" :list="props.list.tasks" itemKey="id"
-			:options="listOptions" :data-list-index="props.listIndex">
+		<Sortable class="list-contents"
+			tag="div"
+			@end="handleCardMove"
+			:list="props.list.tasks"
+			itemKey="id"
+			:options="listOptions"
+			:data-list-index="props.listIndex">
 			<template #item="{ element }">
-				<TaskCard :task="element" :key="element.id" />
+				<TaskCard :task="element"
+					:key="element.id" />
 			</template>
 		</Sortable>
 		<NewTask :list-index="props.listIndex" />

@@ -20,6 +20,7 @@
   --primary: #00d689;
   --white: #fff;
 	--green: #00a81f;
+	--green-background: #00a81f30;
 	--orange: #ffa600;
 	--red: #FF4848;
 
@@ -37,5 +38,6 @@
   --error-background: #faa1a12d;
   
 	--text-primary: #282828;
+	--text-subtext: #636363;
   --text-input: #393939;
 }

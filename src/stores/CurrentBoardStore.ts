@@ -1,5 +1,5 @@
 import { supabase } from '@/backend/Authentication'
-import type { Board, List, UpdatedListInformation, Task } from '@/types/DatabaseTypes'
+import type { Board, List, UpdatedListInformation, Task, UpdatedTaskInformation } from '@/types/DatabaseTypes'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
@@ -110,34 +110,6 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 		currentListOverview.value = list
 	}
 	
-	async function changeTaskName(name: string) {
-		const { data, error } = await supabase
-			.from('tasks')
-			.update({name: name})
-			.eq('id', currentTaskOverview.value?.id)
-			.select()
-			
-		if (error) {
-			console.error(error)
-		} else {
-			currentTaskOverview.value!.name = (data[0] as Task).name
-		}
-	}
-	
-	async function changeTaskDescription(description: string) {
-		const { data, error } = await supabase
-			.from('tasks')
-			.update({description: description})
-			.eq('id', currentTaskOverview.value?.id)
-			.select()
-
-		if (error) {
-			console.error(error)
-		} else {
-			currentTaskOverview.value!.description = (data[0] as Task).description
-		}
-	}
-	
 	async function changeListDetails(newDetails: UpdatedListInformation) {
 		const listIndex: number | undefined = currentBoard.value?.lists.indexOf(currentListOverview.value!)
 		const copiedList: List = JSON.parse(JSON.stringify(currentListOverview.value))
@@ -159,6 +131,28 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 			}
 		}
 	}
+	
+	async function changeTaskDetails(newDetails: UpdatedTaskInformation) {
+		const listIndex: number | undefined = currentBoard.value?.lists.findIndex(x => x.id === currentTaskOverview.value?.list)
+		const copiedTask: Task = JSON.parse(JSON.stringify(currentTaskOverview.value))
+		
+		if (listIndex !== undefined) {
+			const taskIndex: number | undefined = currentBoard.value?.lists[listIndex].tasks?.findIndex(x => x.id === currentTaskOverview.value?.id)
+
+			const { data, error } = await supabase
+				.from('tasks')
+				.upsert({...copiedTask, ...newDetails})
+				.select()
+
+			if (error) {
+				console.error(error)
+			} else {
+				if (currentBoard.value && taskIndex !== undefined) {
+					currentBoard.value.lists[listIndex].tasks![taskIndex] = data[0] as Task
+				}
+			}
+		}
+}
 
 	async function toggleTaskCompleted(task: Task) {
 		const { data, error } = await supabase
@@ -367,8 +361,6 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 		currentListOverview, 
 		deleteTask,
 		deleteList,
-		changeTaskName,
-		changeTaskDescription,
 		toggleTaskCompleted,
 		setCurrentTaskOverview,
 		loadCurrentBoard,
@@ -377,6 +369,7 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 		moveCardWithinSameList,
 		moveCardsBetweenLists,
 		changeListDetails,
+		changeTaskDetails,
 		moveList
 	}
 })

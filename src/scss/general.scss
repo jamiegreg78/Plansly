@@ -52,7 +52,7 @@
   box-shadow: 0 0 5px #0000003e;
 }
 
-@mixin modal-form() {
+@mixin modal-form {
 	height: 100%;
 	width: 100%;
 	position: absolute;
@@ -85,6 +85,11 @@
 				margin-left: toRem(16);
 				@include squared-button;
 				font-size: toRem(24);
+				flex-shrink: 0;
+			}
+
+			.complete-status {
+				flex-shrink: 0;
 			}
 
 			input {
@@ -166,4 +171,19 @@
 			min-width: toRem(600);
 		}
 	}
+}
+
+
+@mixin tag-chip {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: toRem(4) toRem(8);
+	border: 1px solid var(--border);
+	border-radius: 8px;
+	transition-property: border-color, background-color;
+	transition-duration: 0.3s;
+	transition-timing-function: ease;
+	
+	font-size: toRem(14);
 }
