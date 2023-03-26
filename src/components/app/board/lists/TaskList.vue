@@ -1,5 +1,6 @@
 <template>
-	<div class="list">
+	<div class="list"
+		:class="{ draggable: currentBoardStore.filter === '' }">
 		<div class="top-section">
 			<p>{{ props.list.name }}</p>
 			<span class="wip-limit"
@@ -57,17 +58,20 @@ const workInProgressSeverity = computed(() => {
 	return ''
 })
 
-const listOptions = {
-	group: 'tasks',
-	delayOnTouchOnly: true,
-	delay: 50,
-	animation: 150,
+const listOptions = computed(() => {
+	return {
+		group: 'tasks',
+		delayOnTouchOnly: true,
+		delay: 100,
+		animation: 150,
 
-	ghostClass: 'sortable-ghost',
-	chosenClass: 'sortable-chosen',
-	dragClass: 'sortable-drag',
-	forceFallback: true,
-}
+		ghostClass: 'sortable-ghost',
+		chosenClass: 'sortable-chosen',
+		dragClass: 'sortable-drag',
+		forceFallback: true,
+		disabled: currentBoardStore.filter !== ''
+	}
+})
 
 // TODO: Correct type for this param?
 function handleCardMove(movementData: any) {
@@ -157,11 +161,6 @@ function handleCardMove(movementData: any) {
 			@include squared-button;
 			flex-shrink: 0;
 		}
-
-
-		&:hover {
-			cursor: grab;
-		}
 	}
 
 	.list-contents {
@@ -171,6 +170,14 @@ function handleCardMove(movementData: any) {
 		gap: toRem(10);
 		max-height: 85%;
 		overflow-y: scroll;
+	}
+
+	&.draggable {
+		.top-section {
+			&:hover {
+				cursor: grab;
+			}
+		}
 	}
 }
 </style>

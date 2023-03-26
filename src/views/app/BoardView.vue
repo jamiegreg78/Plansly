@@ -1,5 +1,6 @@
 <template>
-	<section class="board-view">
+	<section class="board-view"
+		v-if="currentBoardStore.currentBoard">
 		<div class="board-info">
 			<h1>{{ currentBoardStore.currentBoard?.name }}</h1>
 			<button class="settings-button">
@@ -21,19 +22,18 @@
 			</RouterLink>
 		</div>
 		<div class="actions-container">
-			<input type="text" placeholder="Search" />
-			<span class="filter-button">
-				<span>Filter</span>
-			</span>
-			<button class="add-task-button">
-				Add Task
-			</button>
+			<BoardSearchInput />
 		</div>
 		<div class="board-content">
-			<Sortable class="list-container" tag="div" @end="handleListMove" :list="currentBoardStore.currentBoard?.lists"
-				itemKey="id" :options="listOptions">
+			<Sortable class="list-container"
+				tag="div"
+				@end="handleListMove"
+				:list="currentBoardStore.filteredBoard ? currentBoardStore.filteredBoard?.lists : currentBoardStore.currentBoard?.lists"
+				itemKey="id"
+				:options="listOptions">
 				<template #item="{ element, index }">
-					<TaskList :list="element" :listIndex="index" />
+					<TaskList :list="element"
+						:listIndex="index" />
 				</template>
 			</Sortable>
 			<NewList />
@@ -41,6 +41,7 @@
 			<ListOverview v-if="currentBoardStore.currentListOverview" />
 		</div>
 	</section>
+	<span v-else>TEMP LOADER</span>
 </template>
 
 
@@ -50,28 +51,34 @@ import NewList from '@/components/app/board/lists/NewList.vue'
 import TaskList from '@/components/app/board/lists/TaskList.vue'
 import TaskOverview from '@/components/app/board/tasks/TaskOverview.vue'
 import { AppRoutes } from '@/router/RouteNames'
-import { useCurrentBoardStore } from '@/stores/CurrentBoardStore'
+import { useCurrentBoardStore, type FilterType } from '@/stores/CurrentBoardStore'
 import { Sortable } from 'sortablejs-vue3'
-import { onBeforeMount } from 'vue'
+import { onBeforeMount, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import BoardSearchInput from '@/components/inputs/BoardSearchInput.vue'
+import SelectInput from '@/components/inputs/SelectInput.vue'
 const router = useRouter()
 const currentBoardStore = useCurrentBoardStore()
 
-onBeforeMount(() => {
-	currentBoardStore.loadCurrentBoard()
+onBeforeMount(async () => {
+	await currentBoardStore.loadCurrentBoard()
 })
 
-const listOptions = {
-	group: 'lists',
-	delayOnTouchOnly: true,
-	delay: 50,
-	animation: 150,
+const listOptions = computed(() => {
+	return {
+		group: 'lists',
+		delayOnTouchOnly: true,
+		delay: 100,
+		animation: 150,
 
-	ghostClass: 'sortable-ghost',
-	chosenClass: 'sortable-chosen',
-	dragClass: 'sortable-drag',
-	forceFallback: true
-}
+		ghostClass: 'sortable-ghost',
+		chosenClass: 'sortable-chosen',
+		dragClass: 'sortable-drag',
+		forceFallback: true,
+		disabled: currentBoardStore.filter !== ''
+	}
+})
+
 
 function handleListMove(movementData: any) {
 	const oldIndex: number = movementData.oldIndex
@@ -82,6 +89,8 @@ function handleListMove(movementData: any) {
 </script>
 
 <style lang="scss">
+@import '@/scss/inputs.scss';
+
 section.board-view {
 	display: flex;
 	flex-direction: column;
@@ -136,13 +145,38 @@ section.board-view {
 	}
 
 	.actions-container {
+		display: flex;
 		padding: toRem(16);
+		padding-bottom: 0;
+		flex-wrap: wrap;
+
+		@include breakpoint(tablet) {
+			gap: toRem(12);
+		}
+
+		.filter-container {
+			width: 100%;
+
+			@include breakpoint(tablet) {
+				width: toRem(250);
+			}
+		}
+
+		#BoardSearchContainer {
+			width: 100%;
+
+			@include breakpoint(tablet) {
+				width: toRem(350);
+			}
+		}
+
 	}
 
 	.board-content {
 		flex-grow: 1;
 
 		padding: toRem(16);
+		padding-top: 0;
 		display: flex;
 		gap: toRem(16);
 		overflow-x: auto;

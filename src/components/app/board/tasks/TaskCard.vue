@@ -1,5 +1,6 @@
 <template>
 	<div class="task-card"
+		:class="{ draggable: currentBoardStore.filter === '' }"
 		:data-task-id="task.id">
 		<div class="task-info">
 			<button class="completed-status"
@@ -161,9 +162,8 @@ function getTags(quantity: number) {
 		}
 	}
 
-	&:hover {
+	&.draggable:hover {
 		cursor: grab;
-		@include drop-shadow;
 	}
 }
 </style>

@@ -26,6 +26,7 @@
 			</div>
 			<div class="task-details">
 				<TextInput v-model="description"
+					:show-label="true"
 					label="Description"
 					type="text"
 					multi-line
