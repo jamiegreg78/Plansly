@@ -341,6 +341,7 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 			.from('lists')
 			.upsert([...upsertableArray])
 			.select('*, tasks(*)')
+			.order('order')
 
 		if (error) {
 			console.error(error)
