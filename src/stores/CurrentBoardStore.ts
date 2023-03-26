@@ -314,11 +314,15 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 	}
 	
 	async function moveList(oldIndex: number, newIndex: number) {
+		if (oldIndex === newIndex) {
+			return // do nothing
+		}
+
 		// Create a copy of the array
 		const list: List = JSON.parse(JSON.stringify(currentBoard.value!.lists[oldIndex]))
 		
 		// Remove the original list
-		let newListArray: Array<any> = currentBoard.value!.lists.slice()
+		let newListArray: Array<any> = [...currentBoard.value!.lists]
 		newListArray.splice(oldIndex, 1)
 
 		// add the list back in at the new index
@@ -342,6 +346,9 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 		if (error) {
 			console.error(error)
 		} else {
+			(data as List[]).forEach((list: List) => {
+				list.tasks = list.tasks?.sort((a: Task, b: Task) => a.order - b.order)
+			})
 			currentBoard.value!.lists = data as Array<List>
 		}
 	}
