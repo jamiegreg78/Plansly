@@ -1,20 +1,42 @@
 <template>
-	<form class="register-form" id="registerForm">
+	<form class="register-form"
+		id="registerForm">
 		<h1>Register</h1>
 		<RequestError :message="requestError" />
-		<TextInput :required="true" label="Email" type="email" v-model="formValues.email" />
+		<TextInput :show-label="true"
+			:required="true"
+			:clear-button="true"
+			label="Email"
+			type="email"
+			v-model="formValues.email" />
 
-		<TextInput :required="true" label="Password" type="password" v-model="formValues.password"
+		<TextInput :show-label="true"
+			:required="true"
+			label="Password"
+			type="password"
+			:clear-button="true"
+			v-model="formValues.password"
 			:has-error="formErrors.passwordError" />
-		<AuthError :validity="!!formErrors.passwordError" message="Password must be atleast 8 characters long" />
+		<AuthError :validity="!!formErrors.passwordError"
+			message="Password must be atleast 8 characters long" />
 
-		<TextInput label="Confirm Password" type="password" v-model="formValues.confirmPassword"
-			:has-error="formErrors.confirmPasswordError" :required="true" />
-		<AuthError :validity="!!formErrors.confirmPasswordError" message="Passwords must match" />
+		<TextInput :show-label="true"
+			label="Confirm Password"
+			type="password"
+			v-model="formValues.confirmPassword"
+			:clear-button="true"
+			:has-error="formErrors.confirmPasswordError"
+			:required="true" />
+		<AuthError :validity="!!formErrors.confirmPasswordError"
+			message="Passwords must match" />
 
 		<div class="button-container">
-			<Button :disabled="submitDisabled" text="Register" @clicked="submitRegistration($event)" :is-primary="true" />
-			<Button text="Log In" @clicked="router.push(AuthRoutes.login)" />
+			<Button :disabled="submitDisabled"
+				text="Register"
+				@clicked="submitRegistration($event)"
+				:is-primary="true" />
+			<Button text="Log In"
+				@clicked="router.push(AuthRoutes.login)" />
 		</div>
 	</form>
 </template>

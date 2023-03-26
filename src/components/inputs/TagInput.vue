@@ -46,7 +46,6 @@ const input = ref<string>('')
 
 const dropdownStyle = computed(() => {
 	const input: HTMLInputElement | null = document.getElementById(props.label.replace(' ', '')) as HTMLInputElement
-	console.log(input.getBoundingClientRect())
 	return { top: input.getBoundingClientRect().top, left: input.getBoundingClientRect().left, width: `${input.getBoundingClientRect().width}px` }
 })
 

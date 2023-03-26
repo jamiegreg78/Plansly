@@ -17,6 +17,7 @@
 			</div>
 			<div class="details">
 				<TextInput v-model="description"
+					:show-label="true"
 					label="Description"
 					type="text"
 					multi-line
@@ -106,6 +107,8 @@ onBeforeMount(() => {
 })
 </script>
 
-<style lang="scss">.list-overview-container {
+<style lang="scss">
+.list-overview-container {
 	@include modal-form;
-}</style>
+}
+</style>

@@ -1,14 +1,29 @@
 <template>
-	<form class="login-form" id="loginForm">
+	<form class="login-form"
+		id="loginForm">
 		<h1>Login</h1>
 		<RequestError :message="requestError" />
-		<TextInput :required="true" label="Email" type="email" v-model="formValues.email" />
+		<TextInput :show-label="true"
+			:required="true"
+			label="Email"
+			type="email"
+			:clear-button="true"
+			v-model="formValues.email" />
 
-		<TextInput :required="true" label="Password" type="password" v-model="formValues.password" />
+		<TextInput :show-label="true"
+			:required="true"
+			label="Password"
+			type="password"
+			:clear-button="true"
+			v-model="formValues.password" />
 
 		<div class="button-container">
-			<Button :disabled="submitDisabled" text="Log In" @clicked="submitLogin($event)" :is-primary="true" />
-			<Button text="Register" @clicked="router.push(AuthRoutes.register)" />
+			<Button :disabled="submitDisabled"
+				text="Log In"
+				@clicked="submitLogin($event)"
+				:is-primary="true" />
+			<Button text="Register"
+				@clicked="router.push(AuthRoutes.register)" />
 		</div>
 	</form>
 </template>

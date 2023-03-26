@@ -1,11 +1,23 @@
 <template>
-	<form class="new-module-form" id="newModuleForm">
-		<button class="close-button" @click.prevent="$emit('close')">
+	<form class="new-module-form"
+		id="newModuleForm">
+		<button class="close-button"
+			@click.prevent="$emit('close')">
 			<font-awesome-icon icon="fa-solid fa-xmark" />
 		</button>
-		<TextInput label="Title" type="text" v-model="title" required />
-		<TextInput label="Description" type="text" v-model="description" :multi-line="true" />
-		<ButtonComponent text="Create" :is-primary="true" @clicked="submitNewModule" />
+		<TextInput :show-label="true"
+			label="Title"
+			type="text"
+			v-model="title"
+			required />
+		<TextInput :show-label="true"
+			label="Description"
+			type="text"
+			v-model="description"
+			:multi-line="true" />
+		<ButtonComponent text="Create"
+			:is-primary="true"
+			@clicked="submitNewModule" />
 	</form>
 </template>
 

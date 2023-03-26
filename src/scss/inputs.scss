@@ -6,11 +6,11 @@
     font-size: 1rem;
     padding: toRem(8);
 
-    background-color: var(--background);
+		background-color: transparent;
     
     color: var(--text-input);
 
-    &:focus {
+    &.focus, &:focus {
         border: 1px solid var(--primary);
         outline: 1px solid var(--primary);
     }
@@ -19,11 +19,36 @@
         background-color: var(--error-background);
         color: var(--error);
 
-        &:focus {
+        &.focus, &:focus{
             border-color: var(--error);
 						outline-color: var(--error);
         }
+				
+				button {
+					&:hover {
+						background: transparent;
+					}
+				}
     }
+		
+		
+		button {
+			display: block;
+			padding: 0 toRem(16);
+			border: none;
+			border-left: 1px solid transparent;
+			border-radius: 0;
+			background-color: transparent;
+
+			@include regular-semibold;
+			font-size: toRem(20);
+
+			&:hover {
+				border: none;
+				border-left: 1px solid var(--border);
+				background-color: var(--background-inset);
+			}
+		}
 }
 
 @mixin number-input {

@@ -1,8 +1,10 @@
 import { supabase } from '@/backend/Authentication'
 import type { Board, List, UpdatedListInformation, Task, UpdatedTaskInformation } from '@/types/DatabaseTypes'
+import { sortArrayByKey } from '@/utils/UtilityFunctions'
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
+export type FilterType = 'by_created' | 'by_due_date' | 'by_start_date' | ''
 
 export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 	const router = useRouter()
@@ -11,6 +13,37 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 	const currentBoard = ref<Board>() // Contains the board currently being viewed
 	const currentTaskOverview = ref<Task | undefined>()// contains the task thats visible within the overview 
 	const currentListOverview = ref<List | undefined>()// Contains the list thats visible within the overview
+	const searchResults = ref<Task[]>([]) // Contains the results of the search
+	const filter = ref<FilterType>('')
+	const filteredBoard = computed(() => { 
+		const board: Board = JSON.parse(JSON.stringify(currentBoard.value))
+		if (filter.value === 'by_created') {
+			board.lists.forEach((list: List) => { 
+				if (list.tasks !== undefined) {
+					list.tasks = sortArrayByKey(list.tasks, 'created_at') as Task[] 
+				}
+			})
+			return board
+		} else if (filter.value === 'by_due_date') {
+			board.lists.forEach((list: List) => { 
+				if (list.tasks !== undefined) {
+					list.tasks = sortArrayByKey(list.tasks, 'expected_finish_date') as Task[] 
+				}
+			})
+			return board
+		} else if (filter.value === 'by_start_date') {
+			board.lists.forEach((list: List) => { 
+				if (list.tasks !== undefined) {
+					list.tasks = sortArrayByKey(list.tasks, 'expected_start_date') as Task[] 
+				}
+			})
+			return board
+		} else {
+			return null
+		}
+	})
+
+	// function that sorts the array by a 
 	
 	async function loadCurrentBoard() {
 		const { data, error }= await supabase
@@ -361,9 +394,15 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 		return tempArray
 	}
 
+	function setSearchResults(results: Array<Task>) {
+		searchResults.value = results
+	}
+
 	return { 
 		currentBoard,
 		currentTaskOverview, 
+		searchResults,
+		setSearchResults,
 		setCurrentListOverview,
 		currentListOverview, 
 		deleteTask,
@@ -377,6 +416,8 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 		moveCardsBetweenLists,
 		changeListDetails,
 		changeTaskDetails,
-		moveList
+		moveList,
+		filter,
+		filteredBoard,
 	}
 })
