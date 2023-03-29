@@ -4,7 +4,9 @@
 
 		<div class="page-content">
 			<TopAppBar v-if="!router.currentRoute.value.meta.noTopBar" />
-			<h1 class="page-title" v-if="!router.currentRoute.value.meta.noHeader">{{ router.currentRoute.value.name }}</h1>
+			<h1 class="page-title"
+				v-if="!router.currentRoute.value.meta.noHeader && router.currentRoute.value.name !== '404'">{{
+					router.currentRoute.value.name }}</h1>
 			<RouterView v-if="userData.hasInitialised" />
 			<span v-else>PLACEHOLDER LOADER</span>
 		</div>
@@ -19,15 +21,10 @@ import TopAppBar from '@/components/app/TopBar.vue'
 import { onMounted } from 'vue'
 import { useUserDataStore } from '@/stores/UserDataStore'
 import { useInterfaceStore } from '@/stores/InterfaceStore'
-const interfaceStore = useInterfaceStore()
 const router = useRouter()
 const userData = useUserDataStore()
 
 onMounted(() => {
-	// TODO: Research this properly: Might be worth in the long run - potential costs?
-	// if (!userData.isSubscribed) {
-	// userData.subscribeToModules()
-	// }
 	userData.getAllData()
 })
 

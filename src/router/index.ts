@@ -12,6 +12,7 @@ const AppView = () => import('@/views/app/AppView.vue')
 const DashboardView = () => import('@/views/app/DashboardView.vue')
 const ModuleView = () => import('@/views/app/ModuleView.vue')
 const BoardView = () => import('@/views/app/BoardView.vue')
+const NotFound = () => import('@/components/general/404.vue')
 
 const router = createRouter({
 	history: createWebHistory(import.meta.env.BASE_URL),
@@ -63,9 +64,15 @@ const router = createRouter({
 					name: 'Board',
 					component: BoardView,
 					meta: { noHeader: true, },
+				},
+				{
+					path: AppRoutes.notFound,
+					name: '404',
+					component: NotFound,
 				}
 			]
-		}
+		},
+		{ path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound },
 	]
 })
 

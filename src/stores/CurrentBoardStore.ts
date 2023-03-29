@@ -43,7 +43,6 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 		}
 	})
 
-	// function that sorts the array by a 
 	
 	async function loadCurrentBoard() {
 		const { data, error }= await supabase
@@ -61,35 +60,37 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 
 		if (error) {
 			console.error(error)
-			// TODO: redirect to 404
 		} else {
-			// create a copy of the data so I can set the type
-			const obtainedBoard: Board = data[0] as Board
+			if (data.length !== 0) {
+				// create a copy of the data so I can set the type
+				const obtainedBoard: Board = data[0] as Board
 
-			obtainedBoard.lists.sort((a, b) => {
-				if (a.order < b.order) {
-					return -1
-				} else if (a.order > b.order) {
-					return 1
-				} 
+				obtainedBoard.lists.sort((a, b) => {
+					if (a.order < b.order) {
+						return -1
+					} else if (a.order > b.order) {
+						return 1
+					} 
 
-				return 0
-			})
-			
-			obtainedBoard.lists.forEach(list => {
-				if (list.tasks !== undefined) {
-					list.tasks.sort((a, b) => {
-						if (a.order < b.order) {
-							return -1
-						} else if (a.order > b.order) {
-							return 1
-						} 
-						return 0
-					})
-				}
-			})
+					return 0
+				})
+				
+				obtainedBoard.lists.forEach(list => {
+					if (list.tasks !== undefined) {
+						list.tasks.sort((a, b) => {
+							if (a.order < b.order) {
+								return -1
+							} else if (a.order > b.order) {
+								return 1
+							} 
+							return 0
+						})
+					}
+				})
 
-			currentBoard.value = data[0] as Board
+				currentBoard.value = data[0] as Board
+			}
+			return { data, error }
 		}
 	}
 	
@@ -103,12 +104,6 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 					order: currentBoard.value!.lists.length + 1
 				}
 			]).select('*, tasks(*)')
-		
-		if (error) {
-			console.error(error)
-		} else {
-			currentBoard.value?.lists.push(data[0] as List)
-		}
 	}
 
 	async function createNewCard(name: string, listIndex: number) {

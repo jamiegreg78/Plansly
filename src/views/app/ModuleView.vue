@@ -1,6 +1,7 @@
 <template v-if="userData.userData.length">
 	<section class="dashboard">
-		<div class="content" :class="{ 'close-on-mobile': sideContainerIsOpen }">
+		<div class="content"
+			:class="{ 'close-on-mobile': sideContainerIsOpen }">
 			<div v-if="!userData.userData[currentModuleIndex]?.boards || !userData.userData[currentModuleIndex].boards.length"
 				class="no-boards">
 				<h2>
@@ -9,12 +10,18 @@
 				<p>
 					Create a board to start managing your tasks
 				</p>
-				<ButtonComponent text="Create a New Board" :is-primary="true" @clicked="sideContainerIsOpen = true" />
+				<ButtonComponent text="Create a New Board"
+					:is-primary="true"
+					@clicked="sideContainerIsOpen = true" />
 			</div>
-			<BoardList v-else :boards="userData.userData[currentModuleIndex].boards" @open="sideContainerIsOpen = true" />
+			<BoardList v-else
+				:boards="userData.userData[currentModuleIndex].boards"
+				@open="sideContainerIsOpen = true" />
 		</div>
-		<div class="side-container" :class="{ open: sideContainerIsOpen }">
-			<NewBoardForm @close="sideContainerIsOpen = false" v-if="sideContainerIsOpen" />
+		<div class="side-container"
+			:class="{ open: sideContainerIsOpen }">
+			<NewBoardForm @close="sideContainerIsOpen = false"
+				v-if="sideContainerIsOpen" />
 		</div>
 	</section>
 </template>
@@ -23,6 +30,7 @@
 import BoardList from '@/components/app/BoardList.vue'
 import NewBoardForm from '@/components/app/NewBoardForm.vue'
 import ButtonComponent from '@/components/general/ButtonComponent.vue'
+import { AppRoutes } from '@/router/RouteNames'
 import { useUserDataStore } from '@/stores/UserDataStore'
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
@@ -37,6 +45,7 @@ onMounted(() => {
 	currentModuleIndex.value = userData.getModuleIndex(currentModuleId)
 	if (currentModuleIndex.value === -1) {
 		// TODO: Redirect to 404 for this section
+		router.push(AppRoutes.notFound)
 	}
 })
 </script>
