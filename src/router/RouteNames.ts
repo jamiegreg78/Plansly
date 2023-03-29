@@ -9,5 +9,6 @@ export const AppRoutes = {
 	module: '/app/module/:moduleId',
 	board: '/app/module/:moduleId/board/:boardId',
 	list: '/app/module/:moduleId/list/:boardId',
-	overview: '/app/module/:moduleId/overview/:boardId'
+	overview: '/app/module/:moduleId/overview/:boardId',
+	notFound: '/app/404'
 }

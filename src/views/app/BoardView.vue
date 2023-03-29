@@ -56,12 +56,14 @@ import { Sortable } from 'sortablejs-vue3'
 import { onBeforeMount, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import BoardSearchInput from '@/components/inputs/BoardSearchInput.vue'
-import SelectInput from '@/components/inputs/SelectInput.vue'
 const router = useRouter()
 const currentBoardStore = useCurrentBoardStore()
 
 onBeforeMount(async () => {
-	await currentBoardStore.loadCurrentBoard()
+	const results = await currentBoardStore.loadCurrentBoard()
+	if (results?.data.length === 0) {
+		router.push(AppRoutes.notFound)
+	}
 })
 
 const listOptions = computed(() => {
