@@ -41,7 +41,7 @@
 			<ListOverview v-if="currentBoardStore.currentListOverview" />
 		</div>
 	</section>
-	<span v-else>TEMP LOADER</span>
+	<LoadingSpinner v-else />
 </template>
 
 
@@ -56,6 +56,7 @@ import { Sortable } from 'sortablejs-vue3'
 import { onBeforeMount, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import BoardSearchInput from '@/components/inputs/BoardSearchInput.vue'
+import LoadingSpinner from '@/components/general/LoadingSpinner.vue'
 const router = useRouter()
 const currentBoardStore = useCurrentBoardStore()
 

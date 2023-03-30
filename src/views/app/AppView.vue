@@ -8,7 +8,7 @@
 				v-if="!router.currentRoute.value.meta.noHeader && router.currentRoute.value.name !== '404'">{{
 					router.currentRoute.value.name }}</h1>
 			<RouterView v-if="userData.hasInitialised" />
-			<span v-else>PLACEHOLDER LOADER</span>
+			<LoadingSpinner v-else />
 		</div>
 
 	</section>
@@ -20,7 +20,7 @@ import SideNav from '@/components/app/SideNav.vue'
 import TopAppBar from '@/components/app/TopBar.vue'
 import { onMounted } from 'vue'
 import { useUserDataStore } from '@/stores/UserDataStore'
-import { useInterfaceStore } from '@/stores/InterfaceStore'
+import type LoadingSpinner from '@/components/general/LoadingSpinner.vue'
 const router = useRouter()
 const userData = useUserDataStore()
 
