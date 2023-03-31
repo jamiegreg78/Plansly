@@ -1,5 +1,5 @@
 import { supabase } from '@/backend/Authentication'
-import type { Board, List, UpdatedListInformation, Task, UpdatedTaskInformation } from '@/types/DatabaseTypes'
+import type { Board, List, UpdatedListInformation, Task, UpdatedTaskInformation, UpdatedBoardInformation } from '@/types/DatabaseTypes'
 import { sortArrayByKey } from '@/utils/UtilityFunctions'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
@@ -136,6 +136,23 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 	
 	function setCurrentListOverview(list: List | undefined) {
 		currentListOverview.value = list
+	}
+	
+	async function changeBoardDetails(newDetails: UpdatedBoardInformation) {
+		const copiedBoard = JSON.parse(JSON.stringify(currentBoard.value))
+		delete copiedBoard.lists
+
+		const { data, error } = await supabase
+			.from('boards')
+			.update({...copiedBoard, ...newDetails})
+			.eq('id', copiedBoard.id)
+			.select(`*, lists(*, tasks(*))`)
+			
+		if (error) {
+			console.error(error)
+		} else {
+			currentBoard.value = data[0] as Board
+		}
 	}
 	
 	async function changeListDetails(newDetails: UpdatedListInformation) {
@@ -411,6 +428,7 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 		moveCardsBetweenLists,
 		changeListDetails,
 		changeTaskDetails,
+		changeBoardDetails,
 		moveList,
 		filter,
 		filteredBoard,

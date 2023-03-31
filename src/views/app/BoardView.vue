@@ -172,7 +172,6 @@ section.board-view {
 				width: toRem(350);
 			}
 		}
-
 	}
 
 	.board-content {

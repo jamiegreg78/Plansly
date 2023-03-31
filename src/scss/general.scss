@@ -44,6 +44,14 @@
 		color: var(--white);
 
 		border-color: transparent;
+		
+		&:hover {
+			background-color: var(--primary-hover);
+		}
+	}
+	
+	&:hover {
+		background: var(--background-inset);
 	}
 }
 
