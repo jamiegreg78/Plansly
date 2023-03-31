@@ -2,10 +2,14 @@
 	<div class="color-picker-container">
 		<label>Color</label>
 		<div class="option-list">
-			<span class="color-option" v-for="(item, index) in ColorArray" :key="index"
-				:class="{ chosen: chosenColor?.name === item.name }" :style="{ 'background-color': item.hexValue }"
+			<span class="color-option"
+				v-for="(item, index) in ColorArray"
+				:key="index"
+				:class="{ chosen: chosenColor?.name === item.name }"
+				:style="{ 'background-color': item.hexValue }"
 				@click.prevent="chooseColor(item)">
-				<font-awesome-icon icon="fa-solid fa-check" v-if="chosenColor?.name === item.name" />
+				<font-awesome-icon icon="fa-solid fa-check"
+					v-if="chosenColor?.name === item.name" />
 			</span>
 		</div>
 	</div>
@@ -13,12 +17,23 @@
 
 <script setup lang="ts">
 import { ColorArray } from '@/types/ColorPicker'
-import { ref } from 'vue'
+import { onBeforeMount, ref } from 'vue'
 import type { ColorPickerOptions } from '@/types/ColorPicker'
+
+export interface colorPickerProps {
+	defaultColor?: ColorPickerOptions | null
+}
+const props = defineProps<colorPickerProps>()
 
 const chosenColor = ref<ColorPickerOptions | null>(null)
 
 const emit = defineEmits(['color-chosen'])
+
+onBeforeMount(() => {
+	if (props.defaultColor) {
+		chosenColor.value = props.defaultColor
+	}
+})
 
 function chooseColor(color: ColorPickerOptions) {
 	// if clicking on the same color, remove it. Otherwise, select it and emit.

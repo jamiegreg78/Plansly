@@ -1,13 +1,15 @@
 import { supabase } from '@/backend/Authentication'
-import type { Board, List, UpdatedListInformation, Task, UpdatedTaskInformation } from '@/types/DatabaseTypes'
+import type { Board, List, UpdatedListInformation, Task, UpdatedTaskInformation, UpdatedBoardInformation } from '@/types/DatabaseTypes'
 import { sortArrayByKey } from '@/utils/UtilityFunctions'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useUserDataStore } from './UserDataStore'
 export type FilterType = 'by_created' | 'by_due_date' | 'by_start_date' | ''
 
 export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 	const router = useRouter()
+	const userData = useUserDataStore()
 
 	// state
 	const currentBoard = ref<Board>() // Contains the board currently being viewed
@@ -136,6 +138,24 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 	
 	function setCurrentListOverview(list: List | undefined) {
 		currentListOverview.value = list
+	}
+	
+	async function changeBoardDetails(newDetails: UpdatedBoardInformation) {
+		const copiedBoard = JSON.parse(JSON.stringify(currentBoard.value))
+		delete copiedBoard.lists
+
+		const { data, error } = await supabase
+			.from('boards')
+			.update({...copiedBoard, ...newDetails})
+			.eq('id', copiedBoard.id)
+			.select(`*, lists(*, tasks(*))`)
+			
+		if (error) {
+			console.error(error)
+		} else {
+			currentBoard.value = data[0] as Board
+			userData.replaceBoard(data[0].module, data[0] as Board)
+		}
 	}
 	
 	async function changeListDetails(newDetails: UpdatedListInformation) {
@@ -411,6 +431,7 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 		moveCardsBetweenLists,
 		changeListDetails,
 		changeTaskDetails,
+		changeBoardDetails,
 		moveList,
 		filter,
 		filteredBoard,

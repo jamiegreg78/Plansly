@@ -76,6 +76,13 @@ export const useUserDataStore = defineStore('userDataState', () => {
 
 		return foundBoard
 	}
+	
+	// Replaces the board with the same id as the one passed in
+	function replaceBoard(moduleId: number, board: Board) {
+		let moduleIndex = userData.value.findIndex(module => module.id === moduleId)
+		let boardIndex = userData.value[moduleIndex].boards.findIndex(item => item.id === board.id)
+		userData.value[moduleIndex].boards[boardIndex] = board
+	}
 
 	// Search for the correct Module, then return the index for later use
 	function getModuleIndex(id: number): number {
@@ -116,5 +123,5 @@ export const useUserDataStore = defineStore('userDataState', () => {
 		
 	}
 
-	return { hasInitialised, userData, getAllData, createNewModule, createNewBoardForModule, getModuleIndex, getBoardById }
+	return { hasInitialised, userData, getAllData, createNewModule, createNewBoardForModule, getModuleIndex, getBoardById, replaceBoard }
 })

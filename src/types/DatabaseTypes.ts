@@ -42,6 +42,12 @@ export interface List {
 	order: number
 }
 
+export interface UpdatedBoardInformation {
+	name?: string
+	description?: string
+	color?: ColorPickerOptions | null
+}
+
 export interface Board {
 	id: number
 	created_at: string

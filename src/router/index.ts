@@ -12,6 +12,7 @@ const AppView = () => import('@/views/app/AppView.vue')
 const DashboardView = () => import('@/views/app/DashboardView.vue')
 const ModuleView = () => import('@/views/app/ModuleView.vue')
 const BoardView = () => import('@/views/app/BoardView.vue')
+const BoardOverview = () => import('@/views/app/BoardOverview.vue')
 const NotFound = () => import('@/components/general/404.vue')
 
 const router = createRouter({
@@ -63,6 +64,12 @@ const router = createRouter({
 					path: AppRoutes.board,
 					name: 'Board',
 					component: BoardView,
+					meta: { noHeader: true, },
+				},
+				{
+					path: AppRoutes.overview,
+					name: 'Overview',
+					component: BoardOverview,
 					meta: { noHeader: true, },
 				},
 				{

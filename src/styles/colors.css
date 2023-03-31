@@ -18,6 +18,7 @@
 
 [data-darkMode="false"] {
   --primary: #00d689;
+	--primary-hover: #00bd78;
   --white: #fff;
 	--green: #00a81f;
 	--green-background: #00a81f30;

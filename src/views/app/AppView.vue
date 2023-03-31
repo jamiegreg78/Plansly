@@ -20,7 +20,7 @@ import SideNav from '@/components/app/SideNav.vue'
 import TopAppBar from '@/components/app/TopBar.vue'
 import { onMounted } from 'vue'
 import { useUserDataStore } from '@/stores/UserDataStore'
-import type LoadingSpinner from '@/components/general/LoadingSpinner.vue'
+import LoadingSpinner from '@/components/general/LoadingSpinner.vue'
 const router = useRouter()
 const userData = useUserDataStore()
 
