@@ -45,6 +45,7 @@ export interface List {
 export interface UpdatedBoardInformation {
 	name?: string
 	description?: string
+	color?: ColorPickerOptions | null
 }
 
 export interface Board {

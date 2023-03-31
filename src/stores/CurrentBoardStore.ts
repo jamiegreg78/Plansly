@@ -4,10 +4,12 @@ import { sortArrayByKey } from '@/utils/UtilityFunctions'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useUserDataStore } from './UserDataStore'
 export type FilterType = 'by_created' | 'by_due_date' | 'by_start_date' | ''
 
 export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 	const router = useRouter()
+	const userData = useUserDataStore()
 
 	// state
 	const currentBoard = ref<Board>() // Contains the board currently being viewed
@@ -152,6 +154,7 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 			console.error(error)
 		} else {
 			currentBoard.value = data[0] as Board
+			userData.replaceBoard(data[0].module, data[0] as Board)
 		}
 	}
 	

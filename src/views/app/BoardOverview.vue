@@ -32,6 +32,9 @@
 				show-label
 				v-model="boardDescription"
 				multi-line />
+
+			<ColorPicker :default-color="currentBoardStore.currentBoard.color"
+				@color-chosen="chosenColor = $event" />
 			<ButtonComponent text="Save Changes"
 				@click="updateBoard"
 				is-primary
@@ -49,12 +52,15 @@ import { useRouter } from 'vue-router';
 import LoadingSpinner from '@/components/general/LoadingSpinner.vue';
 import TextInput from '@/components/inputs/TextInput.vue';
 import ButtonComponent from '@/components/general/ButtonComponent.vue';
+import ColorPicker from '@/components/general/ColorPicker.vue';
+import type { ColorPickerOptions } from '@/types/ColorPicker';
 
 const router = useRouter()
 const currentBoardStore = useCurrentBoardStore()
 
 const boardName = ref<string>('')
 const boardDescription = ref<string>('')
+const chosenColor = ref<ColorPickerOptions | null>(null)
 
 onBeforeMount(async () => {
 	const results = await currentBoardStore.loadCurrentBoard()
@@ -63,13 +69,15 @@ onBeforeMount(async () => {
 	} else {
 		boardName.value = results?.data[0].name
 		boardDescription.value = results?.data[0].description || ''
+		chosenColor.value = results?.data[0].color
 	}
 })
 
 function updateBoard() {
 	currentBoardStore.changeBoardDetails({
 		name: boardName.value,
-		description: boardDescription.value
+		description: boardDescription.value,
+		color: chosenColor.value
 	})
 }
 
