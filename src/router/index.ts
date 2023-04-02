@@ -12,6 +12,7 @@ const AppView = () => import('@/views/app/AppView.vue')
 const DashboardView = () => import('@/views/app/DashboardView.vue')
 const ModuleView = () => import('@/views/app/ModuleView.vue')
 const BoardView = () => import('@/views/app/BoardView.vue')
+const ListView = () => import('@/views/app/ListView.vue')
 const BoardOverview = () => import('@/views/app/BoardOverview.vue')
 const NotFound = () => import('@/components/general/404.vue')
 
@@ -64,6 +65,12 @@ const router = createRouter({
 					path: AppRoutes.board,
 					name: 'Board',
 					component: BoardView,
+					meta: { noHeader: true, },
+				},
+				{
+					path: AppRoutes.list,
+					name: 'List',
+					component: ListView,
 					meta: { noHeader: true, },
 				},
 				{

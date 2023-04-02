@@ -106,6 +106,11 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 					order: currentBoard.value!.lists.length + 1
 				}
 			]).select('*, tasks(*)')
+		if (error) {
+			console.error(error)
+		} else {
+			currentBoard.value?.lists.push(data[0] as List)
+		}
 	}
 
 	async function createNewCard(name: string, listIndex: number) {

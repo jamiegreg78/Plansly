@@ -1,8 +1,10 @@
 <template>
 	<div class="task-card"
-		:class="{ draggable: currentBoardStore.filter === '' }"
 		:data-task-id="task.id">
 		<div class="task-info">
+			<span class="task-drag-handle">
+				<font-awesome-icon icon="fa-solid fa-grip-vertical" />
+			</span>
 			<button class="completed-status"
 				:class="{ completed: props.task.completed }"
 				@click="currentBoardStore.toggleTaskCompleted(props.task)">
@@ -36,15 +38,17 @@
 </template>
 
 <script setup lang="ts">
-import Chip from '@/components/general/Chip.vue';
-import { useCurrentBoardStore } from '@/stores/CurrentBoardStore'
-import type { Task } from '@/types/DatabaseTypes'
+import type { Task } from '@/types/DatabaseTypes';
+import { useCurrentBoardStore } from '@/stores/CurrentBoardStore';
 import { computed } from 'vue';
+import Chip from '@/components/general/Chip.vue';
 
-export interface TaskCardProps {
-	task: Task,
+export interface ListTaskCardProps {
+	task: Task
 }
-const props = defineProps<TaskCardProps>()
+const props = defineProps<ListTaskCardProps>()
+
+const currentBoardStore = useCurrentBoardStore()
 
 const computedDate = computed(() => {
 	if (props.task.expected_start_date?.length && !props.task.expected_finish_date?.length) {
@@ -60,33 +64,31 @@ const computedDate = computed(() => {
 	}
 	return ''
 })
-
-const currentBoardStore = useCurrentBoardStore()
-
-function getTags(quantity: number) {
-	if (props.task.tags) {
-		return props.task.tags.slice(0, quantity)
-	}
-	return []
-}
 </script>
 
 <style lang="scss" scoped>
 .task-card {
-	background: var(--background);
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	width: 100%;
+	padding-bottom: toRem(8);
+	border-bottom: 1px solid var(--border);
 
-	border: 1px solid var(--border);
-	border-radius: 8px;
 
-	padding: toRem(16);
-	transition: box-shadow 0.15s ease;
-
+	&.sortable-ghost {
+		opacity: 0.5;
+		background-color: var(--background-inset);
+		border-radius: 8px;
+		border-color: transparent;
+	}
 
 	.task-info {
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
-		gap: toRem(4);
+		width: 100%;
+		gap: toRem(8);
 
 		.completed-status {
 			padding: 0;
@@ -106,62 +108,52 @@ function getTags(quantity: number) {
 			}
 		}
 
+		.options-button {
+			flex-shrink: 0;
+			@include squared-button;
+		}
+
 		.task-name {
-			@include regular-semibold;
+			width: 100%;
 			text-overflow: ellipsis;
 			overflow: hidden;
 			white-space: nowrap;
-			margin: 0;
-			flex-grow: 1;
 		}
 
-		input {
-			width: 100%;
-			padding: toRem(8);
-
-			border: none;
-			border-bottom: 2px solid transparent;
+		.task-drag-handle {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			width: toRem(40);
+			height: toRem(40);
 			@include regular-semibold;
-
-			&:focus {
-				outline: none;
-				border-bottom: 2px solid var(--border);
-			}
-
-			&::placeholder {
-				opacity: 1;
-				color: var(--text-primary);
-			}
-		}
-
-		.options-button,
-		.new-task-button {
-			@include squared-button;
+			font-size: toRem(12);
 			flex-shrink: 0;
+
+			&:hover {
+				cursor: grab;
+			}
 		}
+
 	}
 
 	.task-additional-info {
 		display: flex;
 		flex-direction: column;
 		gap: toRem(4);
+		padding: 0 toRem(16);
 
 		.date {
 			display: block;
-			font-size: toRem(14);
 			color: var(--text-subtext);
+			font-size: toRem(14);
 		}
 
 		.tag-container {
 			display: flex;
 			gap: toRem(4);
 			flex-wrap: wrap;
-
 		}
-	}
-
-	&.draggable:hover {
-		cursor: grab;
 	}
 }
 </style>
