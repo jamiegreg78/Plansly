@@ -76,13 +76,14 @@
 	align-items: center;
 
 
-	.overview {
+	.overview, .modal{
 		max-width: calc(100% - 32px);
 		padding: toRem(16);
 		background-color: var(--background);
 
 		border: 1px solid var(--border);
 		border-radius: 8px;
+		@include drop-shadow;
 
 		.top-section {
 			display: flex;

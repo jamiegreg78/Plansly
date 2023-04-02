@@ -14,10 +14,10 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 // import icons
 import { faCalendar, faWindowMaximize, faFolder, faCircleCheck } from '@fortawesome/free-regular-svg-icons'
-import { faCircleCheck as faSolidCircleCheck, faChevronLeft, faPenToSquare, faBars, faRightFromBracket, faXmark, faPlus, faCheck, faListCheck, faGear, faEllipsisVertical} from '@fortawesome/free-solid-svg-icons'
+import { faCircleCheck as faSolidCircleCheck, faCaretDown, faGripVertical ,faChevronLeft, faPenToSquare, faBars, faRightFromBracket, faXmark, faPlus, faCheck, faListCheck, faGear, faEllipsisVertical, faTag} from '@fortawesome/free-solid-svg-icons'
 
 
-library.add(faCalendar, faCircleCheck, faSolidCircleCheck, faWindowMaximize, faPenToSquare, faFolder, faChevronLeft, faBars, faRightFromBracket, faXmark, faPlus, faCheck, faListCheck, faGear, faEllipsisVertical)
+library.add(faCalendar, faCircleCheck, faCaretDown, faSolidCircleCheck, faGripVertical, faWindowMaximize, faPenToSquare, faFolder, faChevronLeft, faBars, faRightFromBracket, faXmark, faPlus, faCheck, faListCheck, faGear, faEllipsisVertical, faTag)
 
 const app = createApp(App)
 

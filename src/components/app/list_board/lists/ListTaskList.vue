@@ -1,7 +1,14 @@
 <template>
-	<div class="list"
-		:class="{ draggable: currentBoardStore.filter === '' }">
+	<div class="list">
 		<div class="top-section">
+			<span class="list-drag-handle">
+				<font-awesome-icon icon="fa-solid fa-grip-vertical" />
+			</span>
+			<button class="dropdown-button"
+				:class="{ open: contentsOpen }"
+				@click="contentsOpen = !contentsOpen">
+				<font-awesome-icon icon="fa-solid fa-caret-down" />
+			</button>
 			<p>{{ props.list.name }}</p>
 			<span class="wip-limit"
 				:class="workInProgressSeverity"
@@ -9,12 +16,17 @@
 				{{ `${props.list.tasks?.length} /
 								${props.list.work_in_progress_limit}` }}
 			</span>
+			<button class="add-button"
+				@click="newTaskFormIsOpen = true">
+				<font-awesome-icon icon="fa-solid fa-plus" />
+			</button>
 			<button class="options-button"
 				@click="currentBoardStore.setCurrentListOverview(props.list)">
 				<font-awesome-icon icon="fa-solid fa-ellipsis-vertical" />
 			</button>
 		</div>
 		<Sortable class="list-contents"
+			v-if="contentsOpen"
 			tag="div"
 			@end="handleCardMove"
 			:list="props.list.tasks"
@@ -22,28 +34,31 @@
 			:options="listOptions"
 			:data-list-index="props.listIndex">
 			<template #item="{ element }">
-				<TaskCard :task="element"
+				<ListTaskCard :task="element"
 					:key="element.id" />
 			</template>
 		</Sortable>
-		<NewTask :list-index="props.listIndex" />
 	</div>
+	<NewTaskForm :list-index="props.listIndex"
+		v-if="newTaskFormIsOpen"
+		@close-modal="newTaskFormIsOpen = false" />
 </template>
 
 <script setup lang="ts">
-import type { List } from '@/types/DatabaseTypes'
-import NewTask from '@/components/app/board/tasks/NewTask.vue'
-import { useCurrentBoardStore } from '@/stores/CurrentBoardStore'
-import { Sortable } from 'sortablejs-vue3'
-import TaskCard from '../tasks/TaskCard.vue'
-import { computed } from 'vue'
-
-export interface TaskListProps {
+import type { List } from '@/types/DatabaseTypes';
+import { useCurrentBoardStore } from '@/stores/CurrentBoardStore';
+import { computed, ref } from 'vue';
+import { Sortable } from 'sortablejs-vue3';
+import ListTaskCard from '../tasks/ListTaskCard.vue';
+import NewTaskForm from '../tasks/NewTaskForm.vue';
+export interface ListTaskListProps {
 	list: List,
 	listIndex: number
 }
-const props = defineProps<TaskListProps>()
+const props = defineProps<ListTaskListProps>()
 const currentBoardStore = useCurrentBoardStore()
+const contentsOpen = ref<boolean>(true)
+const newTaskFormIsOpen = ref<boolean>(false)
 
 const workInProgressSeverity = computed(() => {
 	if (typeof props.list.tasks !== 'undefined' && props.list.work_in_progress_limit) {
@@ -65,6 +80,7 @@ const listOptions = computed(() => {
 		delayOnTouchOnly: true,
 		delay: 100,
 		animation: 150,
+		handle: '.task-drag-handle',
 
 		ghostClass: 'sortable-ghost',
 		chosenClass: 'sortable-chosen',
@@ -93,46 +109,63 @@ function handleCardMove(movementData: any) {
 
 <style lang="scss" scoped>
 .list {
-	// TODO: MAKE THIS A MIXIN
-	width: toRem(350);
-	max-width: 100%;
-	max-height: 100%;
+	width: 100%;
 
-	padding: 0 toRem(10);
+	&:last-of-type {
+		margin-bottom: toRem(16);
+	}
 
-	.sortable-ghost {
+	&.sortable-ghost {
 		opacity: 0.5;
+		background-color: var(--background-inset);
+		border-radius: 8px;
 	}
 
 	.top-section {
 		display: flex;
+		width: 100%;
 		justify-content: space-between;
 		align-items: center;
-		gap: toRem(4);
-		padding-top: toRem(10);
+		gap: toRem(16);
+
+		border-bottom: 1px solid var(--border);
+
+		.list-drag-handle {
+			flex-shrink: 0;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			width: toRem(40);
+			height: toRem(40);
+			font-size: toRem(14);
+
+			&:hover {
+				cursor: grab;
+			}
+		}
 
 		p {
 			width: 100%;
-			border: none;
-			width: 100%;
-			padding: toRem(8);
-			margin: 0;
-
-			border: none;
-			@include regular-semibold;
-
 			text-overflow: ellipsis;
 			overflow: hidden;
 			white-space: nowrap;
+		}
 
-			&:focus {
-				outline: none;
-				border-bottom: 2px solid var(--border);
+		button {
+			flex-shrink: 0;
+			@include squared-button;
+		}
+
+		.dropdown-button {
+			svg {
+				transition: transform 0.2s ease;
+				@include body-large;
 			}
 
-			&::placeholder {
-				opacity: 1;
-				color: var(--text-primary);
+			&.open {
+				svg {
+					transform: rotate(-180deg);
+				}
 			}
 		}
 
@@ -155,29 +188,14 @@ function handleCardMove(movementData: any) {
 				background: var(--red);
 			}
 		}
-
-		.options-button,
-		.new-task-button {
-			@include squared-button;
-			flex-shrink: 0;
-		}
 	}
 
 	.list-contents {
-		padding: toRem(10) 0;
 		display: flex;
 		flex-direction: column;
-		gap: toRem(10);
-		max-height: 85%;
-		overflow-y: scroll;
-	}
-
-	&.draggable {
-		.top-section {
-			&:hover {
-				cursor: grab;
-			}
-		}
+		width: 100%;
+		padding: toRem(16);
+		gap: toRem(8);
 	}
 }
 </style>
