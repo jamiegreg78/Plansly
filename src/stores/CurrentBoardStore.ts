@@ -47,14 +47,16 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 
 	
 	async function loadCurrentBoard() {
-		const { data, error }= await supabase
+		const { data, error } = await supabase
 			.from('boards')
 			.select(`
 				*,
 				lists (
 					*,
 					tasks (
-						*
+						*,
+						blocking:blocking_dependencies!blocking_dependencies_blocking_task_fkey (*, information:tasks!blocking_dependencies_blocked_task_fkey (id, name, description, list)),
+						blocked:blocking_dependencies!blocking_dependencies_blocked_task_fkey (*, information:tasks!blocking_dependencies_blocking_task_fkey (id, name, description, list))
 					)
 				)
 			`)
@@ -126,8 +128,12 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 						list: listId,
 						order: newCardOrder + 1
 					}
-				]).select()
-
+				]).select(
+					`*, 
+						blocking:blocking_dependencies!blocking_dependencies_blocking_task_fkey (*, information:tasks!blocking_dependencies_blocked_task_fkey (id, name, description, list)),
+						blocked:blocking_dependencies!blocking_dependencies_blocked_task_fkey (*, information:tasks!blocking_dependencies_blocking_task_fkey (id, name, description, list))
+					`
+				)
 			if (error) {
 				console.error(error)
 			} else {
@@ -185,27 +191,157 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 		}
 	}
 	
-	async function changeTaskDetails(newDetails: UpdatedTaskInformation) {
+	async function deleteDependencies(deletedDependencies) {
+		const deletedDependencyIds = deletedDependencies.map((dependency: any) => dependency.id)
+		const { data, error } = await supabase
+			.from('blocking_dependencies')
+			.delete()
+			.in('id', deletedDependencyIds)
+		if (error) {
+			console.error(error)
+		} else {
+			// Delete the dependencies from the task at the other end of the dependency
+			deletedDependencies.forEach((dependency: any) => {
+				const listIndex: number | undefined = currentBoard.value?.lists.findIndex(x => x.id === dependency.information.list)
+				const taskIndex = listIndex !== undefined ? currentBoard.value?.lists[listIndex].tasks?.findIndex(x => x.id === dependency.information.id) : undefined
+				
+				if (taskIndex !== undefined) {
+					const task: Task | undefined = currentBoard.value?.lists[listIndex!].tasks?.[taskIndex]
+					const blockingOrBlocked: 'blocking' | 'blocked' = 
+						task !== undefined && dependency.blocking_task === task.id ? 'blocking' : 'blocked' 
+					
+					// Delete the dependency from the appropriate array
+					if (task !== undefined && blockingOrBlocked === 'blocking') {
+						task.blocking.splice(task.blocking.findIndex(x => x.id === dependency.id), 1)
+					} else if (task !== undefined && blockingOrBlocked === 'blocked') {
+						//task.blocked = task.blocked?.filter(x => x.id !== dependency.id)
+						task.blocked.splice(task.blocked.findIndex(x => x.id === dependency.id), 1)
+					}
+				}
+			})
+		}
+	}
+	
+	async function addDependencies(newDependencies) {
+		// clone dependencies then remove the information object
+		const dependencies = JSON.parse(JSON.stringify(newDependencies))
+		dependencies.forEach((dependency: any) => {
+			delete dependency.information
+			delete dependency.created_at
+			delete dependency.user_id
+			if (dependency.id === undefined) {
+				// This value is replaced by the database using a trigger function
+				dependency.id = null
+			}
+		})
+
+		const { data, error } = await supabase
+			.from('blocking_dependencies')
+			.upsert([...dependencies], { onConflict: 'id', ignoreDuplicates: false})
+		if (error) {
+			console.error(error)
+		}
+	}
+	
+	// Repairs any missing pairings between tasks that are blocking/blocked by each other
+	function repairDependencyPairings(newDependencies) {
+
+		// Manually add the new dependency to the other task
+		newDependencies.blocked.forEach((dep: any) => {
+			const listIndex = currentBoard.value?.lists.findIndex((x: List) => x.id === dep.information.list)
+			const taskIndex = currentBoard.value?.lists[listIndex!].tasks?.findIndex((x: Task) => x.id === dep.information.id)
+			const task: Task = currentBoard.value?.lists[listIndex!].tasks![taskIndex!]!
+			const alreadyHasDependency = task.blocking?.findIndex(x => x.id === dep.id) !== -1
+			const newDep = {...dep, information: {
+				id: newDependencies.id,
+				name: newDependencies.name,
+				description: newDependencies.description,
+				list: newDependencies.list
+			}}
+			
+			if (!alreadyHasDependency) {
+				task.blocking.push(newDep)
+			}
+		})
+
+		// Do the same for the blocked tasks
+		newDependencies.blocking.forEach((dep: any) => {
+			const listIndex = currentBoard.value?.lists.findIndex((x: List) => x.id === dep.information.list)
+			const taskIndex = currentBoard.value?.lists[listIndex!].tasks?.findIndex((x: Task) => x.id === dep.information.id)
+			const task: Task = currentBoard.value?.lists[listIndex!].tasks![taskIndex!]!
+			const alreadyHasDependency = task.blocked?.findIndex((x: any) => x.id === dep.id) !== -1
+			const newDep = {...dep, information: {
+				id: newDependencies.id,
+				name: newDependencies.name,
+				description: newDependencies.description,
+				list: newDependencies.list
+			}}
+
+			if (!alreadyHasDependency) {
+				task.blocked.push(newDep)
+			}
+		})
+	}
+	
+	// TODO: TYPE FOR DEPENDENCIES
+	async function changeTaskDetails(newDetails: UpdatedTaskInformation, newDependencies?: any, deletedDependencies?: any) {
 		const listIndex: number | undefined = currentBoard.value?.lists.findIndex(x => x.id === currentTaskOverview.value?.list)
 		const copiedTask: Task = JSON.parse(JSON.stringify(currentTaskOverview.value))
 		
+		if (deletedDependencies !== undefined && deletedDependencies.length) {
+			await deleteDependencies(deletedDependencies)
+		}
+
+		if (newDependencies !== undefined && newDependencies.length) {
+			await addDependencies(newDependencies)
+		}
+
 		if (listIndex !== undefined) {
 			const taskIndex: number | undefined = currentBoard.value?.lists[listIndex].tasks?.findIndex(x => x.id === currentTaskOverview.value?.id)
+			delete copiedTask.blocking
+			delete copiedTask.blocked
 
 			const { data, error } = await supabase
 				.from('tasks')
 				.upsert({...copiedTask, ...newDetails})
-				.select()
+				.select(`*, 
+						blocking:blocking_dependencies!blocking_dependencies_blocking_task_fkey (*, information:tasks!blocking_dependencies_blocked_task_fkey (id, name, description, list)),
+						blocked:blocking_dependencies!blocking_dependencies_blocked_task_fkey (*, information:tasks!blocking_dependencies_blocking_task_fkey (id, name, description, list))
+				`)
 
 			if (error) {
 				console.error(error)
 			} else {
 				if (currentBoard.value && taskIndex !== undefined) {
 					currentBoard.value.lists[listIndex].tasks![taskIndex] = data[0] as Task
+
+					repairDependencyPairings(data[0])
 				}
 			}
 		}
-}
+	}
+	
+	async function addTaskDependencies(newDependencies) {
+		newDependencies.forEach(dep => delete dep.information)
+		const { data, error } = await supabase
+			.from('blocking_dependencies')
+			.upsert([...newDependencies], { onConflict: 'id', ignoreDuplicates: false })
+			.select(`*, 
+				information:blocking_dependencies_blocking_task_fkey (name, description, id, list)
+			`)
+		if (error) {
+			console.error(error)
+		}	else {
+			// Find the task, either add or replace the dependencies
+			data.forEach(newDep => {
+				const listIndex = currentBoard.value?.lists.findIndex((x: List) => x.id === newDep.information.list)
+				const taskIndex = currentBoard.value?.lists[listIndex].tasks?.findIndex((x: Task) => x.id === newDep.information.id)
+				const foundTask = currentBoard.value?.lists[listIndex].tasks[taskIndex]
+				console.log(listIndex, taskIndex)
+				console.log(foundTask)
+			})
+		}
+	}
 
 	async function toggleTaskCompleted(task: Task) {
 		const { data, error } = await supabase
@@ -440,5 +576,6 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 		moveList,
 		filter,
 		filteredBoard,
+		addTaskDependencies
 	}
 })

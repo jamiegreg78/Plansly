@@ -51,6 +51,20 @@
 						{{ tag }}
 					</span>
 				</div>
+				<div class="dependencies">
+					<h3 class="dependency-section-label">Dependencies</h3>
+					<div class="current-dependencies"
+						v-if="dependencyArray.length">
+						<Dependency v-for="dep, index in dependencyArray"
+							:dependency="dep"
+							:current-task-id="currentBoardStore.currentTaskOverview?.id!"
+							:key="index"
+							@toggle-dependency-mode="toggleDependencyMode"
+							@delete-dependency="deleteDependency" />
+					</div>
+					<DependencyAdd :current-dependencies="dependencyArray"
+						@add-dependency="addDependency($event)" />
+				</div>
 			</div>
 			<div class="delete-container">
 				<div class="options">
@@ -90,6 +104,8 @@ import TextInput from '@/components/inputs/TextInput.vue'
 import { useCurrentBoardStore } from '@/stores/CurrentBoardStore'
 import type { Task } from '@/types/DatabaseTypes'
 import { ref, onBeforeMount, computed } from 'vue'
+import DependencyAdd from './DependencyAdd.vue'
+import Dependency from './Dependency.vue'
 const currentBoardStore = useCurrentBoardStore()
 const deleteMenuIsOpen = ref<boolean>(false)
 
@@ -98,6 +114,35 @@ const description = ref<string>('')
 const expectedStart = ref<string>('')
 const expectedFinish = ref<string>('')
 const tags = ref<Array<string>>([])
+const dependencyArray = ref<Array<any>>([])
+const deletedDependencies = ref<Array<any>>([])
+
+function addDependency(newDependencyInformation) {
+	const copiedDependencyArray = [...dependencyArray.value]
+	copiedDependencyArray.push(newDependencyInformation)
+
+	dependencyArray.value = copiedDependencyArray
+}
+
+function deleteDependency(deletedDependency) {
+	dependencyArray.value.splice(dependencyArray.value.indexOf(deletedDependency), 1)
+
+	// If there is no id, then it hasn't been saved to the database yet
+	if (deletedDependency.id !== undefined) {
+		deletedDependencies.value.push(deletedDependency)
+	}
+}
+
+function toggleDependencyMode(dependency) {
+	const dependencyIndex: number = dependencyArray.value.indexOf(dependency)
+	const copiedDependency = { ...dependencyArray.value[dependencyIndex] }
+
+	dependencyArray.value[dependencyIndex] = {
+		...copiedDependency,
+		blocked_task: copiedDependency.blocking_task,
+		blocking_task: copiedDependency.blocked_task
+	}
+}
 
 const tagPool = computed(() => {
 	let tagArray: Array<string> = []
@@ -118,6 +163,7 @@ function addTag(newTag: string) {
 }
 
 async function saveChanges() {
+	// TODO: Maybe debounce?
 	const convertedStartDate: string | null = expectedStart.value.length ? new Date(expectedStart.value).toISOString() : null
 	const convertedFinishDate: string | null = expectedFinish.value.length ? new Date(expectedFinish.value).toISOString() : null
 
@@ -126,8 +172,8 @@ async function saveChanges() {
 		description: description.value,
 		expected_start_date: convertedStartDate,
 		expected_finish_date: convertedFinishDate,
-		tags: tags.value
-	})
+		tags: tags.value,
+	}, dependencyArray.value, deletedDependencies.value)
 
 	closeOverview()
 }
@@ -146,6 +192,12 @@ onBeforeMount(() => {
 	}
 	if (currentBoardStore.currentTaskOverview?.tags) {
 		tags.value = [...currentBoardStore.currentTaskOverview.tags]
+	}
+	if (currentBoardStore.currentTaskOverview?.blocked) {
+		dependencyArray.value.push(...currentBoardStore.currentTaskOverview?.blocked)
+	}
+	if (currentBoardStore.currentTaskOverview?.blocking) {
+		dependencyArray.value.push(...currentBoardStore.currentTaskOverview?.blocking)
 	}
 })
 
@@ -167,6 +219,16 @@ async function deleteTask() {
 	@include modal-form;
 
 	.task-details {
+		.dependency-section-label {
+			@include regular-semibold;
+			color: var(--gray);
+			margin: 0 0 toRem(4) 0;
+		}
+
+		.dependencies {
+			margin-bottom: toRem(8);
+		}
+
 		.tag-container {
 			display: flex;
 			gap: toRem(4);

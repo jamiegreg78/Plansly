@@ -73,7 +73,7 @@ watch(boardSearch, () => {
 	}
 })
 
-// casted to any because of a TS error
+// casted to any because of a ts error
 watch(currentBoardStore.currentBoard as any, () => {
 	initialiseFuse()
 })
@@ -81,7 +81,7 @@ watch(currentBoardStore.currentBoard as any, () => {
 function initialiseFuse() {
 	fuse = new Fuse(currentBoardStore.currentBoard?.lists as any, {
 		keys: [
-			'name', 'description', 'tasks.name', 'tasks.description', 'tasks.tags'
+			'tasks.name', 'tasks.description'
 		],
 		findAllMatches: true,
 		useExtendedSearch: true,
@@ -108,7 +108,7 @@ const closeListener = async (event: Event) => {
 onMounted(() => {
 	fuse = new Fuse(currentBoardStore.currentBoard?.lists as any, {
 		keys: [
-			'name', 'description', 'tasks.name', 'tasks.description', 'tasks.tags'
+			'tasks.name', 'tasks.description'
 		],
 		findAllMatches: true,
 		useExtendedSearch: true,
