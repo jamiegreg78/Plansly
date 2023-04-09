@@ -192,7 +192,7 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 	}
 	
 	async function deleteDependencies(deletedDependencies: Dependency[]) {
-		const deletedDependencyIds = deletedDependencies.map((dependency: any) => dependency.id)
+		const deletedDependencyIds = deletedDependencies.map((dependency: Dependency) => dependency.id)
 		const { data, error } = await supabase
 			.from('blocking_dependencies')
 			.delete()
@@ -201,9 +201,9 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 			console.error(error)
 		} else {
 			// Delete the dependencies from the task at the other end of the dependency
-			deletedDependencies.forEach((dependency: any) => {
-				const listIndex: number | undefined = currentBoard.value?.lists.findIndex(x => x.id === dependency.information.list)
-				const taskIndex = listIndex !== undefined ? currentBoard.value?.lists[listIndex].tasks?.findIndex(x => x.id === dependency.information.id) : undefined
+			deletedDependencies.forEach((dependency: Dependency) => {
+				const listIndex: number | undefined = currentBoard.value?.lists.findIndex(x => x.id === dependency.information?.list)
+				const taskIndex = listIndex !== undefined ? currentBoard.value?.lists[listIndex].tasks?.findIndex(x => x.id === dependency.information?.id) : undefined
 				
 				if (taskIndex !== undefined) {
 					const task: Task | undefined = currentBoard.value?.lists[listIndex!].tasks?.[taskIndex]
@@ -244,7 +244,6 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 	}
 	
 	// Repairs any missing pairings between tasks that are blocking/blocked by each other
-	// TODO: Change name to something more appropriate - this is a task, not a dependency
 	function repairDependencyPairings(task: Task) {
 		function tempFunction(array: Dependency[], mode: 'blocking' | 'blocked') {
 			// For each blocking dependency
@@ -255,11 +254,11 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 
 				if (pairedTask) {
 					// Check to see if the dependency is already in the correct array (opposite)
-					let foundCurrentDependency: Dependency | undefined = pairedTask[mode === 'blocking' ? 'blocking' : 'blocked'].find(foundDependency => foundDependency.id === dependency.id)
-					let foundCurrentDependencyIndex: number | undefined = pairedTask[mode === 'blocking' ? 'blocking' : 'blocked'].indexOf(foundCurrentDependency)
+					const foundCurrentDependency: Dependency | undefined = pairedTask[mode === 'blocking' ? 'blocking' : 'blocked'].find(foundDependency => foundDependency.id === dependency.id)
 					
 					// If the dependency is already there, check for changes and update if necessary, otherwise add it
 					if (foundCurrentDependency !== undefined) {
+						const foundCurrentDependencyIndex: number | undefined = pairedTask[mode === 'blocking' ? 'blocking' : 'blocked'].indexOf(foundCurrentDependency)
 						const hasChanged = (foundCurrentDependency.blocking_task !== dependency.blocking_task && foundCurrentDependency.blocked_task !== dependency.blocked_task)
 						if (hasChanged) {
 							// Remove it from the current array and place it in the opposite
@@ -295,7 +294,7 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 	// TODO: TYPE FOR DEPENDENCIES
 	async function changeTaskDetails(newDetails: UpdatedTaskInformation, newDependencies?: Dependency[], deletedDependencies?: Dependency[]) {
 		const listIndex: number | undefined = currentBoard.value?.lists.findIndex(x => x.id === currentTaskOverview.value?.list)
-		const copiedTask: Task = JSON.parse(JSON.stringify(currentTaskOverview.value))
+		const copiedTask: any = JSON.parse(JSON.stringify(currentTaskOverview.value)) // Casted to any since I'm removing the blocking and blocked properties - it will be reassigned later
 		
 		if (deletedDependencies !== undefined && deletedDependencies.length) {
 			await deleteDependencies(deletedDependencies)

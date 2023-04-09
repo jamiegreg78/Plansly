@@ -37,16 +37,14 @@
 </template>
 
 <script setup lang="ts">
-// TODO: Fix the already added ones appearing in search afterwards
-
 import TextInput from '@/components/inputs/TextInput.vue';
 import { useCurrentBoardStore } from '@/stores/CurrentBoardStore';
-import type { Task } from '@/types/DatabaseTypes';
+import type { Dependency, Task } from '@/types/DatabaseTypes';
 import Fuse from 'fuse.js';
 import { ref, watch, onMounted, onBeforeUnmount, computed } from 'vue'
 
 export interface DependencyAddProps {
-	currentDependencies: Task[]
+	currentDependencies: Dependency[]
 }
 const props = defineProps<DependencyAddProps>()
 
@@ -100,9 +98,9 @@ watch(search, async () => {
 				// Don't add if the task is already in the array
 				// Also don't add if the found task is the task we're adding the dependency to
 				if (!foundTasks.includes(task) && task.id !== currentBoardStore.currentTaskOverview?.id) {
-					const alreadyBlocked = currentBoardStore.currentTaskOverview?.blocked.findIndex((item) => item.information.id === task.id) !== -1
-					const alreadyBlocking = currentBoardStore.currentTaskOverview?.blocking.findIndex((item) => item.information.id === task.id) !== -1
-					const alreadyInDependencies = props.currentDependencies.findIndex((item) => item.blocking_task === task.id || item.blocked_task === task.id) !== -1
+					const alreadyBlocked = currentBoardStore.currentTaskOverview?.blocked.findIndex((item) => item.information?.id === task.id) !== -1
+					const alreadyBlocking = currentBoardStore.currentTaskOverview?.blocking.findIndex((item) => item.information?.id === task.id) !== -1
+					const alreadyInDependencies = props.currentDependencies.findIndex((item: Dependency) => item.blocking_task === task.id || item.blocked_task === task.id) !== -1
 
 					// Finally don't add it if the task is already a dependency
 					if (!alreadyBlocked && !alreadyBlocking && !alreadyInDependencies) {
