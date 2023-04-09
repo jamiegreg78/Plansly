@@ -1,5 +1,5 @@
 import { supabase } from '@/backend/Authentication'
-import type { Board, List, UpdatedListInformation, Task, UpdatedTaskInformation, UpdatedBoardInformation } from '@/types/DatabaseTypes'
+import type { Board, List, UpdatedListInformation, Task, UpdatedTaskInformation, UpdatedBoardInformation, Dependency } from '@/types/DatabaseTypes'
 import { sortArrayByKey } from '@/utils/UtilityFunctions'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
@@ -191,7 +191,7 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 		}
 	}
 	
-	async function deleteDependencies(deletedDependencies) {
+	async function deleteDependencies(deletedDependencies: Dependency[]) {
 		const deletedDependencyIds = deletedDependencies.map((dependency: any) => dependency.id)
 		const { data, error } = await supabase
 			.from('blocking_dependencies')
@@ -222,10 +222,10 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 		}
 	}
 	
-	async function addDependencies(newDependencies) {
+	async function addDependencies(newDependencies: Dependency[]) {
 		// clone dependencies then remove the information object
 		const dependencies = JSON.parse(JSON.stringify(newDependencies))
-		dependencies.forEach((dependency: any) => {
+		dependencies.forEach((dependency: Dependency) => {
 			delete dependency.information
 			delete dependency.created_at
 			delete dependency.user_id
@@ -244,47 +244,56 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 	}
 	
 	// Repairs any missing pairings between tasks that are blocking/blocked by each other
-	function repairDependencyPairings(newDependencies) {
+	// TODO: Change name to something more appropriate - this is a task, not a dependency
+	function repairDependencyPairings(task: Task) {
+		function tempFunction(array: Dependency[], mode: 'blocking' | 'blocked') {
+			// For each blocking dependency
+			array.forEach((dependency) => {
+				// Find the paired task
+				const taskList: List | undefined = currentBoard.value?.lists.find(list => list.id === dependency.information?.list)
+				const pairedTask: Task | undefined = taskList?.tasks?.find(task => task.id === dependency.information?.id)
 
-		// Manually add the new dependency to the other task
-		newDependencies.blocked.forEach((dep: any) => {
-			const listIndex = currentBoard.value?.lists.findIndex((x: List) => x.id === dep.information.list)
-			const taskIndex = currentBoard.value?.lists[listIndex!].tasks?.findIndex((x: Task) => x.id === dep.information.id)
-			const task: Task = currentBoard.value?.lists[listIndex!].tasks![taskIndex!]!
-			const alreadyHasDependency = task.blocking?.findIndex(x => x.id === dep.id) !== -1
-			const newDep = {...dep, information: {
-				id: newDependencies.id,
-				name: newDependencies.name,
-				description: newDependencies.description,
-				list: newDependencies.list
-			}}
-			
-			if (!alreadyHasDependency) {
-				task.blocking.push(newDep)
-			}
-		})
-
-		// Do the same for the blocked tasks
-		newDependencies.blocking.forEach((dep: any) => {
-			const listIndex = currentBoard.value?.lists.findIndex((x: List) => x.id === dep.information.list)
-			const taskIndex = currentBoard.value?.lists[listIndex!].tasks?.findIndex((x: Task) => x.id === dep.information.id)
-			const task: Task = currentBoard.value?.lists[listIndex!].tasks![taskIndex!]!
-			const alreadyHasDependency = task.blocked?.findIndex((x: any) => x.id === dep.id) !== -1
-			const newDep = {...dep, information: {
-				id: newDependencies.id,
-				name: newDependencies.name,
-				description: newDependencies.description,
-				list: newDependencies.list
-			}}
-
-			if (!alreadyHasDependency) {
-				task.blocked.push(newDep)
-			}
-		})
+				if (pairedTask) {
+					// Check to see if the dependency is already in the correct array (opposite)
+					let foundCurrentDependency: Dependency | undefined = pairedTask[mode === 'blocking' ? 'blocking' : 'blocked'].find(foundDependency => foundDependency.id === dependency.id)
+					let foundCurrentDependencyIndex: number | undefined = pairedTask[mode === 'blocking' ? 'blocking' : 'blocked'].indexOf(foundCurrentDependency)
+					
+					// If the dependency is already there, check for changes and update if necessary, otherwise add it
+					if (foundCurrentDependency !== undefined) {
+						const hasChanged = (foundCurrentDependency.blocking_task !== dependency.blocking_task && foundCurrentDependency.blocked_task !== dependency.blocked_task)
+						if (hasChanged) {
+							// Remove it from the current array and place it in the opposite
+							pairedTask[mode === 'blocking' ? 'blocking' : 'blocked'].splice(foundCurrentDependencyIndex, 1)
+							pairedTask[mode === 'blocking' ? 'blocked' : 'blocking'].push({
+								...dependency,
+								information: {
+									id: task.id,
+									name: task.name,
+									description: task.description,
+									list: task.list,
+								}
+							})
+						}
+					} else {
+						const alreadyInPlace = pairedTask[mode === 'blocking' ? 'blocked' : 'blocking'].find(foundDependency => foundDependency.id === dependency.id) !== undefined
+						if (!alreadyInPlace) {
+							pairedTask[mode === 'blocking' ? 'blocking' : 'blocked'].push({...dependency, information: {
+								id: task.id,
+								name: task.name,
+								description: task.description,
+								list: task.list,
+							}})
+						}
+					}
+				}
+			})
+		}
+		tempFunction(task.blocking, 'blocking')
+		tempFunction(task.blocked, 'blocked')
 	}
 	
 	// TODO: TYPE FOR DEPENDENCIES
-	async function changeTaskDetails(newDetails: UpdatedTaskInformation, newDependencies?: any, deletedDependencies?: any) {
+	async function changeTaskDetails(newDetails: UpdatedTaskInformation, newDependencies?: Dependency[], deletedDependencies?: Dependency[]) {
 		const listIndex: number | undefined = currentBoard.value?.lists.findIndex(x => x.id === currentTaskOverview.value?.list)
 		const copiedTask: Task = JSON.parse(JSON.stringify(currentTaskOverview.value))
 		
@@ -315,33 +324,12 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 				if (currentBoard.value && taskIndex !== undefined) {
 					currentBoard.value.lists[listIndex].tasks![taskIndex] = data[0] as Task
 
-					repairDependencyPairings(data[0])
+					repairDependencyPairings(data[0] as Task)
 				}
 			}
 		}
 	}
 	
-	async function addTaskDependencies(newDependencies) {
-		newDependencies.forEach(dep => delete dep.information)
-		const { data, error } = await supabase
-			.from('blocking_dependencies')
-			.upsert([...newDependencies], { onConflict: 'id', ignoreDuplicates: false })
-			.select(`*, 
-				information:blocking_dependencies_blocking_task_fkey (name, description, id, list)
-			`)
-		if (error) {
-			console.error(error)
-		}	else {
-			// Find the task, either add or replace the dependencies
-			data.forEach(newDep => {
-				const listIndex = currentBoard.value?.lists.findIndex((x: List) => x.id === newDep.information.list)
-				const taskIndex = currentBoard.value?.lists[listIndex].tasks?.findIndex((x: Task) => x.id === newDep.information.id)
-				const foundTask = currentBoard.value?.lists[listIndex].tasks[taskIndex]
-				console.log(listIndex, taskIndex)
-				console.log(foundTask)
-			})
-		}
-	}
 
 	async function toggleTaskCompleted(task: Task) {
 		const { data, error } = await supabase
@@ -575,7 +563,6 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 		changeBoardDetails,
 		moveList,
 		filter,
-		filteredBoard,
-		addTaskDependencies
+		filteredBoard
 	}
 })
