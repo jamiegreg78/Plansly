@@ -1,5 +1,20 @@
 import type { ColorPickerOptions } from './ColorPicker'
 
+// Represents the dependencies - the optional fields are only present after the dependency is inserted into the database
+export interface Dependency {
+	id?: number | null
+	created_at?: string
+	user_id?: string
+	blocking_task: number
+	blocked_task: number
+	information?: {
+		id: number
+		list: number
+		name: string
+		description: string
+	}
+}
+
 export interface UpdatedTaskInformation {
 	name?: string
 	description?: string
@@ -21,6 +36,8 @@ export interface Task {
 	completed: boolean
 	order: number
 	tags: Array<string>
+	blocking: Dependency[]
+	blocked: Dependency[]
 }
 
 export interface UpdatedListInformation {

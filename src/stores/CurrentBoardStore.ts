@@ -1,5 +1,5 @@
 import { supabase } from '@/backend/Authentication'
-import type { Board, List, UpdatedListInformation, Task, UpdatedTaskInformation, UpdatedBoardInformation } from '@/types/DatabaseTypes'
+import type { Board, List, UpdatedListInformation, Task, UpdatedTaskInformation, UpdatedBoardInformation, Dependency } from '@/types/DatabaseTypes'
 import { sortArrayByKey } from '@/utils/UtilityFunctions'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
@@ -47,14 +47,16 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 
 	
 	async function loadCurrentBoard() {
-		const { data, error }= await supabase
+		const { data, error } = await supabase
 			.from('boards')
 			.select(`
 				*,
 				lists (
 					*,
 					tasks (
-						*
+						*,
+						blocking:blocking_dependencies!blocking_dependencies_blocking_task_fkey (*, information:tasks!blocking_dependencies_blocked_task_fkey (id, name, description, list)),
+						blocked:blocking_dependencies!blocking_dependencies_blocked_task_fkey (*, information:tasks!blocking_dependencies_blocking_task_fkey (id, name, description, list))
 					)
 				)
 			`)
@@ -126,8 +128,12 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 						list: listId,
 						order: newCardOrder + 1
 					}
-				]).select()
-
+				]).select(
+					`*, 
+						blocking:blocking_dependencies!blocking_dependencies_blocking_task_fkey (*, information:tasks!blocking_dependencies_blocked_task_fkey (id, name, description, list)),
+						blocked:blocking_dependencies!blocking_dependencies_blocked_task_fkey (*, information:tasks!blocking_dependencies_blocking_task_fkey (id, name, description, list))
+					`
+				)
 			if (error) {
 				console.error(error)
 			} else {
@@ -185,27 +191,150 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 		}
 	}
 	
-	async function changeTaskDetails(newDetails: UpdatedTaskInformation) {
+	async function deleteDependencies(deletedDependencies: Dependency[]) {
+		const deletedDependencyIds = deletedDependencies.map((dependency: Dependency) => dependency.id)
+		const { data, error } = await supabase
+			.from('blocking_dependencies')
+			.delete()
+			.in('id', deletedDependencyIds)
+		if (error) {
+			console.error(error)
+		} else {
+			// Delete the dependencies from the task at the other end of the dependency
+			deletedDependencies.forEach((dependency: Dependency) => {
+				const listIndex: number | undefined = currentBoard.value?.lists.findIndex(x => x.id === dependency.information?.list)
+				const taskIndex = listIndex !== undefined ? currentBoard.value?.lists[listIndex].tasks?.findIndex(x => x.id === dependency.information?.id) : undefined
+				
+				if (taskIndex !== undefined) {
+					const task: Task | undefined = currentBoard.value?.lists[listIndex!].tasks?.[taskIndex]
+					const blockingOrBlocked: 'blocking' | 'blocked' = 
+						task !== undefined && dependency.blocking_task === task.id ? 'blocking' : 'blocked' 
+					
+					// Delete the dependency from the appropriate array
+					if (task !== undefined && blockingOrBlocked === 'blocking') {
+						task.blocking.splice(task.blocking.findIndex(x => x.id === dependency.id), 1)
+					} else if (task !== undefined && blockingOrBlocked === 'blocked') {
+						//task.blocked = task.blocked?.filter(x => x.id !== dependency.id)
+						task.blocked.splice(task.blocked.findIndex(x => x.id === dependency.id), 1)
+					}
+				}
+			})
+		}
+	}
+	
+	async function addDependencies(newDependencies: Dependency[]) {
+		// clone dependencies then remove the information object
+		const dependencies = JSON.parse(JSON.stringify(newDependencies))
+		dependencies.forEach((dependency: Dependency) => {
+			delete dependency.information
+			delete dependency.created_at
+			delete dependency.user_id
+			if (dependency.id === undefined) {
+				// This value is replaced by the database using a trigger function
+				dependency.id = null
+			}
+		})
+
+		const { data, error } = await supabase
+			.from('blocking_dependencies')
+			.upsert([...dependencies], { onConflict: 'id', ignoreDuplicates: false})
+		if (error) {
+			console.error(error)
+		}
+	}
+	
+	// Repairs any missing pairings between tasks that are blocking/blocked by each other
+	function repairDependencyPairings(task: Task) {
+		function tempFunction(array: Dependency[], mode: 'blocking' | 'blocked') {
+			// For each blocking dependency
+			array.forEach((dependency) => {
+				// Find the paired task
+				const taskList: List | undefined = currentBoard.value?.lists.find(list => list.id === dependency.information?.list)
+				const pairedTask: Task | undefined = taskList?.tasks?.find(task => task.id === dependency.information?.id)
+				if (pairedTask) {
+					// Check to see if the dependency is already in the correct array (opposite)
+					const foundCurrentDependency: Dependency | undefined = pairedTask[mode === 'blocking' ? 'blocking' : 'blocked'].find(foundDependency => foundDependency.id === dependency.id)
+					
+					// If the dependency is already there, check for changes and update if necessary, otherwise add it
+					if (foundCurrentDependency !== undefined) {
+						const foundCurrentDependencyIndex: number | undefined = pairedTask[mode === 'blocking' ? 'blocking' : 'blocked'].indexOf(foundCurrentDependency)
+						const hasChanged = (foundCurrentDependency.blocking_task !== dependency.blocking_task && foundCurrentDependency.blocked_task !== dependency.blocked_task)
+						if (hasChanged) {
+							// Remove it from the current array and place it in the opposite
+							pairedTask[mode === 'blocking' ? 'blocking' : 'blocked'].splice(foundCurrentDependencyIndex, 1)
+							pairedTask[mode === 'blocking' ? 'blocked' : 'blocking'].push({
+								...dependency,
+								information: {
+									id: task.id,
+									name: task.name,
+									description: task.description,
+									list: task.list,
+								}
+							})
+						}
+					} else {
+						const alreadyInPlace = pairedTask[mode === 'blocking' ? 'blocked' : 'blocking'].find(foundDependency => foundDependency.id === dependency.id) !== undefined
+						if (!alreadyInPlace) {
+							const copiedArray = [...pairedTask[mode === 'blocking' ? 'blocking' : 'blocked']]
+
+							copiedArray.push({
+								...dependency,
+								information: {
+									id: task.id,
+									name: task.name,
+									description: task.description,
+									list: task.list,
+								}
+							})
+
+							pairedTask[mode === 'blocking' ? 'blocked' : 'blocking'] = copiedArray
+						}
+					}
+				}
+			})
+		}
+		tempFunction(task.blocking, 'blocking')
+		tempFunction(task.blocked, 'blocked')
+	}
+	
+	// TODO: TYPE FOR DEPENDENCIES
+	async function changeTaskDetails(newDetails: UpdatedTaskInformation, newDependencies?: Dependency[], deletedDependencies?: Dependency[]) {
 		const listIndex: number | undefined = currentBoard.value?.lists.findIndex(x => x.id === currentTaskOverview.value?.list)
-		const copiedTask: Task = JSON.parse(JSON.stringify(currentTaskOverview.value))
+		const copiedTask: any = JSON.parse(JSON.stringify(currentTaskOverview.value)) // Casted to any since I'm removing the blocking and blocked properties - it will be reassigned later
 		
+		if (deletedDependencies !== undefined && deletedDependencies.length) {
+			await deleteDependencies(deletedDependencies)
+		}
+
+		if (newDependencies !== undefined && newDependencies.length) {
+			await addDependencies(newDependencies)
+		}
+
 		if (listIndex !== undefined) {
 			const taskIndex: number | undefined = currentBoard.value?.lists[listIndex].tasks?.findIndex(x => x.id === currentTaskOverview.value?.id)
+			delete copiedTask.blocking
+			delete copiedTask.blocked
 
 			const { data, error } = await supabase
 				.from('tasks')
 				.upsert({...copiedTask, ...newDetails})
-				.select()
+				.select(`*, 
+						blocking:blocking_dependencies!blocking_dependencies_blocking_task_fkey (*, information:tasks!blocking_dependencies_blocked_task_fkey (id, name, description, list)),
+						blocked:blocking_dependencies!blocking_dependencies_blocked_task_fkey (*, information:tasks!blocking_dependencies_blocking_task_fkey (id, name, description, list))
+				`)
 
 			if (error) {
 				console.error(error)
 			} else {
 				if (currentBoard.value && taskIndex !== undefined) {
 					currentBoard.value.lists[listIndex].tasks![taskIndex] = data[0] as Task
+
+					repairDependencyPairings(data[0] as Task)
 				}
 			}
 		}
-}
+	}
+	
 
 	async function toggleTaskCompleted(task: Task) {
 		const { data, error } = await supabase
@@ -305,11 +434,11 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 	// Moves the card within the same list
 	async function moveCardWithinSameList(listIndex: number, oldIndex: number, newIndex: number) {
 		// create a copy of the moved task first
-		const task: Task | undefined = currentBoard.value!.lists[listIndex].tasks?.[oldIndex]
+		const task: Task = {...currentBoard.value!.lists[listIndex].tasks?.[oldIndex]!}
 
 		// remove the original copy of the task first. Do all mutation on a duplicate array to maintain reactivity
-		let newList: Array<Task> | undefined = currentBoard.value!.lists[listIndex].tasks?.slice()
-		
+		let newList = [...currentBoard.value?.lists[listIndex].tasks!]
+
 		if (task !== undefined && newList !== undefined) {
 			newList.splice(oldIndex, 1)
 		
@@ -320,8 +449,11 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 		
 			const { data, error } = await supabase
 				.from('tasks')
-				.upsert([...newList])
-				.select()
+				.upsert(newList.map(({blocking, blocked, ...rest}) => rest))
+				.select(`*, 
+						blocking:blocking_dependencies!blocking_dependencies_blocking_task_fkey (*, information:tasks!blocking_dependencies_blocked_task_fkey (id, name, description, list)),
+						blocked:blocking_dependencies!blocking_dependencies_blocked_task_fkey (*, information:tasks!blocking_dependencies_blocking_task_fkey (id, name, description, list))
+				`)
 				.order('order')
 		
 			if (error) {
@@ -334,7 +466,7 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 	
 	async function moveCardsBetweenLists(oldListIndex: number, newListIndex: number, oldIndex: number, newIndex: number) {
 		// create a copy of the moved task first
-		const task: Task = JSON.parse(JSON.stringify(currentBoard.value!.lists[oldListIndex].tasks?.[oldIndex]))
+		const task: Task = {...currentBoard.value!.lists[oldListIndex].tasks?.[oldIndex]!}
 		// Set the new list id of the task
 		task.list = currentBoard.value!.lists[newListIndex].id
 
@@ -358,11 +490,18 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 			currentBoard.value!.lists[oldListIndex].tasks = tempOldList.slice()
 			currentBoard.value!.lists[newListIndex].tasks = tempNewList.slice()
 
-			await supabase
+			const {data, error} = await supabase
 				.from('tasks')
-				.upsert([...tempOldList, ...tempNewList])
+				.upsert([
+						...tempOldList.map(({blocking, blocked, ...rest}) => rest),
+						...tempNewList.map(({blocking, blocked, ...rest}) => rest)
+					])
 				.select()
 				.order('order')
+
+			if (error) {
+				console.error(error)
+			}
 		}
 	}
 	
@@ -439,6 +578,6 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 		changeBoardDetails,
 		moveList,
 		filter,
-		filteredBoard,
+		filteredBoard
 	}
 })

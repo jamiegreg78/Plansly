@@ -6,9 +6,15 @@
 			<div class="top-section">
 				<button class="completed-status"
 					tabindex="0"
-					:class="{ completed: currentBoardStore.currentTaskOverview?.completed }"
-					@click="currentBoardStore.toggleTaskCompleted(currentBoardStore.currentTaskOverview as Task)">
-					<font-awesome-icon v-if="currentBoardStore.currentTaskOverview?.completed"
+					:class="{ completed: currentBoardStore.currentTaskOverview?.completed, locked: !isCompletable }"
+					@click="() => {
+						if (isCompletable) {
+							currentBoardStore.toggleTaskCompleted(currentBoardStore.currentTaskOverview as Task)
+						}
+					}">
+					<font-awesome-icon v-if="!isCompletable"
+						icon="fa-solid fa-lock" />
+					<font-awesome-icon v-else-if="currentBoardStore.currentTaskOverview?.completed"
 						icon="fa-solid fa-circle-check" />
 					<font-awesome-icon v-else
 						icon="fa-regular fa-circle-check" />
@@ -51,6 +57,20 @@
 						{{ tag }}
 					</span>
 				</div>
+				<div class="dependencies">
+					<h3 class="dependency-section-label">Dependencies</h3>
+					<div class="current-dependencies"
+						v-if="dependencyArray.length">
+						<ExistingDependency v-for="dep, index in dependencyArray"
+							:dependency="dep"
+							:current-task-id="currentBoardStore.currentTaskOverview?.id!"
+							:key="index"
+							@toggle-dependency-mode="toggleDependencyMode"
+							@delete-dependency="deleteDependency" />
+					</div>
+					<DependencyAdd :current-dependencies="dependencyArray"
+						@add-dependency="addDependency($event)" />
+				</div>
 			</div>
 			<div class="delete-container">
 				<div class="options">
@@ -88,8 +108,10 @@ import DateInput from '@/components/inputs/DateInput.vue'
 import TagInput from '@/components/inputs/TagInput.vue'
 import TextInput from '@/components/inputs/TextInput.vue'
 import { useCurrentBoardStore } from '@/stores/CurrentBoardStore'
-import type { Task } from '@/types/DatabaseTypes'
+import type { Dependency, Task } from '@/types/DatabaseTypes'
 import { ref, onBeforeMount, computed } from 'vue'
+import DependencyAdd from './DependencyAdd.vue'
+import ExistingDependency from './ExistingDependency.vue'
 const currentBoardStore = useCurrentBoardStore()
 const deleteMenuIsOpen = ref<boolean>(false)
 
@@ -98,6 +120,54 @@ const description = ref<string>('')
 const expectedStart = ref<string>('')
 const expectedFinish = ref<string>('')
 const tags = ref<Array<string>>([])
+const dependencyArray = ref<Array<any>>([])
+const deletedDependencies = ref<Array<any>>([])
+
+const isCompletable = computed(() => {
+	// If the current task is already complete, just show it - don't forcibly un-complete it
+	if (currentBoardStore.currentTaskOverview?.completed) {
+		return true
+	}
+
+	// If there are no tasks blocking this one, return true
+	if (!currentBoardStore.currentTaskOverview?.blocked.length) {
+		return true
+	} else {
+		// if at least one of these is not completed, return false
+		return currentBoardStore.currentTaskOverview.blocked.every((dependency) => {
+			return currentBoardStore.currentBoard?.lists?.find((list) => { return list.id === dependency.information?.list })?.tasks?.find((task) => {
+				return task.id === dependency.information?.id
+			})?.completed
+		})
+	}
+})
+
+function addDependency(newDependencyInformation: Dependency) {
+	const copiedDependencyArray = [...dependencyArray.value]
+	copiedDependencyArray.push(newDependencyInformation)
+
+	dependencyArray.value = copiedDependencyArray
+}
+
+function deleteDependency(deletedDependency: Dependency) {
+	dependencyArray.value.splice(dependencyArray.value.indexOf(deletedDependency), 1)
+
+	// If there is no id, then it hasn't been saved to the database yet
+	if (deletedDependency.id !== undefined) {
+		deletedDependencies.value.push(deletedDependency)
+	}
+}
+
+function toggleDependencyMode(dependency: Dependency) {
+	const dependencyIndex: number = dependencyArray.value.indexOf(dependency)
+	const copiedDependency = { ...dependencyArray.value[dependencyIndex] }
+
+	dependencyArray.value[dependencyIndex] = {
+		...copiedDependency,
+		blocked_task: copiedDependency.blocking_task,
+		blocking_task: copiedDependency.blocked_task
+	}
+}
 
 const tagPool = computed(() => {
 	let tagArray: Array<string> = []
@@ -126,8 +196,8 @@ async function saveChanges() {
 		description: description.value,
 		expected_start_date: convertedStartDate,
 		expected_finish_date: convertedFinishDate,
-		tags: tags.value
-	})
+		tags: tags.value,
+	}, dependencyArray.value, deletedDependencies.value)
 
 	closeOverview()
 }
@@ -146,6 +216,12 @@ onBeforeMount(() => {
 	}
 	if (currentBoardStore.currentTaskOverview?.tags) {
 		tags.value = [...currentBoardStore.currentTaskOverview.tags]
+	}
+	if (currentBoardStore.currentTaskOverview?.blocked) {
+		dependencyArray.value.push(...currentBoardStore.currentTaskOverview?.blocked)
+	}
+	if (currentBoardStore.currentTaskOverview?.blocking) {
+		dependencyArray.value.push(...currentBoardStore.currentTaskOverview?.blocking)
 	}
 })
 
@@ -167,6 +243,16 @@ async function deleteTask() {
 	@include modal-form;
 
 	.task-details {
+		.dependency-section-label {
+			@include regular-semibold;
+			color: var(--gray);
+			margin: 0 0 toRem(4) 0;
+		}
+
+		.dependencies {
+			margin-bottom: toRem(8);
+		}
+
 		.tag-container {
 			display: flex;
 			gap: toRem(4);
@@ -203,6 +289,10 @@ async function deleteTask() {
 
 		&:hover {
 			cursor: pointer;
+		}
+
+		&.locked {
+			color: var(--error);
 		}
 	}
 }
