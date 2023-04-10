@@ -6,9 +6,15 @@
 			<div class="top-section">
 				<button class="completed-status"
 					tabindex="0"
-					:class="{ completed: currentBoardStore.currentTaskOverview?.completed }"
-					@click="currentBoardStore.toggleTaskCompleted(currentBoardStore.currentTaskOverview as Task)">
-					<font-awesome-icon v-if="currentBoardStore.currentTaskOverview?.completed"
+					:class="{ completed: currentBoardStore.currentTaskOverview?.completed, locked: !isCompletable }"
+					@click="() => {
+						if (isCompletable) {
+							currentBoardStore.toggleTaskCompleted(currentBoardStore.currentTaskOverview as Task)
+						}
+					}">
+					<font-awesome-icon v-if="!isCompletable"
+						icon="fa-solid fa-lock" />
+					<font-awesome-icon v-else-if="currentBoardStore.currentTaskOverview?.completed"
 						icon="fa-solid fa-circle-check" />
 					<font-awesome-icon v-else
 						icon="fa-regular fa-circle-check" />
@@ -55,7 +61,7 @@
 					<h3 class="dependency-section-label">Dependencies</h3>
 					<div class="current-dependencies"
 						v-if="dependencyArray.length">
-						<Dependency v-for="dep, index in dependencyArray"
+						<ExistingDependency v-for="dep, index in dependencyArray"
 							:dependency="dep"
 							:current-task-id="currentBoardStore.currentTaskOverview?.id!"
 							:key="index"
@@ -102,10 +108,10 @@ import DateInput from '@/components/inputs/DateInput.vue'
 import TagInput from '@/components/inputs/TagInput.vue'
 import TextInput from '@/components/inputs/TextInput.vue'
 import { useCurrentBoardStore } from '@/stores/CurrentBoardStore'
-import type { Task } from '@/types/DatabaseTypes'
+import type { Dependency, Task } from '@/types/DatabaseTypes'
 import { ref, onBeforeMount, computed } from 'vue'
 import DependencyAdd from './DependencyAdd.vue'
-import Dependency from './Dependency.vue'
+import ExistingDependency from './ExistingDependency.vue'
 const currentBoardStore = useCurrentBoardStore()
 const deleteMenuIsOpen = ref<boolean>(false)
 
@@ -117,14 +123,33 @@ const tags = ref<Array<string>>([])
 const dependencyArray = ref<Array<any>>([])
 const deletedDependencies = ref<Array<any>>([])
 
-function addDependency(newDependencyInformation) {
+const isCompletable = computed(() => {
+	// If the current task is already complete, just show it - don't forcibly un-complete it
+	if (currentBoardStore.currentTaskOverview?.completed) {
+		return true
+	}
+
+	// If there are no tasks blocking this one, return true
+	if (!currentBoardStore.currentTaskOverview?.blocked.length) {
+		return true
+	} else {
+		// if at least one of these is not completed, return false
+		return currentBoardStore.currentTaskOverview.blocked.every((dependency) => {
+			return currentBoardStore.currentBoard?.lists?.find((list) => { return list.id === dependency.information?.list })?.tasks?.find((task) => {
+				return task.id === dependency.information?.id
+			})?.completed
+		})
+	}
+})
+
+function addDependency(newDependencyInformation: Dependency) {
 	const copiedDependencyArray = [...dependencyArray.value]
 	copiedDependencyArray.push(newDependencyInformation)
 
 	dependencyArray.value = copiedDependencyArray
 }
 
-function deleteDependency(deletedDependency) {
+function deleteDependency(deletedDependency: Dependency) {
 	dependencyArray.value.splice(dependencyArray.value.indexOf(deletedDependency), 1)
 
 	// If there is no id, then it hasn't been saved to the database yet
@@ -133,7 +158,7 @@ function deleteDependency(deletedDependency) {
 	}
 }
 
-function toggleDependencyMode(dependency) {
+function toggleDependencyMode(dependency: Dependency) {
 	const dependencyIndex: number = dependencyArray.value.indexOf(dependency)
 	const copiedDependency = { ...dependencyArray.value[dependencyIndex] }
 
@@ -163,7 +188,6 @@ function addTag(newTag: string) {
 }
 
 async function saveChanges() {
-	// TODO: Maybe debounce?
 	const convertedStartDate: string | null = expectedStart.value.length ? new Date(expectedStart.value).toISOString() : null
 	const convertedFinishDate: string | null = expectedFinish.value.length ? new Date(expectedFinish.value).toISOString() : null
 
@@ -265,6 +289,10 @@ async function deleteTask() {
 
 		&:hover {
 			cursor: pointer;
+		}
+
+		&.locked {
+			color: var(--error);
 		}
 	}
 }

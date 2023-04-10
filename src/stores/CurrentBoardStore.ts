@@ -251,7 +251,6 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 				// Find the paired task
 				const taskList: List | undefined = currentBoard.value?.lists.find(list => list.id === dependency.information?.list)
 				const pairedTask: Task | undefined = taskList?.tasks?.find(task => task.id === dependency.information?.id)
-
 				if (pairedTask) {
 					// Check to see if the dependency is already in the correct array (opposite)
 					const foundCurrentDependency: Dependency | undefined = pairedTask[mode === 'blocking' ? 'blocking' : 'blocked'].find(foundDependency => foundDependency.id === dependency.id)
@@ -276,12 +275,19 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 					} else {
 						const alreadyInPlace = pairedTask[mode === 'blocking' ? 'blocked' : 'blocking'].find(foundDependency => foundDependency.id === dependency.id) !== undefined
 						if (!alreadyInPlace) {
-							pairedTask[mode === 'blocking' ? 'blocking' : 'blocked'].push({...dependency, information: {
-								id: task.id,
-								name: task.name,
-								description: task.description,
-								list: task.list,
-							}})
+							const copiedArray = [...pairedTask[mode === 'blocking' ? 'blocking' : 'blocked']]
+
+							copiedArray.push({
+								...dependency,
+								information: {
+									id: task.id,
+									name: task.name,
+									description: task.description,
+									list: task.list,
+								}
+							})
+
+							pairedTask[mode === 'blocking' ? 'blocked' : 'blocking'] = copiedArray
 						}
 					}
 				}
@@ -428,11 +434,11 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 	// Moves the card within the same list
 	async function moveCardWithinSameList(listIndex: number, oldIndex: number, newIndex: number) {
 		// create a copy of the moved task first
-		const task: Task | undefined = currentBoard.value!.lists[listIndex].tasks?.[oldIndex]
+		const task: Task = {...currentBoard.value!.lists[listIndex].tasks?.[oldIndex]!}
 
 		// remove the original copy of the task first. Do all mutation on a duplicate array to maintain reactivity
-		let newList: Array<Task> | undefined = currentBoard.value!.lists[listIndex].tasks?.slice()
-		
+		let newList = [...currentBoard.value?.lists[listIndex].tasks!]
+
 		if (task !== undefined && newList !== undefined) {
 			newList.splice(oldIndex, 1)
 		
@@ -443,8 +449,11 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 		
 			const { data, error } = await supabase
 				.from('tasks')
-				.upsert([...newList])
-				.select()
+				.upsert(newList.map(({blocking, blocked, ...rest}) => rest))
+				.select(`*, 
+						blocking:blocking_dependencies!blocking_dependencies_blocking_task_fkey (*, information:tasks!blocking_dependencies_blocked_task_fkey (id, name, description, list)),
+						blocked:blocking_dependencies!blocking_dependencies_blocked_task_fkey (*, information:tasks!blocking_dependencies_blocking_task_fkey (id, name, description, list))
+				`)
 				.order('order')
 		
 			if (error) {
@@ -457,7 +466,7 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 	
 	async function moveCardsBetweenLists(oldListIndex: number, newListIndex: number, oldIndex: number, newIndex: number) {
 		// create a copy of the moved task first
-		const task: Task = JSON.parse(JSON.stringify(currentBoard.value!.lists[oldListIndex].tasks?.[oldIndex]))
+		const task: Task = {...currentBoard.value!.lists[oldListIndex].tasks?.[oldIndex]!}
 		// Set the new list id of the task
 		task.list = currentBoard.value!.lists[newListIndex].id
 
@@ -481,11 +490,18 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 			currentBoard.value!.lists[oldListIndex].tasks = tempOldList.slice()
 			currentBoard.value!.lists[newListIndex].tasks = tempNewList.slice()
 
-			await supabase
+			const {data, error} = await supabase
 				.from('tasks')
-				.upsert([...tempOldList, ...tempNewList])
+				.upsert([
+						...tempOldList.map(({blocking, blocked, ...rest}) => rest),
+						...tempNewList.map(({blocking, blocked, ...rest}) => rest)
+					])
 				.select()
 				.order('order')
+
+			if (error) {
+				console.error(error)
+			}
 		}
 	}
 	

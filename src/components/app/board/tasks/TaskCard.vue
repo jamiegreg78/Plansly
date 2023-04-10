@@ -4,9 +4,15 @@
 		:data-task-id="task.id">
 		<div class="task-info">
 			<button class="completed-status"
-				:class="{ completed: props.task.completed }"
-				@click="currentBoardStore.toggleTaskCompleted(props.task)">
-				<font-awesome-icon v-if="props.task.completed"
+				:class="{ completed: props.task.completed, locked: !isCompletable }"
+				@click="() => {
+					if (isCompletable) {
+						currentBoardStore.toggleTaskCompleted(props.task)
+					}
+				}">
+				<font-awesome-icon v-if="!isCompletable"
+					icon="fa-solid fa-lock" />
+				<font-awesome-icon v-else-if="props.task.completed"
 					icon="fa-solid fa-circle-check" />
 				<font-awesome-icon v-else
 					icon="fa-regular fa-circle-check" />
@@ -38,13 +44,35 @@
 <script setup lang="ts">
 import Chip from '@/components/general/Chip.vue';
 import { useCurrentBoardStore } from '@/stores/CurrentBoardStore'
-import type { Task } from '@/types/DatabaseTypes'
+import type { Dependency, Task } from '@/types/DatabaseTypes'
 import { computed } from 'vue';
 
 export interface TaskCardProps {
 	task: Task,
 }
 const props = defineProps<TaskCardProps>()
+const currentBoardStore = useCurrentBoardStore()
+
+
+const isCompletable = computed(() => {
+	// If the current task is already complete, just show it - don't forcibly un-complete it
+	if (props.task.completed) {
+		return true
+	}
+
+	// If there are no tasks blocking this one, return true
+	if (!props.task.blocked.length) {
+		return true
+	} else {
+		// if at least one of these is not completed, return false
+		return props.task.blocked.every((dependency) => {
+			return currentBoardStore.currentBoard?.lists?.find((list) => { return list.id === dependency.information?.list })?.tasks?.find((task) => {
+				return task.id === dependency.information?.id
+			})?.completed
+		})
+	}
+})
+
 
 const computedDate = computed(() => {
 	if (props.task.expected_start_date?.length && !props.task.expected_finish_date?.length) {
@@ -61,14 +89,7 @@ const computedDate = computed(() => {
 	return ''
 })
 
-const currentBoardStore = useCurrentBoardStore()
 
-function getTags(quantity: number) {
-	if (props.task.tags) {
-		return props.task.tags.slice(0, quantity)
-	}
-	return []
-}
 </script>
 
 <style lang="scss" scoped>
@@ -103,6 +124,10 @@ function getTags(quantity: number) {
 
 			&:hover {
 				cursor: pointer;
+			}
+
+			&.locked {
+				color: var(--error);
 			}
 		}
 

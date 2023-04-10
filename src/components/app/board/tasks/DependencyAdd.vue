@@ -6,6 +6,7 @@
 		<font-awesome-icon icon="fa-solid fa-plus" />
 	</button>
 	<div class="dependency-container"
+		:class="{ hasResults: taskOptions.length }"
 		v-if="formVisible">
 		<button class="mode-toggle"
 			:class="mode"
@@ -19,10 +20,13 @@
 			container-class="dependency-search-container"
 			placeholder="Search for a task"
 			clear-button
+			@focus="dropdownHighlight = true"
+			@blur="dropdownHighlight = false"
 			:tab-index="0"
 			v-model="search" />
 		<div class="results-container"
 			:style="searchDropdownPosition"
+			:class="{ highlight: dropdownHighlight }"
 			v-if="taskOptions.length">
 			<span class="result"
 				@click="$event => {
@@ -49,6 +53,7 @@ export interface DependencyAddProps {
 const props = defineProps<DependencyAddProps>()
 
 const formVisible = ref<boolean>(false)
+const dropdownHighlight = ref<boolean>(false)
 const currentBoardStore = useCurrentBoardStore()
 const search = ref<string>('')
 const taskOptions = ref<Task[]>([])
@@ -75,17 +80,18 @@ function selectDependency(chosenTask: Task) {
 }
 
 const searchDropdownPosition = computed(() => {
-	// TODO: Calculate this again 
-	const search: HTMLElement | null = document.getElementById('DependencySearch')
-	if (search) {
+	const search: HTMLElement | null = document.querySelector('.dependency-search-container')
+
+	if (search && (taskOptions.value.length)) {
 		return {
-			top: `${search.getBoundingClientRect().bottom - 2}px`,
+			top: `${search.getBoundingClientRect().bottom}px`,
 			left: `${search.getBoundingClientRect().left}px`,
 			width: `${search.getBoundingClientRect().width}px`
 		}
 	}
 	return {}
 })
+
 
 watch(search, async () => {
 	if (fuse) {
@@ -137,7 +143,7 @@ onMounted(() => {
 </script>
 
 
-<style lang="scss" scoped>
+<style lang="scss">
 .add-dependency-toggle {
 	@include body-small;
 	background-color: transparent;
@@ -161,6 +167,12 @@ onMounted(() => {
 	height: toRem(40);
 	align-items: center;
 
+	&.hasResults {
+		div.input-wrapper {
+			border-bottom-left-radius: 0;
+			border-bottom-right-radius: 0;
+		}
+	}
 
 	.dependency-search-container {
 		margin: 0;
@@ -197,7 +209,8 @@ onMounted(() => {
 		z-index: 5;
 		background-color: var(--background);
 		border-radius: 0 0 8px 8px;
-		outline: 2px solid var(--primary);
+		border: 1px solid var(--border);
+		border-top: none;
 		overflow: hidden;
 
 		.result {
@@ -239,6 +252,11 @@ onMounted(() => {
 					opacity: 1;
 				}
 			}
+		}
+
+		&.highlight {
+			border-color: var(--primary);
+			outline: 1px solid var(--primary);
 		}
 	}
 }
