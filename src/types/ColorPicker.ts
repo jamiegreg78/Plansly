@@ -15,5 +15,13 @@ export const ColorArray: Array<ColorPickerOptions> = [
 	{
 		name: 'blue',
 		hexValue: '#3cb4cf'
+	},
+	{
+		name: 'yellow',
+		hexValue: '#ffdd00'
+	},
+	{
+		name: 'purple',
+		hexValue: '#f55cff'
 	}
 ]
