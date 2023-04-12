@@ -1,4 +1,3 @@
-
 import TaskCard from '@/components/app/board/tasks/TaskCard.vue';
 
 <template>
@@ -6,23 +5,27 @@ import TaskCard from '@/components/app/board/tasks/TaskCard.vue';
 		<span class="brand-name">Plansly</span>
 		<div class="links">
 			<RouterLink to="/auth/login">Login</RouterLink>
-			<RouterLink to="/auth/register"
-				class="primary-link">Register</RouterLink>
+			<RouterLink to="/auth/register" class="primary-link">Register</RouterLink>
 		</div>
 	</header>
 	<main>
 		<section class="welcome-hero">
 			<div class="section-content-container">
-				<img src="../../public/HomeHero.png">
+				<img src="/HomeHero.png" />
 				<div class="content">
 					<h1>Streamline your study routine with Plansly!</h1>
-					<p>Get ahead in your studies with Plansly. Our app helps you easily manage tasks, set priorities, and track
-						progress. Upgrade your study game today!</p>
+					<p>
+						Get ahead in your studies with Plansly. Our app helps you easily
+						manage tasks, set priorities, and track progress. Upgrade your study
+						game today!
+					</p>
 					<div class="link-container">
-						<RouterLink to="/auth/register"
-							class="primary-link">Get Started</RouterLink>
+						<RouterLink to="/auth/register" class="primary-link"
+							>Get Started</RouterLink
+						>
 						<RouterLink to="/auth/login">
-							Already have an account? <font-awesome-icon icon="fa-solid fa-right-to-bracket" />
+							Already have an account?
+							<font-awesome-icon icon="fa-solid fa-right-to-bracket" />
 						</RouterLink>
 					</div>
 				</div>
@@ -34,7 +37,10 @@ import TaskCard from '@/components/app/board/tasks/TaskCard.vue';
 				<div class="features">
 					<div class="feature">
 						<h3>Manage Tasks</h3>
-						<p>Create tasks that clearly describe it's purpose, and change them as much as you'd like.</p>
+						<p>
+							Create tasks that clearly describe it's purpose, and change them
+							as much as you'd like.
+						</p>
 					</div>
 					<div class="feature">
 						<h3>Link Tasks to Create Dependencies</h3>
@@ -42,16 +48,23 @@ import TaskCard from '@/components/app/board/tasks/TaskCard.vue';
 					</div>
 					<div class="feature">
 						<h3>Multiple Views</h3>
-						<p>Choose from either a board view or a task view, to suit your needs.</p>
+						<p>
+							Choose from either a board view or a task view, to suit your
+							needs.
+						</p>
 					</div>
 				</div>
 			</div>
 		</section>
 	</main>
+	<footer>
+		<span>Plansly</span>
+		<span>Developed for my final project at Aberystwyth University</span>
+		<a href="https://github.com/jamiegreg78/Plansly">GitHub</a>
+	</footer>
 </template>
 
-<script setup lang="ts">
-</script>
+<script setup lang="ts"></script>
 
 <style lang="scss">
 header {
@@ -98,7 +111,6 @@ header {
 			}
 		}
 	}
-
 }
 
 main {
@@ -137,7 +149,6 @@ main {
 			}
 
 			.content {
-
 				@include breakpoint(tablet) {
 					padding: toRem(16);
 					padding-left: 0;
@@ -185,7 +196,7 @@ main {
 						transition: color 0.3s ease;
 
 						&::after {
-							content: "";
+							content: '';
 							display: block;
 							width: 0;
 							height: 2px;
@@ -218,7 +229,6 @@ main {
 					}
 				}
 			}
-
 		}
 
 		img {
@@ -256,7 +266,7 @@ main {
 				text-align: center;
 
 				h3 {
-					margin: 0
+					margin: 0;
 				}
 
 				color: var(--text-primary);
@@ -271,6 +281,21 @@ main {
 			}
 		}
 	}
+}
 
+footer {
+	width: 100%;
+	padding: toRem(16);
+	background-color: var(--background-dark);
+	color: var(--text-dark-background);
+
+	span,
+	a {
+		display: block;
+	}
+
+	a {
+		color: var(--primary);
+	}
 }
 </style>
