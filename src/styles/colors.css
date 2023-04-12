@@ -1,29 +1,30 @@
-[data-darkMode="true"] {
+[data-darkMode='true'] {
 }
 
-[data-darkMode="false"] {
-  --primary: #00d689;
+[data-darkMode='false'] {
+	--primary: #00d689;
 	--primary-hover: #00bd78;
-  --white: #fff;
+	--white: #fff;
 	--green: #00a81f;
 	--green-background: #00a81f30;
 	--orange: #ffa600;
-	--red: #FF4848;
+	--red: #ff4848;
 
-  --background: #fff;
-  --background-inset: #f6f6f6;
+	--background: #fff;
+	--background-inset: #f6f6f6;
+	--background-dark: #232323;
 
-  --border: #cbcbcb;
+	--border: #cbcbcb;
 
-  --gray: #5c5c5c;
+	--gray: #5c5c5c;
 	--gray-light: #f3f3f3;
 	--gray-light-hover: #e6e6e6;
-  
 
-  --error: #FF4848;
-  --error-background: #faa1a12d;
-  
+	--error: #ff4848;
+	--error-background: #faa1a12d;
+
 	--text-primary: #282828;
+	--text-dark-background: #fff;
 	--text-subtext: #636363;
-  --text-input: #393939;
+	--text-input: #393939;
 }
