@@ -6,7 +6,6 @@
 		<font-awesome-icon icon="fa-solid fa-plus" />
 	</button>
 	<div class="dependency-container"
-		:class="{ hasResults: taskOptions.length }"
 		v-if="formVisible">
 		<button class="mode-toggle"
 			:class="mode"
@@ -15,27 +14,29 @@
 			{{ mode.charAt(0).toUpperCase() + mode.slice(1) }}
 			<font-awesome-icon icon="fa-solid fa-right-left" />
 		</button>
-		<TextInput type="text"
-			label="Dependency Search"
-			container-class="dependency-search-container"
-			placeholder="Search for a task"
-			clear-button
-			@focus="dropdownHighlight = true"
-			@blur="dropdownHighlight = false"
-			:tab-index="0"
-			v-model="search" />
-		<div class="results-container"
-			:style="searchDropdownPosition"
-			:class="{ highlight: dropdownHighlight }"
-			v-if="taskOptions.length">
-			<span class="result"
-				@click="$event => {
-					selectDependency(item)
-					search = ''
-				}"
-				v-for="item in taskOptions">
-				{{ item.name }}
-			</span>
+		<div>
+			<TextInput type="text"
+				label="Dependency Search"
+				container-class="dependency-search-container"
+				placeholder="Search for a task"
+				clear-button
+				:tab-index="0"
+				v-model="search" />
+			<div class="results-container"
+				v-if="taskOptions.length">
+				<span class="result"
+					v-for="item, index in taskOptions"
+					:key="index"
+					@click="$event => {
+						selectDependency(item)
+						$nextTick().then(() => {
+							searchDependencies()
+						})
+					}">
+					{{ item.name }}
+					<font-awesome-icon icon="fa-solid fa-plus" />
+				</span>
+			</div>
 		</div>
 	</div>
 </template>
@@ -53,7 +54,6 @@ export interface DependencyAddProps {
 const props = defineProps<DependencyAddProps>()
 
 const formVisible = ref<boolean>(false)
-const dropdownHighlight = ref<boolean>(false)
 const currentBoardStore = useCurrentBoardStore()
 const search = ref<string>('')
 const taskOptions = ref<Task[]>([])
@@ -79,21 +79,12 @@ function selectDependency(chosenTask: Task) {
 	emit('addDependency', newDependency)
 }
 
-const searchDropdownPosition = computed(() => {
-	const search: HTMLElement | null = document.querySelector('.dependency-search-container')
-
-	if (search && (taskOptions.value.length)) {
-		return {
-			top: `${search.getBoundingClientRect().bottom}px`,
-			left: `${search.getBoundingClientRect().left}px`,
-			width: `${search.getBoundingClientRect().width}px`
-		}
-	}
-	return {}
-})
-
 
 watch(search, async () => {
+	searchDependencies()
+})
+
+function searchDependencies() {
 	if (fuse) {
 		const results = fuse.search(search.value)
 
@@ -118,7 +109,8 @@ watch(search, async () => {
 
 		taskOptions.value = foundTasks
 	}
-})
+
+}
 
 // casted to any because of a ts error
 watch(currentBoardStore.currentBoard as any, () => {
@@ -164,18 +156,10 @@ onMounted(() => {
 .dependency-container {
 	display: flex;
 	gap: toRem(4);
-	height: toRem(40);
-	align-items: center;
-
-	&.hasResults {
-		div.input-wrapper {
-			border-bottom-left-radius: 0;
-			border-bottom-right-radius: 0;
-		}
-	}
 
 	.dependency-search-container {
 		margin: 0;
+		margin-bottom: toRem(4);
 	}
 
 	.mode-toggle {
@@ -185,7 +169,7 @@ onMounted(() => {
 		flex-shrink: 0;
 		width: toRem(110);
 		@include body-small;
-		height: 100%;
+		height: toRem(40);
 
 		svg {
 			margin-left: 8px;
@@ -205,52 +189,23 @@ onMounted(() => {
 	}
 
 	.results-container {
-		position: absolute;
-		z-index: 5;
-		background-color: var(--background);
-		border-radius: 0 0 8px 8px;
-		border: 1px solid var(--border);
-		border-top: none;
-		overflow: hidden;
+		display: flex;
+		flex-wrap: wrap;
+		gap: toRem(4);
 
 		.result {
-			display: flex;
-			padding: toRem(8);
-			justify-content: space-between;
-			align-items: center;
-
+			width: fit-content;
 			@include body-small;
-
-			.task-info {
-				display: block;
-				flex-grow: 0;
-				width: 80%;
-
-				span {
-					display: block;
-				}
-
-				.description {
-					width: 100%;
-					color: var(--text-subtext);
-					font-size: toRem(14);
-					text-overflow: ellipsis;
-					overflow: hidden;
-					white-space: nowrap;
-				}
-			}
-
-			svg {
-				opacity: 0;
-			}
+			padding: toRem(8);
+			display: block;
+			color: var(--text);
+			border-radius: 8px;
+			border: 1px solid var(--border);
 
 			&:hover {
-				background-color: var(--border);
+				background-color: var(--green-background);
+				border-color: var(--green);
 				cursor: pointer;
-
-				svg {
-					opacity: 1;
-				}
 			}
 		}
 

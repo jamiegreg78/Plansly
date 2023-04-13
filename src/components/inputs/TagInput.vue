@@ -15,7 +15,7 @@
 		</div>
 		<div class="options-dropdown"
 			v-if="input.trim().length"
-			:style="dropdownStyle">
+			:style="dropdownPosition">
 			<span class="option"
 				v-if="!partialTagMatches.includes(input)"
 				@click="selectTag(input)">
@@ -30,7 +30,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 export interface TagInputProps {
 	label: string
 	required?: boolean
@@ -43,11 +43,7 @@ const props = defineProps<TagInputProps>()
 const emit = defineEmits(['selectedTag'])
 
 const input = ref<string>('')
-
-const dropdownStyle = computed(() => {
-	const input: HTMLInputElement | null = document.getElementById(props.label.replace(' ', '')) as HTMLInputElement
-	return { top: input.getBoundingClientRect().top, left: input.getBoundingClientRect().left, width: `${input.getBoundingClientRect().width}px` }
-})
+const dropdownPosition = ref({})
 
 // Contains the possible options, including tags used before that aren't on the current task that partially match
 const partialTagMatches = computed(() => {
@@ -72,6 +68,23 @@ function selectTag(selectedTag: string) {
 function clearInput() {
 	input.value = ''
 }
+
+const resizeListener = () => {
+	const input = document.querySelector('.tag-input-container') as HTMLElement
+	if (input) {
+		dropdownPosition.value = { top: input.getBoundingClientRect().top, left: input.getBoundingClientRect().left, width: `${input.getBoundingClientRect().width}px` }
+	}
+}
+
+onMounted(() => {
+	const input = document.querySelector('.tag-input-container')
+	if (input) {
+		new ResizeObserver(() => {
+			resizeListener()
+		}).observe(input)
+	}
+})
+
 </script>
 
 <style lang="scss">
