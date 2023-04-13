@@ -17,6 +17,8 @@
 			:multi-line="true" />
 		<ButtonComponent text="Create"
 			:is-primary="true"
+			:disabled="apiRequestInProgress"
+			:in-progress="apiRequestInProgress"
 			@clicked="submitNewModule" />
 	</form>
 </template>
@@ -27,6 +29,7 @@ import { useUserDataStore } from '@/stores/UserDataStore'
 import ButtonComponent from '../general/ButtonComponent.vue'
 import TextInput from '../inputs/TextInput.vue'
 const userData = useUserDataStore()
+const apiRequestInProgress = ref<boolean>(false)
 
 const title = ref<string>('')
 const description = ref<string>('')
@@ -39,7 +42,9 @@ async function submitNewModule(event: Event) {
 	const form: HTMLFormElement = document.getElementById('newModuleForm') as HTMLFormElement
 
 	if (form.checkValidity()) {
+		apiRequestInProgress.value = true
 		event.preventDefault()
+
 		await userData.createNewModule(title.value, description.value)
 		emit('close')
 	}

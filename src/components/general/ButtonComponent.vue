@@ -1,7 +1,12 @@
 <template>
-	<button :disabled="props.disabled" class="button" :class="{ primary: props.isPrimary }" @click="emitClick"
+	<button :disabled="props.disabled"
+		class="button"
+		:class="{ primary: props.isPrimary }"
+		@click="emitClick"
 		:tabindex="props.tabIndex">
-		{{ props.text }}
+		<span v-if="props.inProgress"
+			class="spinner"></span>
+		<span v-else>{{ props.text }}</span>
 	</button>
 </template>
 
@@ -11,6 +16,7 @@ export type ButtonProps = {
 	isPrimary?: boolean
 	disabled?: boolean
 	tabIndex?: number
+	inProgress?: boolean
 }
 const props = defineProps<ButtonProps>()
 
@@ -24,5 +30,26 @@ function emitClick(event: Event) {
 <style lang="scss">
 .button {
 	@include button;
+
+	.spinner {
+		margin: auto;
+		display: block;
+		width: 1.5rem;
+		height: 1.5rem;
+		border: 0.2rem solid var(--white);
+		border-top-color: transparent;
+		border-radius: 50%;
+		animation: spin 1s linear infinite;
+
+		@keyframes spin {
+			from {
+				transform: rotate(0deg);
+			}
+
+			to {
+				transform: rotate(360deg);
+			}
+		}
+	}
 }
 </style>

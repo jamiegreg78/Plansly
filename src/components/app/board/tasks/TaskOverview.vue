@@ -97,6 +97,8 @@
 			<ButtonComponent text="Save Changes"
 				:is-primary="true"
 				@clicked="saveChanges"
+				:disabled="apiRequestInProgress"
+				:in-progress="apiRequestInProgress"
 				:tab-index="0" />
 		</div>
 	</div>
@@ -114,6 +116,8 @@ import DependencyAdd from './DependencyAdd.vue'
 import ExistingDependency from './ExistingDependency.vue'
 const currentBoardStore = useCurrentBoardStore()
 const deleteMenuIsOpen = ref<boolean>(false)
+
+const apiRequestInProgress = ref<boolean>(false)
 
 const name = ref<string>('')
 const description = ref<string>('')
@@ -188,6 +192,7 @@ function addTag(newTag: string) {
 }
 
 async function saveChanges() {
+	apiRequestInProgress.value = true
 	const convertedStartDate: string | null = expectedStart.value.length ? new Date(expectedStart.value).toISOString() : null
 	const convertedFinishDate: string | null = expectedFinish.value.length ? new Date(expectedFinish.value).toISOString() : null
 
