@@ -18,6 +18,8 @@
 		<ColorPicker @color-chosen="(newColor) => chosenColor = newColor" />
 		<ButtonComponent text="Create"
 			:is-primary="true"
+			:disabled="apiRequestInProgress"
+			:in-progress="apiRequestInProgress"
 			@clicked="submitNewBoard" />
 	</form>
 </template>
@@ -32,6 +34,7 @@ import type { ColorPickerOptions } from '@/types/ColorPicker'
 import { useRouter } from 'vue-router'
 const userData = useUserDataStore()
 const router = useRouter()
+const apiRequestInProgress = ref<boolean>(false)
 
 const title = ref<string>('')
 const description = ref<string>('')
@@ -47,6 +50,7 @@ async function submitNewBoard(event: Event) {
 
 	if (form.checkValidity()) {
 		event.preventDefault()
+		apiRequestInProgress.value = true
 		await userData.createNewBoardForModule(title.value, description.value, chosenColor.value, currentModuleIndex)
 		emit('close')
 	}

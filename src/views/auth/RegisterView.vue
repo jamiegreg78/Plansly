@@ -32,6 +32,7 @@
 
 		<div class="button-container">
 			<Button :disabled="submitDisabled"
+				:in-progress="submitDisabled"
 				text="Register"
 				@clicked="submitRegistration($event)"
 				:is-primary="true" />

@@ -1,14 +1,24 @@
 <template>
-	<form class="otp-form" id="otpForm">
+	<form class="otp-form"
+		id="otpForm">
 		<h1>Confirm Registration</h1>
 		<RequestError :message="requestError" />
 		<p>Enter the code we just sent to your email</p>
 		<div class="otp-input-container">
 			<label for="verificationCode">Verification Code</label>
-			<input v-model="otpValue" id="verificationCode" type="text" minlength="6" maxlength="6" required
+			<input v-model="otpValue"
+				id="verificationCode"
+				type="text"
+				minlength="6"
+				maxlength="6"
+				required
 				:class="{ error: requestError.length }" />
 		</div>
-		<ButtonComponent text="Confirm" :is-primary="true" :disabled="submitDisabled" @clicked="submitCode" />
+		<ButtonComponent text="Confirm"
+			:is-primary="true"
+			:disabled="submitDisabled"
+			:in-progress="submitDisabled"
+			@clicked="submitCode" />
 	</form>
 </template>
 
@@ -30,8 +40,6 @@ const requestError = ref<string>('')
 watch(otpValue, () => {
 	requestError.value = ''
 
-	//submitDisabled.value = (typeof otpValue.value !== 'undefined' && otpValue.value.toString().length < 6)
-
 	// if the value is longer than 6 long
 	if (otpValue.value && otpValue.value?.toString().length > 6) {
 		otpValue.value = otpValue.value?.toString().slice(0, 6)
@@ -46,9 +54,11 @@ async function submitCode(event: Event) {
 
 	if (typeof codeLength !== 'undefined' && codeLength === 6) {
 		event.preventDefault()
+		submitDisabled.value = true
 
 		const { data, error } = await VerifyOtp(authState.createdEmail, otpValue.value!.toString())
 
+		submitDisabled.value = false
 		if (error) {
 			requestError.value = error.message
 		} else {

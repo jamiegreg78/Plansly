@@ -53,6 +53,8 @@
 			<ButtonComponent :is-primary="true"
 				text="Save changes"
 				@clicked="saveChanges"
+				:disabled="apiRequestInProgress"
+				:in-progress="apiRequestInProgress"
 				:tab-index="0" />
 		</div>
 	</div>
@@ -67,6 +69,7 @@ import { ref, onBeforeMount } from 'vue'
 
 const currentBoardStore = useCurrentBoardStore()
 const deleteMenuIsOpen = ref<boolean>(false)
+const apiRequestInProgress = ref<boolean>(false)
 
 const name = ref<string>('')
 const description = ref<string>('')
@@ -83,6 +86,7 @@ async function deleteList() {
 }
 
 async function saveChanges() {
+	apiRequestInProgress.value = true
 	await currentBoardStore.changeListDetails({
 		name: name.value,
 		description: description.value,

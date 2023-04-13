@@ -18,6 +18,8 @@
 			<ButtonComponent text="Save Changes"
 				@click="updateBoard"
 				is-primary
+				:in-progress="apiRequestInProgress"
+				:disabled="apiRequestInProgress"
 				:tab-index="0" />
 		</div>
 	</section>
@@ -39,6 +41,7 @@ import BoardInformation from '@/components/app/BoardInformation.vue';
 const router = useRouter()
 const currentBoardStore = useCurrentBoardStore()
 
+const apiRequestInProgress = ref<boolean>(false)
 const boardName = ref<string>('')
 const boardDescription = ref<string>('')
 const chosenColor = ref<ColorPickerOptions | null>(null)
@@ -54,12 +57,14 @@ onBeforeMount(async () => {
 	}
 })
 
-function updateBoard() {
-	currentBoardStore.changeBoardDetails({
+async function updateBoard() {
+	apiRequestInProgress.value = true
+	await currentBoardStore.changeBoardDetails({
 		name: boardName.value,
 		description: boardDescription.value,
 		color: chosenColor.value
 	})
+	apiRequestInProgress.value = false
 }
 
 </script>
