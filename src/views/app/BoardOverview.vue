@@ -1,27 +1,7 @@
 <template>
 	<section class="overview-view"
 		v-if="currentBoardStore.currentBoard">
-		<div class="board-info">
-			<h1>{{ currentBoardStore.currentBoard?.name }}</h1>
-			<button class="settings-button">
-				<font-awesome-icon icon="fa-solid fa-gear" />
-			</button>
-		</div>
-
-		<div class="link-container">
-			<RouterLink
-				:to="AppRoutes.overview.replace(':moduleId', router.currentRoute.value.params.moduleId as string).replace(':boardId', router.currentRoute.value.params.boardId as string)">
-				Overview
-			</RouterLink>
-			<RouterLink
-				:to="AppRoutes.board.replace(':moduleId', router.currentRoute.value.params.moduleId as string).replace(':boardId', router.currentRoute.value.params.boardId as string)">
-				Board
-			</RouterLink>
-			<RouterLink
-				:to="AppRoutes.list.replace(':moduleId', router.currentRoute.value.params.moduleId as string).replace(':boardId', router.currentRoute.value.params.boardId as string)">
-				List
-			</RouterLink>
-		</div>
+		<BoardInformation />
 		<div class="board-content">
 			<TextInput label="Board Name"
 				type="text"
@@ -54,6 +34,7 @@ import TextInput from '@/components/inputs/TextInput.vue';
 import ButtonComponent from '@/components/general/ButtonComponent.vue';
 import ColorPicker from '@/components/general/ColorPicker.vue';
 import type { ColorPickerOptions } from '@/types/ColorPicker';
+import BoardInformation from '@/components/app/BoardInformation.vue';
 
 const router = useRouter()
 const currentBoardStore = useCurrentBoardStore()
@@ -87,53 +68,6 @@ function updateBoard() {
 section.overview-view {
 	display: flex;
 	flex-direction: column;
-
-	.board-info {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		padding: toRem(16);
-		border-bottom: 1px solid var(--border);
-
-		.settings-button {
-			@include squared-button;
-		}
-
-		h1 {
-			margin: 0;
-		}
-	}
-
-	.link-container {
-		width: 100%;
-		display: flex;
-		gap: toRem(8);
-		padding: toRem(8) toRem(16);
-
-		border-bottom: 1px solid var(--border);
-
-		a {
-			display: block;
-			@include regular-semibold;
-			color: var(--gray);
-			text-decoration: none;
-
-			&.router-link-active {
-				color: var(--text-primary);
-
-				&::after {
-					display: block;
-					width: 100%;
-					height: toRem(2);
-					position: relative;
-					top: 0px;
-
-					background-color: var(--text-primary);
-					content: "";
-				}
-			}
-		}
-	}
 
 	.board-content {
 		padding: toRem(16);
