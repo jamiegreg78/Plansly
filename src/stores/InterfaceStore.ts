@@ -2,7 +2,7 @@ import { ref } from 'vue'
 import { defineStore } from 'pinia'
 
 export const useInterfaceStore = defineStore('interfaceStore', () => {
-	const navIsDisplayed = ref<boolean>(false)
+	const navIsDisplayed = ref<boolean>(window.innerWidth >= 768 ? true : false)
 	
 	function toggleNav() {
 		navIsDisplayed.value = !navIsDisplayed.value
