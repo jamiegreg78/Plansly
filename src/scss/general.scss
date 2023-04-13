@@ -78,6 +78,7 @@
 
 	.overview, .modal{
 		max-width: calc(100% - 32px);
+		width: toRem(340);
 		padding: toRem(16);
 		background-color: var(--background);
 
@@ -174,10 +175,12 @@
 
 		@include breakpoint(tablet) {
 			min-width: toRem(450);
+			width: toRem(450);
 		}
 
 		@include breakpoint(desktop) {
 			min-width: toRem(600);
+			width: toRem(600);
 		}
 	}
 }
