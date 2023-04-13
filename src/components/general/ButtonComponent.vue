@@ -1,7 +1,7 @@
 <template>
 	<button :disabled="props.disabled"
 		class="button"
-		:class="{ primary: props.isPrimary }"
+		:class="{ primary: props.isPrimary, disabled: props.disabled }"
 		@click="emitClick"
 		:tabindex="props.tabIndex">
 		<span v-if="props.inProgress"
@@ -30,6 +30,11 @@ function emitClick(event: Event) {
 <style lang="scss">
 .button {
 	@include button;
+
+	&.disabled {
+		opacity: 0.5;
+		pointer-events: none;
+	}
 
 	.spinner {
 		margin: auto;
