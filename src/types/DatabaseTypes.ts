@@ -40,6 +40,11 @@ export interface Task {
 	blocked: Dependency[]
 }
 
+export interface UpcomingTask extends Task{
+	moduleId: number,
+	boardId: number
+}
+
 export interface UpdatedListInformation {
 	name?: string
 	description?: string
@@ -57,6 +62,11 @@ export interface List {
 	work_in_progress_limit: number | null
 	tasks?: Array<Task>
 	order: number
+}
+
+export interface UpcomingList {
+	date: string
+	tasks: UpcomingTask[]
 }
 
 export interface UpdatedBoardInformation {

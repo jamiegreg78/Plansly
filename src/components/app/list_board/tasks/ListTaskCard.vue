@@ -7,7 +7,11 @@
 			</span>
 			<button class="completed-status"
 				:class="{ completed: props.task.completed }"
-				@click="currentBoardStore.toggleTaskCompleted(props.task)">
+				@click="async () => {
+					currentBoardStore.toggleTaskCompleted(props.task).then((results) => {
+						$emit('toggleCompleted', (results.data?.[0] as Task))
+					})
+				}">
 				<font-awesome-icon v-if="props.task.completed"
 					icon="fa-solid fa-circle-check" />
 				<font-awesome-icon v-else
@@ -16,9 +20,15 @@
 			<p class="task-name">{{ props.task.name }}</p>
 			<button class="options-button open-context-menu"
 				ref="contextMenuButtonRef"
-				@click="currentBoardStore.currentTaskOverview = props.task">
+				@click="currentBoardStore.currentTaskOverview = props.task"
+				v-if="!props.isUpcoming">
 				<font-awesome-icon icon="fa-solid fa-ellipsis-vertical" />
 			</button>
+			<RouterLink class="open-board"
+				:to="`${AppRoutes.board.replace(':moduleId', '2').replace(':boardId', '1')}`"
+				v-else>
+				<font-awesome-icon icon="fa-solid fa-arrow-right" />
+			</RouterLink>
 		</div>
 		<div class="task-additional-info">
 			<span class="date"
@@ -42,13 +52,18 @@ import type { Task } from '@/types/DatabaseTypes';
 import { useCurrentBoardStore } from '@/stores/CurrentBoardStore';
 import { computed } from 'vue';
 import Chip from '@/components/general/Chip.vue';
+import { useRouter } from 'vue-router';
+import { AppRoutes } from '@/router/RouteNames';
 
 export interface ListTaskCardProps {
-	task: Task
+	task: Task,
+	isUpcoming?: boolean
 }
 const props = defineProps<ListTaskCardProps>()
+const emit = defineEmits(['toggleCompleted'])
 
 const currentBoardStore = useCurrentBoardStore()
+const router = useRouter()
 
 const computedDate = computed(() => {
 	if (props.task.expected_start_date?.length && !props.task.expected_finish_date?.length) {
@@ -108,7 +123,8 @@ const computedDate = computed(() => {
 			}
 		}
 
-		.options-button {
+		.options-button,
+		.open-board {
 			flex-shrink: 0;
 			@include squared-button;
 		}

@@ -356,6 +356,7 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 				}
 			})
 		}
+		return { data, error }
 	}
 	
 	async function deleteList(list: List) {
