@@ -114,27 +114,25 @@ export const useUpcomingTaskStore = defineStore('upcomingTasksState', () => {
 		if (error) {
 			console.error(error)
 		} else {
-			if (data.length) {
+			if (data && data.length) {
 				initialiseCurrentAndFutureDates()
 
 				for (let i = data.length -1; i >= 0; i--) {
-					if (data[i]) {
 					const task = data[i]
-						if (task.expected_finish_date) {
-							const date = new Date(task.expected_finish_date).toDateString()
-							const dateIndex = currentAndFutureDates.value.findIndex(d => d.date === date)
-							const dateTooFar = Date.parse(date) > Date.parse(currentAndFutureDates.value[currentAndFutureDates.value.length - 1].date)
+					if (task.expected_finish_date) {
+						const date = new Date(task.expected_finish_date).toDateString()
+						const dateIndex = currentAndFutureDates.value.findIndex(d => d.date === date)
+						const dateTooFar = Date.parse(date) > Date.parse(currentAndFutureDates.value[currentAndFutureDates.value.length - 1].date)
 
-							if (dateTooFar) { // Too far into the future
-								tasksFarFuture.value.push(task)
-							} else if (dateIndex !== -1) { // Just add
-								currentAndFutureDates.value[dateIndex].tasks.push(task)
-							} else if (dateIndex === -1) { // If the date is in the past, add it to the front of the array
-								currentAndFutureDates.value.unshift({
-									date: date,
-									tasks: [task]
-								})
-							}
+						if (dateTooFar) { // Too far into the future
+							tasksFarFuture.value.push(task)
+						} else if (dateIndex !== -1) { // Just add
+							currentAndFutureDates.value[dateIndex].tasks.push(task)
+						} else if (dateIndex === -1) { // If the date is in the past, add it to the front of the array
+							currentAndFutureDates.value.unshift({
+								date: date,
+								tasks: [task]
+							})
 						}
 					}
 				}
