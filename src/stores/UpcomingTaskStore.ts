@@ -1,17 +1,22 @@
 import { supabase } from "@/backend/Authentication"
 import type { Task, UpcomingList, UpcomingTask } from "@/types/DatabaseTypes"
 import { defineStore } from "pinia"
-import { ref } from "vue"
+import { ref, computed } from "vue"
 
 export const useUpcomingTaskStore = defineStore('upcomingTasksState', () => {
-	const dateIncrement = 20
-	const existingDates = ref<Array<UpcomingList>>([])
+	const dateIncrement = 10 // How many days are added each time
+	// State	
 	const currentAndFutureDates = ref<Array<UpcomingList>>([])
-	const upcomingTasks = ref<Array<UpcomingTask>>([])
 	const tasksFarFuture = ref<Array<UpcomingTask>>([]) // Holds any tasks that are too far forward to be displayed
+	const taskCount = computed(() => {
+		let count = 0
+		currentAndFutureDates.value.forEach(list => {
+			count += list.tasks.length
+		})
+		return count
+	})
 
 	// Initialise the current and future dates
-	// by default, includes the today and the next 19 days
 	function initialiseCurrentAndFutureDates() {
 		const dates: UpcomingList[] = []
 		const today = new Date()
@@ -28,9 +33,39 @@ export const useUpcomingTaskStore = defineStore('upcomingTasksState', () => {
 		currentAndFutureDates.value = dates
 	}
 
+	async function updateDate(task: UpcomingTask, oldIndex: number, newIndex: number) {
+		// Set the tasks date to the new date
+		const date = new Date(currentAndFutureDates.value[newIndex].date)
+		task.expected_finish_date = date.toISOString()
+
+		// TODO: Maybe instead of midnight, try 12pm?
+
+		const result = await supabase
+			.from('tasks')
+			.update({ expected_finish_date: task.expected_finish_date })
+			.eq('id', task.id)
+			.select()
+		if (result.error) {
+			console.error(result.error)
+		} else {
+			const taskIndex = currentAndFutureDates.value[oldIndex].tasks.indexOf(task)
+			const oldListCopy = currentAndFutureDates.value[oldIndex].tasks.slice()
+			const newListCopy = currentAndFutureDates.value[newIndex].tasks.slice()
+			// Remove the item from the old array
+			oldListCopy.splice(taskIndex, 1)
+			// Add it to the new array
+			newListCopy.push(task)
+			currentAndFutureDates.value[newIndex].tasks.push(task)
+
+			// Update the old array
+			currentAndFutureDates.value[oldIndex].tasks = oldListCopy
+			// Update the new array
+			currentAndFutureDates.value[newIndex].tasks = newListCopy
+		}
+	}
+
 	function addMoreDates() {
 		const startDate = new Date(currentAndFutureDates.value[currentAndFutureDates.value.length - 1].date)
-		const newBatch: UpcomingList[] = []
 
 		for (let i = 1; i <= dateIncrement; i++) {
 			const newDate = new Date(startDate)
@@ -61,60 +96,62 @@ export const useUpcomingTaskStore = defineStore('upcomingTasksState', () => {
 		})
 	}
 
+	// TODO: adjust type for extra information
+	// TODO: Very verbose - refactor the query for module and board id when the supabase update is released
 	async function loadUpcomingTasks() {
 		const { data, error } = await supabase
 			.from('tasks')
-			.select('*')
+			.select(`
+				*,
+				moduleId: lists(boards(module(id))),
+				boardId: lists(boards(id))
+				)
+			`)
 			.not('expected_finish_date', 'is', null)
+			.not('completed', 'is', true)
 			.order('expected_finish_date', { ascending: true })
 		if (error) {
 			console.error(error)
 		} else {
-			initialiseCurrentAndFutureDates()
+			if (data.length) {
+				initialiseCurrentAndFutureDates()
 
-			// Sort the dates
-			existingDates.value = []
+				for (let i = data.length -1; i >= 0; i--) {
+					const task: UpcomingTask = data[i] as unknown as UpcomingTask
+					if (task.expected_finish_date) {
+						const date = new Date(task.expected_finish_date).toDateString()
+						const dateIndex = currentAndFutureDates.value.findIndex(d => d.date === date)
+						const dateTooFar = Date.parse(date) > Date.parse(currentAndFutureDates.value[currentAndFutureDates.value.length - 1].date)
 
-			// Store the tasks. If the date is too far in the future, store it in a separate array for later use
-			// if its within the next 20 days, store it in the current and future dates
-			// if its in the past, store it in the existing dates
-			data.forEach((task: UpcomingTask) => {
-				if (task.expected_finish_date) {
-					const date = new Date(task.expected_finish_date).toDateString()
-					const dateIsInFutureIndex = currentAndFutureDates.value.findIndex(d => d.date === date)
-					const dateExistsIndex = existingDates.value.findIndex(d => d.date === date)
-
-					// Check if the date is too far into the future
-					const dateTooFar = Date.parse(date) > Date.parse(currentAndFutureDates.value[currentAndFutureDates.value.length - 1].date)
-
-					if (dateTooFar) {
-						tasksFarFuture.value.push(task)
-					} else if (dateIsInFutureIndex !== -1) {
-						currentAndFutureDates.value[dateIsInFutureIndex].tasks.push(task)
-					} else if (dateExistsIndex === -1) {
-						existingDates.value.push({
-							date: date,
-							tasks: [task]
-						})
-					} else {
-						existingDates.value[dateExistsIndex].tasks.push(task)
+						if (dateTooFar) { // Too far into the future
+							tasksFarFuture.value.push(task)
+						} else if (dateIndex !== -1) { // Just add
+							currentAndFutureDates.value[dateIndex].tasks.push(task)
+						} else if (dateIndex === -1) { // If the date is in the past, add it to the front of the array
+							currentAndFutureDates.value.unshift({
+								date: date,
+								tasks: [task]
+							})
+						}
 					}
 				}
-			})
-
+			}
 		}
 	}
 
-	function removeFromUpcomingTasks(task: Task) {
-		upcomingTasks.value = upcomingTasks.value.filter(t => t.id !== task.id)
+	// Remove the task from the current and future dates
+	function removeTask(task: Task) {
+		currentAndFutureDates.value.forEach(date => {
+			date.tasks = date.tasks.filter(t => t.id !== task.id)
+		})
 	}
 
 	return {
-		existingDates,
 		currentAndFutureDates,
-		upcomingTasks,
+		taskCount,
+		removeTask,
+		updateDate,
 		addMoreDates,
 		loadUpcomingTasks,
-		removeFromUpcomingTasks
 	}
 })

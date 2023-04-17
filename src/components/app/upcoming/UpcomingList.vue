@@ -9,6 +9,7 @@
 			<p class="list-name">{{ props.list.date }}</p>
 		</div>
 		<Sortable class="list-contents"
+			:data-list-index="props.listIndex"
 			v-if="listIsOpen"
 			tag="div"
 			@end="handleCardMove"
@@ -18,35 +19,44 @@
 			<template #item="{ element }">
 				<ListTaskCard :task="element"
 					:key="element.id"
+					@toggleCompleted="completeTask"
 					isUpcoming />
 			</template>
 		</Sortable>
+		<span class="empty-spot"
+			v-if="listIsOpen && !props.list.tasks.length"></span>
 	</div>
 </template>
 
 <script setup lang="ts">
-import type { UpcomingList } from '@/types/DatabaseTypes';
+import type { Task, UpcomingList } from '@/types/DatabaseTypes';
 import ListTaskCard from '@/components/app/list_board/tasks/ListTaskCard.vue'
 import { Sortable } from 'sortablejs-vue3';
 import { computed, ref } from 'vue';
+import { useUpcomingTaskStore } from '@/stores/UpcomingTaskStore';
 
 export interface UpcomingListProps {
 	list: UpcomingList
+	listIndex: number
 }
 const props = defineProps<UpcomingListProps>()
+const upcomingTaskStore = useUpcomingTaskStore()
 
 const listIsOpen = ref<boolean>(true)
 
-// event is any since there are no types for sortablejs-vue3
-function handleCardMove(event: any) {
-	const oldIndex = event.oldIndex
-	const newIndex = event.newIndex
-	console.log(event)
+function completeTask(task: Task) {
+	upcomingTaskStore.removeTask(task)
+}
 
-	if (oldIndex === newIndex) {
-		return
-	} else {
-		console.log('moved')
+// event is any since there are no types for sortablejs-vue3
+async function handleCardMove(event: any) {
+	const oldListIndex = event.from.dataset.listIndex
+	const newListIndex = event.to.dataset.listIndex
+	const task = props.list.tasks.find(task => task.id === parseInt(event.item.dataset.taskId))
+
+	if ((oldListIndex !== newListIndex) && task) {
+		await upcomingTaskStore.updateDate(task, oldListIndex, newListIndex)
+		event.item.remove()
 	}
 }
 
@@ -66,7 +76,7 @@ const listOptions = computed(() => {
 })
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .upcoming-list {
 	width: 100%;
 
@@ -76,6 +86,7 @@ const listOptions = computed(() => {
 		justify-content: space-between;
 		align-items: center;
 		gap: toRem(16);
+		border-bottom: 1px solid var(--border);
 
 		button {
 			flex-shrink: 0;
@@ -103,9 +114,22 @@ const listOptions = computed(() => {
 
 	}
 
+	.list-contents {
+		display: flex;
+		flex-direction: column;
+		width: 100%;
+		padding: toRem(16);
+		gap: toRem(8);
+	}
+
+	.empty-spot {
+		display: block;
+		width: 100%;
+		// height: toRem(16);
+	}
 
 	&:last-of-type {
-		margin-bottom: toRem(16);
+		//margin-bottom: toRem(16);
 	}
 }
 </style>

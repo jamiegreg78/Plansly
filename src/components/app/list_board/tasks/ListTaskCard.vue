@@ -24,9 +24,9 @@
 				v-if="!props.isUpcoming">
 				<font-awesome-icon icon="fa-solid fa-ellipsis-vertical" />
 			</button>
-			<RouterLink class="open-board"
-				:to="`${AppRoutes.board.replace(':moduleId', '2').replace(':boardId', '1')}`"
-				v-else>
+			<RouterLink v-else
+				class="open-board"
+				:to="`${AppRoutes.board.replace(':moduleId', props.task.moduleId.boards.module.id).replace(':boardId', props.task.boardId.boards.id)}`">
 				<font-awesome-icon icon="fa-solid fa-arrow-right" />
 			</RouterLink>
 		</div>
@@ -48,7 +48,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Task } from '@/types/DatabaseTypes';
+import type { Task, UpcomingTask } from '@/types/DatabaseTypes';
 import { useCurrentBoardStore } from '@/stores/CurrentBoardStore';
 import { computed } from 'vue';
 import Chip from '@/components/general/Chip.vue';
@@ -56,7 +56,7 @@ import { useRouter } from 'vue-router';
 import { AppRoutes } from '@/router/RouteNames';
 
 export interface ListTaskCardProps {
-	task: Task,
+	task: Task | UpcomingTask,
 	isUpcoming?: boolean
 }
 const props = defineProps<ListTaskCardProps>()

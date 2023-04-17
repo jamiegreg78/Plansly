@@ -4,7 +4,6 @@ import type { Board, Module, Task } from '@/types/DatabaseTypes'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
-// TODO: Create types for this data
 export const useUserDataStore = defineStore('userDataState', () => {
 	const hasInitialised = ref<boolean>(false)
 	const userData = ref<Array<Module>>([])
