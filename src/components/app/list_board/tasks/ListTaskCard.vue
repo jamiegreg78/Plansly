@@ -26,7 +26,7 @@
 			</button>
 			<RouterLink v-else
 				class="open-board"
-				:to="`${AppRoutes.board.replace(':moduleId', props.task.moduleId?.boards.module.id.toString()).replace(':boardId', props.task.boardId?.boards.id.toString())}`">
+				:to="computedLink">
 				<font-awesome-icon icon="fa-solid fa-arrow-right" />
 			</RouterLink>
 		</div>
@@ -52,7 +52,6 @@ import type { Task } from '@/types/DatabaseTypes';
 import { useCurrentBoardStore } from '@/stores/CurrentBoardStore';
 import { computed } from 'vue';
 import Chip from '@/components/general/Chip.vue';
-import { useRouter } from 'vue-router';
 import { AppRoutes } from '@/router/RouteNames';
 
 export interface ListTaskCardProps {
@@ -63,7 +62,6 @@ const props = defineProps<ListTaskCardProps>()
 const emit = defineEmits(['toggleCompleted'])
 
 const currentBoardStore = useCurrentBoardStore()
-const router = useRouter()
 
 const computedDate = computed(() => {
 	if (props.task.expected_start_date?.length && !props.task.expected_finish_date?.length) {
@@ -78,6 +76,11 @@ const computedDate = computed(() => {
 		return `${start.getDate()}/${start.getMonth() + 1}/${start.getFullYear()} - ${finish.getDate()}/${finish.getMonth() + 1}/${finish.getFullYear()} `
 	}
 	return ''
+})
+
+const computedLink = computed(() => {
+	if (!props.task.moduleId?.boards.module.id || !props.task.boardId?.boards.id) return ''
+	return `${AppRoutes.board.replace(':moduleId', props.task.moduleId?.boards.module.id.toString()).replace(':boardId', props.task.boardId?.boards.id.toString())}`
 })
 </script>
 
