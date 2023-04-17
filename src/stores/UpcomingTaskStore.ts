@@ -110,6 +110,7 @@ export const useUpcomingTaskStore = defineStore('upcomingTasksState', () => {
 			.not('expected_finish_date', 'is', null)
 			.not('completed', 'is', true)
 			.order('expected_finish_date', { ascending: true })
+			.returns<Task[]>()
 		if (error) {
 			console.error(error)
 		} else {
@@ -117,7 +118,7 @@ export const useUpcomingTaskStore = defineStore('upcomingTasksState', () => {
 				initialiseCurrentAndFutureDates()
 
 				for (let i = data.length -1; i >= 0; i--) {
-					const task: Task = data[i]! as unknown as Task
+					const task = data[i]
 					if (task.expected_finish_date) {
 						const date = new Date(task.expected_finish_date).toDateString()
 						const dateIndex = currentAndFutureDates.value.findIndex(d => d.date === date)
