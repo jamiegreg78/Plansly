@@ -38,7 +38,20 @@ export interface Task {
 	tags: Array<string>
 	blocking: Dependency[]
 	blocked: Dependency[]
+	moduleId?: {
+		boards: {
+			module: {
+				id: number
+			}
+		}
+	},
+	boardId?: {
+		boards: {
+			id: number
+		}
+	},	
 }
+
 
 export interface UpdatedListInformation {
 	name?: string
@@ -57,6 +70,11 @@ export interface List {
 	work_in_progress_limit: number | null
 	tasks?: Array<Task>
 	order: number
+}
+
+export interface UpcomingList {
+	date: string
+	tasks: Task[]
 }
 
 export interface UpdatedBoardInformation {

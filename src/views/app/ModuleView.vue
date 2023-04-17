@@ -44,7 +44,6 @@ onMounted(() => {
 	const currentModuleId = parseInt(router.currentRoute.value.params.moduleId as string)
 	currentModuleIndex.value = userData.getModuleIndex(currentModuleId)
 	if (currentModuleIndex.value === -1) {
-		// TODO: Redirect to 404 for this section
 		router.push(AppRoutes.notFound)
 	}
 })

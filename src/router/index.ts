@@ -10,6 +10,7 @@ const LoginView = () => import('@/views/auth/LoginView.vue')
 
 const AppView = () => import('@/views/app/AppView.vue')
 const DashboardView = () => import('@/views/app/DashboardView.vue')
+const UpcomingView = () => import('@/views/app/UpcomingView.vue')
 const ModuleView = () => import('@/views/app/ModuleView.vue')
 const BoardView = () => import('@/views/app/BoardView.vue')
 const ListView = () => import('@/views/app/ListView.vue')
@@ -83,6 +84,11 @@ const router = createRouter({
 					path: AppRoutes.notFound,
 					name: '404',
 					component: NotFound,
+				},
+				{
+					path: AppRoutes.upcoming,
+					name: 'Upcoming',
+					component: UpcomingView,
 				}
 			]
 		},

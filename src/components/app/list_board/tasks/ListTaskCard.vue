@@ -7,7 +7,11 @@
 			</span>
 			<button class="completed-status"
 				:class="{ completed: props.task.completed }"
-				@click="currentBoardStore.toggleTaskCompleted(props.task)">
+				@click="async () => {
+					currentBoardStore.toggleTaskCompleted(props.task).then((results) => {
+						$emit('toggleCompleted', (results.data?.[0] as Task))
+					})
+				}">
 				<font-awesome-icon v-if="props.task.completed"
 					icon="fa-solid fa-circle-check" />
 				<font-awesome-icon v-else
@@ -16,9 +20,15 @@
 			<p class="task-name">{{ props.task.name }}</p>
 			<button class="options-button open-context-menu"
 				ref="contextMenuButtonRef"
-				@click="currentBoardStore.currentTaskOverview = props.task">
+				@click="currentBoardStore.currentTaskOverview = props.task"
+				v-if="!props.isUpcoming">
 				<font-awesome-icon icon="fa-solid fa-ellipsis-vertical" />
 			</button>
+			<RouterLink v-else
+				class="open-board"
+				:to="computedLink">
+				<font-awesome-icon icon="fa-solid fa-arrow-right" />
+			</RouterLink>
 		</div>
 		<div class="task-additional-info">
 			<span class="date"
@@ -42,11 +52,14 @@ import type { Task } from '@/types/DatabaseTypes';
 import { useCurrentBoardStore } from '@/stores/CurrentBoardStore';
 import { computed } from 'vue';
 import Chip from '@/components/general/Chip.vue';
+import { AppRoutes } from '@/router/RouteNames';
 
 export interface ListTaskCardProps {
-	task: Task
+	task: Task,
+	isUpcoming?: boolean
 }
 const props = defineProps<ListTaskCardProps>()
+const emit = defineEmits(['toggleCompleted'])
 
 const currentBoardStore = useCurrentBoardStore()
 
@@ -63,6 +76,11 @@ const computedDate = computed(() => {
 		return `${start.getDate()}/${start.getMonth() + 1}/${start.getFullYear()} - ${finish.getDate()}/${finish.getMonth() + 1}/${finish.getFullYear()} `
 	}
 	return ''
+})
+
+const computedLink = computed(() => {
+	if (!props.task.moduleId?.boards.module.id || !props.task.boardId?.boards.id) return ''
+	return `${AppRoutes.board.replace(':moduleId', props.task.moduleId?.boards.module.id.toString()).replace(':boardId', props.task.boardId?.boards.id.toString())}`
 })
 </script>
 
@@ -108,7 +126,8 @@ const computedDate = computed(() => {
 			}
 		}
 
-		.options-button {
+		.options-button,
+		.open-board {
 			flex-shrink: 0;
 			@include squared-button;
 		}

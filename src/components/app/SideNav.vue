@@ -1,29 +1,35 @@
 <template>
-	<nav id="side-nav" :class="{ open: interfaceStore.navIsDisplayed }">
+	<nav id="side-nav"
+		:class="{ open: interfaceStore.navIsDisplayed }">
 		<div class="top-section">
 			<span class="username">
 				{{ authenticationStore.authState.email?.split('@')[0] }}
 			</span>
-			<button class="close-nav-button" @click="toggleNav">
+			<button class="close-nav-button"
+				@click="toggleNav">
 				<font-awesome-icon icon="fa-solid fa-chevron-left" />
 			</button>
 		</div>
 		<div class="nav-content">
-			<RouterLink :to="`${AppRoutes.dashboard}`" class="root-level-link nav-button">
+			<RouterLink :to="`${AppRoutes.dashboard}`"
+				class="root-level-link nav-button">
 				<font-awesome-icon icon="fa-regular fa-window-maximize" />
 				Dashboard
 			</RouterLink>
-			<RouterLink to="test" class="root-level-link nav-button">
+			<RouterLink to="test"
+				class="root-level-link nav-button">
 				<font-awesome-icon icon="fa-regular fa-folder" />
 				Modules
 			</RouterLink>
-			<RouterLink to="test" class="root-level-link nav-button">
+			<RouterLink :to="`${AppRoutes.upcoming}`"
+				class="root-level-link nav-button">
 				<font-awesome-icon icon="fa-regular fa-calendar" />
 				Upcoming
 			</RouterLink>
 		</div>
 		<div class="bottom-section">
-			<span class="logout" @click="logOut">
+			<span class="logout"
+				@click="logOut">
 				<font-awesome-icon icon="fa-solid fa-right-from-bracket" />
 				Log Out
 			</span>
@@ -151,5 +157,4 @@ async function logOut() {
 
 		}
 	}
-}
-</style>
+}</style>
