@@ -26,7 +26,7 @@
 			</button>
 			<RouterLink v-else
 				class="open-board"
-				:to="`${AppRoutes.board.replace(':moduleId', props.task.moduleId.boards.module.id).replace(':boardId', props.task.boardId.boards.id)}`">
+				:to="`${AppRoutes.board.replace(':moduleId', props.task.moduleId?.boards.module.id.toString()).replace(':boardId', props.task.boardId?.boards.id.toString())}`">
 				<font-awesome-icon icon="fa-solid fa-arrow-right" />
 			</RouterLink>
 		</div>
