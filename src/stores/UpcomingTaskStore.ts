@@ -1,5 +1,5 @@
 import { supabase } from "@/backend/Authentication"
-import type { Task, UpcomingList, UpcomingTask } from "@/types/DatabaseTypes"
+import type { Task, UpcomingList } from "@/types/DatabaseTypes"
 import { defineStore } from "pinia"
 import { ref, computed } from "vue"
 
@@ -7,7 +7,7 @@ export const useUpcomingTaskStore = defineStore('upcomingTasksState', () => {
 	const dateIncrement = 10 // How many days are added each time
 	// State	
 	const currentAndFutureDates = ref<Array<UpcomingList>>([])
-	const tasksFarFuture = ref<Array<UpcomingTask>>([]) // Holds any tasks that are too far forward to be displayed
+	const tasksFarFuture = ref<Array<Task>>([]) // Holds any tasks that are too far forward to be displayed
 	const taskCount = computed(() => {
 		let count = 0
 		currentAndFutureDates.value.forEach(list => {
@@ -33,7 +33,7 @@ export const useUpcomingTaskStore = defineStore('upcomingTasksState', () => {
 		currentAndFutureDates.value = dates
 	}
 
-	async function updateDate(task: UpcomingTask, oldIndex: number, newIndex: number) {
+	async function updateDate(task: Task, oldIndex: number, newIndex: number) {
 		// Set the tasks date to the new date
 		const date = new Date(currentAndFutureDates.value[newIndex].date)
 		task.expected_finish_date = date.toISOString()
@@ -117,7 +117,7 @@ export const useUpcomingTaskStore = defineStore('upcomingTasksState', () => {
 				initialiseCurrentAndFutureDates()
 
 				for (let i = data.length -1; i >= 0; i--) {
-					const task: UpcomingTask = data[i] as unknown as UpcomingTask
+					const task: Task = data[i] as unknown as Task
 					if (task.expected_finish_date) {
 						const date = new Date(task.expected_finish_date).toDateString()
 						const dateIndex = currentAndFutureDates.value.findIndex(d => d.date === date)

@@ -38,12 +38,20 @@ export interface Task {
 	tags: Array<string>
 	blocking: Dependency[]
 	blocked: Dependency[]
+	moduleId?: {
+		boards: {
+			module: {
+				id: number
+			}
+		}
+	},
+	boardId?: {
+		boards: {
+			id: number
+		}
+	},	
 }
 
-export interface UpcomingTask extends Task{
-	moduleId: number,
-	boardId: number
-}
 
 export interface UpdatedListInformation {
 	name?: string

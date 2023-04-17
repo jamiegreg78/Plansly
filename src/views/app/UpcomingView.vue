@@ -17,7 +17,7 @@
 
 <script setup lang="ts">
 import LoadingSpinner from '@/components/general/LoadingSpinner.vue';
-import { onMounted, ref, computed, nextTick, watch } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useUpcomingTaskStore } from '@/stores/UpcomingTaskStore';
 import UpcomingList from '@/components/app/upcoming/UpcomingList.vue';
 const loaded = ref<boolean>(false);

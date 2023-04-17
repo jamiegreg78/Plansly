@@ -48,7 +48,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Task, UpcomingTask } from '@/types/DatabaseTypes';
+import type { Task } from '@/types/DatabaseTypes';
 import { useCurrentBoardStore } from '@/stores/CurrentBoardStore';
 import { computed } from 'vue';
 import Chip from '@/components/general/Chip.vue';
@@ -56,7 +56,7 @@ import { useRouter } from 'vue-router';
 import { AppRoutes } from '@/router/RouteNames';
 
 export interface ListTaskCardProps {
-	task: Task | UpcomingTask,
+	task: Task,
 	isUpcoming?: boolean
 }
 const props = defineProps<ListTaskCardProps>()
