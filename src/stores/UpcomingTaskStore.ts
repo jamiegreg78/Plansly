@@ -117,7 +117,7 @@ export const useUpcomingTaskStore = defineStore('upcomingTasksState', () => {
 				initialiseCurrentAndFutureDates()
 
 				for (let i = data.length -1; i >= 0; i--) {
-					const task: Task = data[i] as unknown as Task
+					const task: Task = data[i]! as unknown as Task
 					if (task.expected_finish_date) {
 						const date = new Date(task.expected_finish_date).toDateString()
 						const dateIndex = currentAndFutureDates.value.findIndex(d => d.date === date)

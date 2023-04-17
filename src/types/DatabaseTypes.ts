@@ -74,7 +74,7 @@ export interface List {
 
 export interface UpcomingList {
 	date: string
-	tasks: UpcomingTask[]
+	tasks: Task[]
 }
 
 export interface UpdatedBoardInformation {
