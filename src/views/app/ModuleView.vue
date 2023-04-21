@@ -28,6 +28,7 @@
 
 <script setup lang="ts">
 import BoardList from '@/components/app/BoardList.vue'
+import Delete from '@/components/app/Delete.vue'
 import NewBoardForm from '@/components/app/NewBoardForm.vue'
 import ButtonComponent from '@/components/general/ButtonComponent.vue'
 import { AppRoutes } from '@/router/RouteNames'

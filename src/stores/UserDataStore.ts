@@ -119,8 +119,33 @@ export const useUserDataStore = defineStore('userDataState', () => {
 				userData.value[currentModuleIndex].boards = tempArray as Array<Board>
 			}
 		}
-		
 	}
 
-	return { hasInitialised, userData, getAllData, createNewModule, createNewBoardForModule, getModuleIndex, getBoardById, replaceBoard }
+	async function deleteModule(id: number) {
+		const { data, error } = await supabase
+			.from('modules')
+			.delete()
+			.eq('id', id)
+		if (error) {
+			console.error(error)
+		} else {
+			userData.value = userData.value.filter(item => item.id !== id)
+		}
+	}
+
+	async function deleteBoard(moduleId: number, boardId: number) {
+		const { data, error } = await supabase
+			.from('boards')
+			.delete()
+			.eq('id', boardId)
+		if (error) {
+			console.error(error)
+		} else {
+			let moduleIndex = userData.value.findIndex(module => module.id === moduleId)
+			userData.value[moduleIndex].boards = userData.value[moduleIndex].boards.filter(item => item.id !== boardId)
+		}
+	}
+
+
+	return { hasInitialised, userData, getAllData, createNewModule, createNewBoardForModule, getModuleIndex, getBoardById, replaceBoard, deleteModule, deleteBoard }
 })

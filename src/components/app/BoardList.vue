@@ -4,37 +4,72 @@
 			<h2>Boards</h2>
 		</div>
 		<div class="board-list">
-			<div class="board-item new-board" @click="$emit('open')">
+			<div class="board-item new-board"
+				@click="$emit('open')">
 				<span class="board-icon">
 					<font-awesome-icon icon="fa-solid fa-plus" />
 				</span>
 				<p>Create board</p>
 			</div>
-			<div class="board-item" v-for="(item, index) in props.boards" :key="index" @click="router
-				.push(AppRoutes.board.replace(':moduleId', router.currentRoute.value.params.moduleId as string)
-					.replace(':boardId', item.id.toString())
-				)">
-				<span class="board-icon" :style="{ 'background-color': item.color?.hexValue }">
+			<div class="board-item"
+				v-for="(item, index) in props.boards"
+				:key="index"
+				@click="router
+					.push(AppRoutes.board.replace(':moduleId', router.currentRoute.value.params.moduleId as string)
+						.replace(':boardId', item.id.toString())
+					)">
+				<span class="board-icon"
+					:style="{ 'background-color': item.color?.hexValue }">
 					<font-awesome-icon icon="fa-solid fa-list-check"
 						:style="{ 'color': item.color?.hexValue ? '#fff' : 'var(--text-primary)' }" />
 				</span>
 				<p>{{ item.name }}</p>
+				<button class="delete-button"
+					@click.stop="() => {
+						deletingBoardId = item.id
+						deletingModuleId = parseInt(router.currentRoute.value.params.moduleId as string)
+					}"
+					tabindex="0">
+					<font-awesome-icon icon="fa-solid fa-xmark" />
+				</button>
 			</div>
 		</div>
+		<Delete v-if="deletingBoardId !== null"
+			mode="board"
+			@cancel="() => {
+				deletingBoardId = null
+				deletingModuleId = null
+			}"
+			@confirm="deleteBoard"
+			:id="deletingBoardId" />
 	</div>
 </template>
 <script setup lang="ts">
 import { AppRoutes } from '@/router/RouteNames'
 import type { Board } from '@/types/DatabaseTypes'
 import { useRouter } from 'vue-router'
+import { ref } from 'vue';
+import { useUserDataStore } from '@/stores/UserDataStore';
+import Delete from './Delete.vue';
 
 export interface BoardListProps {
 	boards: Array<Board>
 }
 const props = defineProps<BoardListProps>()
 const emit = defineEmits(['open'])
+const userDataStore = useUserDataStore()
 
 const router = useRouter()
+const deletingBoardId = ref<number | null>(null)
+const deletingModuleId = ref<number | null>(null)
+
+async function deleteBoard() {
+	if (deletingBoardId.value !== null && deletingModuleId.value !== null) {
+		await userDataStore.deleteBoard(deletingModuleId.value, deletingBoardId.value)
+		deletingBoardId.value = null
+		deletingModuleId.value = null
+	}
+}
 </script>
 
 <style lang="scss">
@@ -72,12 +107,17 @@ const router = useRouter()
 		.board-item {
 			width: 100%;
 			display: flex;
+			align-items: center;
 			padding: toRem(8);
 
 			border-radius: 8px;
 
 			@include breakpoint(tablet) {
 				width: calc(50% - toRem(8));
+			}
+
+			.delete-button {
+				@include squared-button;
 			}
 
 			.board-icon {
@@ -95,6 +135,18 @@ const router = useRouter()
 
 				svg {
 					color: var(--white);
+				}
+			}
+
+			&:not(.new-board) {
+				justify-content: space-between;
+
+				p {
+					flex-grow: 1;
+				}
+
+				* {
+					flex-shrink: 0;
 				}
 			}
 

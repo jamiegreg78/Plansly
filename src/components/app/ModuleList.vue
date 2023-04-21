@@ -4,29 +4,55 @@
 			<h2>Modules</h2>
 		</div>
 		<div class="module-list">
-			<span class="module-card new-module" @click="$emit('open')">
+			<span class="module-card new-module"
+				@click="$emit('open')">
 				<font-awesome-icon icon="fa-solid fa-plus" />
 				Create Module
 			</span>
-			<span class="module-card" v-for="(item, index) in props.modules" :key="index"
+			<span class="module-card"
+				v-for="(item, index) in props.modules"
+				:key="index"
 				@click="router.push(AppRoutes.module.replace(':moduleId', item.id.toString()))">
 				{{ item.name }}
+				<button class="delete-button"
+					@click.stop="deletingModuleId = item.id"
+					tabindex="0">
+					<font-awesome-icon icon="fa-solid fa-xmark" />
+				</button>
 			</span>
 		</div>
 	</div>
+	<Delete v-if="deletingModuleId !== null"
+		mode="module"
+		@confirm="deleteModule"
+		@cancel="deletingModuleId = null"
+		:id="deletingModuleId" />
 </template>
 <script setup lang="ts">
+import { ref } from 'vue';
 import { AppRoutes } from '@/router/RouteNames'
 import type { Module } from '@/types/DatabaseTypes'
 import { useRouter } from 'vue-router'
+import Delete from './Delete.vue';
+import { useUserDataStore } from '@/stores/UserDataStore';
 
 export interface ModuleListProps {
 	modules: Array<Module>
 }
 const props = defineProps<ModuleListProps>()
 const emit = defineEmits(['open'])
+const userDataStore = useUserDataStore()
 
 const router = useRouter()
+
+const deletingModuleId = ref<number | null>(null)
+
+async function deleteModule() {
+	if (deletingModuleId.value !== null) {
+		await userDataStore.deleteModule(deletingModuleId.value)
+		deletingModuleId.value = null
+	}
+}
 </script>
 
 <style lang="scss">
@@ -64,6 +90,9 @@ const router = useRouter()
 		}
 
 		.module-card {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
 			width: 100%;
 			padding: toRem(16) toRem(8);
 
@@ -74,6 +103,10 @@ const router = useRouter()
 			border-radius: 8px;
 
 			transition: background-color 0.3s ease;
+
+			.delete-button {
+				@include squared-button;
+			}
 
 			&:hover {
 				background-color: var(--background-inset);
@@ -88,7 +121,12 @@ const router = useRouter()
 				// width: calc(25% - 8px);
 			}
 
+			&:not(.new-module) {
+				padding: toRem(8)
+			}
+
 			&.new-module {
+				display: block;
 				background-color: var(--background-inset);
 				font-weight: 400;
 			}
