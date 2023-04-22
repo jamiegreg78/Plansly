@@ -244,6 +244,8 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 	}
 	
 	// Repairs any missing pairings between tasks that are blocking/blocked by each other
+	// TODO: If I get the time, this should be altered such that the function isn't defined inside the function. 
+	// This has a negative impact on performance due to the function being redefined every time the function is called
 	function repairDependencyPairings(task: Task) {
 		function tempFunction(array: Dependency[], mode: 'blocking' | 'blocked') {
 			// For each blocking dependency
