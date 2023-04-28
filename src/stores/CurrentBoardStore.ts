@@ -172,19 +172,26 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 	async function changeListDetails(newDetails: UpdatedListInformation) {
 		const listIndex: number | undefined = currentBoard.value?.lists.indexOf(currentListOverview.value!)
 		const copiedList: List = JSON.parse(JSON.stringify(currentListOverview.value))
-		delete copiedList.tasks
 
 		if (typeof listIndex !== 'undefined') {
 			const { data, error } = await supabase
 				.from('lists')
-				.upsert({...copiedList, ...newDetails})
+				.upsert({...newDetails, id: copiedList.id, board: copiedList.board, order: copiedList.order})
 				.eq('id', currentListOverview.value!.id)
-				.select('*, tasks(*)')
+				.select(`
+					*,
+					tasks(
+						*,
+						blocking:blocking_dependencies!blocking_dependencies_blocking_task_fkey (*, information:tasks!blocking_dependencies_blocked_task_fkey (id, name, description, list)),
+						blocked:blocking_dependencies!blocking_dependencies_blocked_task_fkey (*, information:tasks!blocking_dependencies_blocking_task_fkey (id, name, description, list))
+					)
+				`)
 		
 			if (error) {
 				console.error(error)
 			} else {
 				if (currentBoard.value) {
+					console.log(data[0])
 					currentBoard.value.lists[listIndex] = data[0] as List
 				}
 			}
@@ -525,26 +532,30 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 		
 		// Fix the order
 		newListArray = fixOrderValues(newListArray) as Array<List>
+		if (currentBoard.value !== undefined) {
+			currentBoard.value.lists = JSON.parse(JSON.stringify(newListArray))
+		}
 		
 		// remove the tasks array from the list
-		const upsertableArray: Array<any> = JSON.parse(JSON.stringify(newListArray))
-		upsertableArray.forEach(list => {
-			delete list.tasks
+		const upsertableArray = newListArray.map((item: List) => {
+			delete item.tasks
+			return item
 		})
 		
 		const { data, error } = await supabase
 			.from('lists')
 			.upsert([...upsertableArray])
-			.select('*, tasks(*)')
+			.select(`
+				*,
+				tasks(*, 
+						blocking:blocking_dependencies!blocking_dependencies_blocking_task_fkey (*, information:tasks!blocking_dependencies_blocked_task_fkey (id, name, description, list)),
+						blocked:blocking_dependencies!blocking_dependencies_blocked_task_fkey (*, information:tasks!blocking_dependencies_blocking_task_fkey (id, name, description, list))
+					)
+			`)
 			.order('order')
 
 		if (error) {
 			console.error(error)
-		} else {
-			(data as List[]).forEach((list: List) => {
-				list.tasks = list.tasks?.sort((a: Task, b: Task) => a.order - b.order)
-			})
-			currentBoard.value!.lists = data as Array<List>
 		}
 	}
 
