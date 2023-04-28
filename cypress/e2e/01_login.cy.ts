@@ -1,7 +1,7 @@
 
 describe('testLogin', () => {
 	before(function() {
-		cy.wrap('jamiegreg78@gmail.com').as('email')
+		cy.wrap('throwawayjimothy@gmail.com').as('email')
 		cy.wrap('testpass').as('password')
 		cy.wrap('wrongpass').as('wrongPassword')
 	})
