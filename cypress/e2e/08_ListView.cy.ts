@@ -1,12 +1,10 @@
-import { should } from "chai"
-
 describe('testFillBoard', () => {
 	before(function() {
 		cy.wrap('throwawayjimothy@gmail.com').as('email')
 		cy.wrap('testpass').as('password')
 	})
 
-	it('can fill board with cards', function() {
+	it('List View works', function() {
 		cy.visit('/auth/login')
 		cy.get('#Email').type(this.email).trigger('change')
 		cy.get('#Password').type(this.password).trigger('change')
@@ -14,14 +12,12 @@ describe('testFillBoard', () => {
 
 		cy.url().should('eq', 'http://localhost:4173/app/dashboard')
 
+		cy.get('.module-list .module-card:not(.new-module)').first().click()
+		cy.get('.board-item:not(.new-board)').first().click()
+		cy.get('.link-container a').eq(2).click()
 
-		cy.get('a[href="/app/upcoming"]').click()
-		cy.url().should('include', 'upcoming')
-		cy.get('.task-card').should('have.length', 1) // Only one task
-
-		cy.get('.open-board').first().click()
-
-		cy.url().should('include', 'board')
+		cy.url().should('include', 'list')
+		cy.get('.task-card').should('have.length', 2) 
 
 	})
 })
