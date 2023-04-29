@@ -4,7 +4,7 @@ describe('testFillBoard', () => {
 		cy.wrap('testpass').as('password')
 	})
 
-	it('can fill board with cards', function() {
+	it('Should handle task dependencies', function() {
 		cy.visit('/auth/login')
 		cy.get('#Email').type(this.email).trigger('change')
 		cy.get('#Password').type(this.password).trigger('change')
@@ -14,10 +14,17 @@ describe('testFillBoard', () => {
 
 		cy.get('.module-list .module-card:not(.new-module)').first().click()
 		cy.get('.board-item:not(.new-board)').first().click()
-		cy.get('.link-container a').eq(2).click()
 
-		cy.url().should('include', 'list')
-		cy.get('.task-card').should('have.length', 2) 
+		cy.get('.open-context-menu').first().click()
 
+		cy.get('.add-dependency-toggle').click()
+		cy.get('#DependencySearch').type('mod')
+		cy.get('.result').first().click()
+
+		cy.get('.overview .button.primary').click()
+
+		// If the locked class is present, then the dependency was added
+		cy.get('.task-card').eq(1).get('.completed-status').should('have.class', 'locked')
+		
 	})
 })

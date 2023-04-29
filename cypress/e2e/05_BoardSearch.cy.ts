@@ -4,7 +4,7 @@ describe('testFillBoard', () => {
 		cy.wrap('testpass').as('password')
 	})
 
-	it('can fill board with cards', function() {
+	it('Can search for a task within a board', function() {
 		cy.visit('/auth/login')
 		cy.get('#Email').type(this.email).trigger('change')
 		cy.get('#Password').type(this.password).trigger('change')
@@ -15,14 +15,13 @@ describe('testFillBoard', () => {
 		cy.get('.module-list .module-card:not(.new-module)').first().click()
 		cy.get('.board-item:not(.new-board)').first().click()
 
-		// delete individual task first
-		cy.get('.task-card .open-context-menu').first().click()
-		cy.get('.delete-button').click()
-		cy.get('.confirm').click()
+	
+		// Search for a task
+		cy.get('#BoardSearch').type('another')
+		cy.get('.task-info').first().click()
 
-		// Delete the list too - this deletes any child tasks
-		cy.get('.list .top-section .options-button').eq(1).click()
-		cy.get('.delete-button').click()
-		cy.get('.confirm').click()
+
+		// Check that the task is the one we searched for
+		cy.get('.overview .task-name').invoke('val').should('eq', 'Another Test Card')
 	})
 })
