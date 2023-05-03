@@ -15,9 +15,9 @@
 				v-for="(item, index) in props.boards"
 				:key="index"
 				@click="router
-					.push(AppRoutes.board.replace(':moduleId', router.currentRoute.value.params.moduleId as string)
-						.replace(':boardId', item.id.toString())
-					)">
+						.push(AppRoutes.board.replace(':moduleId', router.currentRoute.value.params.moduleId as string)
+							.replace(':boardId', item.id.toString())
+						)">
 				<span class="board-icon"
 					:style="{ 'background-color': item.color?.hexValue }">
 					<font-awesome-icon icon="fa-solid fa-list-check"
@@ -37,9 +37,9 @@
 		<Delete v-if="deletingBoardId !== null"
 			mode="board"
 			@cancel="() => {
-				deletingBoardId = null
-				deletingModuleId = null
-			}"
+					deletingBoardId = null
+					deletingModuleId = null
+				}"
 			@confirm="deleteBoard"
 			:id="deletingBoardId" />
 	</div>
@@ -76,13 +76,16 @@ async function deleteBoard() {
 .board-list-container {
 	width: 100%;
 	border-radius: toRem(8);
+	overflow-y: auto;
 
 	@include breakpoint(desktop) {
-		//width: 50%;
 		@include drop-shadow;
 	}
 
 	.title-container {
+		position: sticky;
+		background-color: var(--background);
+		top: 0;
 		width: 100%;
 		border-bottom: 1px solid var(--border);
 		padding: toRem(16);
