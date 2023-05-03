@@ -51,9 +51,9 @@ onBeforeMount(async () => {
 	if (results?.data.length === 0) {
 		router.push(AppRoutes.notFound)
 	} else {
-		boardName.value = results?.data[0].name
+		boardName.value = results?.data[0].name!
 		boardDescription.value = results?.data[0].description || ''
-		chosenColor.value = results?.data[0].color
+		chosenColor.value = results?.data[0].color || null
 	}
 })
 
