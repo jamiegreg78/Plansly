@@ -16,11 +16,6 @@
 				<font-awesome-icon icon="fa-regular fa-window-maximize" />
 				Dashboard
 			</RouterLink>
-			<RouterLink to="test"
-				class="root-level-link nav-button">
-				<font-awesome-icon icon="fa-regular fa-folder" />
-				Modules
-			</RouterLink>
 			<RouterLink :to="`${AppRoutes.upcoming}`"
 				class="root-level-link nav-button">
 				<font-awesome-icon icon="fa-regular fa-calendar" />
@@ -157,4 +152,5 @@ async function logOut() {
 
 		}
 	}
-}</style>
+}
+</style>
