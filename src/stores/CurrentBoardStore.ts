@@ -511,6 +511,19 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 
 			if (error) {
 				console.error(error)
+			} else {
+			
+				// Repair the list ids in any dependencies
+				task.blocking?.forEach(dependency => {
+					const foundTask = currentBoard.value?.lists
+						.find(list => list.id === dependency.information?.list)
+						?.tasks?.find(task => task.id === dependency.information?.id)
+					foundTask?.blocked.forEach(blockedTask => {
+						if (task?.id === blockedTask.information?.id) {
+							blockedTask.information.list = task.list
+						}
+					})
+				})
 			}
 		}
 	}

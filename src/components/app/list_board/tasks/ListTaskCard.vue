@@ -6,13 +6,15 @@
 				<font-awesome-icon icon="fa-solid fa-grip-vertical" />
 			</span>
 			<button class="completed-status"
-				:class="{ completed: props.task.completed }"
-				@click="async () => {
-					currentBoardStore.toggleTaskCompleted(props.task).then((results) => {
-						$emit('toggleCompleted', (results.data?.[0] as Task))
-					})
-				}">
-				<font-awesome-icon v-if="props.task.completed"
+				:class="{ completed: props.task.completed, locked: !isCompletable }"
+				@click="() => {
+						if (isCompletable) {
+							currentBoardStore.toggleTaskCompleted(props.task)
+						}
+					}">
+				<font-awesome-icon v-if="!isCompletable"
+					icon="fa-solid fa-lock" />
+				<font-awesome-icon v-else-if="props.task.completed"
 					icon="fa-solid fa-circle-check" />
 				<font-awesome-icon v-else
 					icon="fa-regular fa-circle-check" />
@@ -62,6 +64,26 @@ const props = defineProps<ListTaskCardProps>()
 const emit = defineEmits(['toggleCompleted'])
 
 const currentBoardStore = useCurrentBoardStore()
+
+
+const isCompletable = computed(() => {
+	// If the current task is already complete, just show it - don't forcibly un-complete it
+	if (props.task.completed) {
+		return true
+	}
+
+	// If there are no tasks blocking this one, return true
+	if (!props.task.blocked.length) {
+		return true
+	} else {
+		// if at least one of these is not completed, return false
+		return props.task.blocked.every((dependency) => {
+			return currentBoardStore.currentBoard?.lists?.find((list) => { return list.id === dependency.information?.list })?.tasks?.find((task) => {
+				return task.id === dependency.information?.id
+			})?.completed
+		})
+	}
+})
 
 const computedDate = computed(() => {
 	if (props.task.expected_start_date?.length && !props.task.expected_finish_date?.length) {
@@ -123,6 +145,10 @@ const computedLink = computed(() => {
 
 			&:hover {
 				cursor: pointer;
+			}
+
+			&.locked {
+				color: var(--error);
 			}
 		}
 
