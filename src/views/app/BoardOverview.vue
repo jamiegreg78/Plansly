@@ -65,6 +65,7 @@ async function updateBoard() {
 		color: chosenColor.value
 	})
 	apiRequestInProgress.value = false
+	router.push(AppRoutes.board.replace(':moduleId', currentBoardStore.currentBoard!.module.toString()).replace(':boardId', currentBoardStore.currentBoard!.id.toString()))
 }
 
 </script>
