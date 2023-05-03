@@ -306,7 +306,6 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 		tempFunction(task.blocked, 'blocked')
 	}
 	
-	// TODO: TYPE FOR DEPENDENCIES
 	async function changeTaskDetails(newDetails: UpdatedTaskInformation, newDependencies?: Dependency[], deletedDependencies?: Dependency[]) {
 		const listIndex: number | undefined = currentBoard.value?.lists.findIndex(x => x.id === currentTaskOverview.value?.list)
 		const copiedTask: any = JSON.parse(JSON.stringify(currentTaskOverview.value)) // Casted to any since I'm removing the blocking and blocked properties - it will be reassigned later
@@ -506,11 +505,41 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 						...tempOldList.map(({blocking, blocked, ...rest}) => rest),
 						...tempNewList.map(({blocking, blocked, ...rest}) => rest)
 					])
-				.select()
-				.order('order')
+				.select(`*, 
+						blocking:blocking_dependencies!blocking_dependencies_blocking_task_fkey (*, information:tasks!blocking_dependencies_blocked_task_fkey (id, name, description, list)),
+						blocked:blocking_dependencies!blocking_dependencies_blocked_task_fkey (*, information:tasks!blocking_dependencies_blocking_task_fkey (id, name, description, list))
+				`)
+				.order('order').returns<Task[]>()
 
 			if (error) {
 				console.error(error)
+			} else {
+			
+				// Repair any broken list ids in tasks blocked by this one
+				task.blocking?.forEach(dependency => {
+					const foundTask = currentBoard.value?.lists
+						.find(list => list.id === dependency.information?.list)
+						?.tasks?.find(task => task.id === dependency.information?.id)
+
+					foundTask?.blocked.forEach(blockedTask => {
+						if (task?.id === blockedTask.information?.id) {
+							blockedTask.information.list = task.list
+						}
+					})
+				})
+
+				// Do the same thing, but for the tasks blocking this one
+				task.blocked?.forEach(dependency => {
+					const foundTask = currentBoard.value?.lists
+						.find(list => list.id === dependency.information?.list)
+						?.tasks?.find(task => task.id === dependency.information?.id)
+					
+					foundTask?.blocking.forEach(blockingTask => {
+						if (task?.id === blockingTask.information?.id) {
+							blockingTask.information.list = task.list
+						}
+					})
+				})
 			}
 		}
 	}
