@@ -5,6 +5,7 @@
 			label="Board Search"
 			v-model="boardSearch"
 			placeholder="Search Tasks"
+			aria-label="Board Search Input"
 			:clear-button="true"
 			container-class="board-search" />
 		<div class="search-dropdown"

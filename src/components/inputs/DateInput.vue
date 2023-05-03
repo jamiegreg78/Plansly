@@ -10,6 +10,7 @@
 				@blur="$emit('blur')"
 				:required="props.required"
 				:value="modelValue"
+				:aria-label="props.label"
 				@change="$emit('update:modelValue', ($event.target as HTMLInputElement).value)"
 				@keydown.prevent>
 			<button v-if="modelValue.length"

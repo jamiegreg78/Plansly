@@ -14,14 +14,15 @@
 				:id="props.label.replace(' ', '')"
 				:required="props.required"
 				:placeholder="props.placeholder"
+				:aria-label="props.label"
 				@focus="() => {
-					isFocused = true
-					$emit('focus')
-				}"
+						isFocused = true
+						$emit('focus')
+					}"
 				@blur="() => {
-					isFocused = false
-					$emit('blur')
-				}"
+						isFocused = false
+						$emit('blur')
+					}"
 				@input="$emit('update:modelValue', ($event.target as HTMLInputElement).value)" />
 			<button class="clear-button"
 				type="button"
