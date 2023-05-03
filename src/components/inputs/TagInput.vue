@@ -17,11 +17,13 @@
 			v-if="input.trim().length"
 			:style="dropdownPosition">
 			<span class="option"
+				:aria-label="`tag option: ${input}`"
 				v-if="!partialTagMatches.includes(input)"
 				@click="selectTag(input)">
 				{{ input }}
 			</span>
 			<span class="option"
+				:aria-label="`tag option: ${tag}`"
 				v-for="tag, index in partialTagMatches"
 				@click="selectTag(tag)"
 				:key="index">{{ tag }}</span>

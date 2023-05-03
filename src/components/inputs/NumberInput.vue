@@ -2,10 +2,18 @@
 	<div class="number-input-container">
 		<label>{{ props.label }}</label>
 		<div class="input-with-button">
-			<input type="number" :min="props.minValue" :max="props.maxValue" :id="props.label.replace(' ', '')"
-				:tabindex="props.tabIndex" @blur="$emit('blur')" :required="props.required" :value="modelValue"
-				@input="handleInput(($event.target as HTMLInputElement).value)" />
-			<button v-if="modelValue" @click="clearInput">
+			<input type="number"
+				:min="props.minValue"
+				:max="props.maxValue"
+				:id="props.label.replace(' ', '')"
+				:tabindex="props.tabIndex"
+				@blur="$emit('blur')"
+				:required="props.required"
+				:value="modelValue"
+				@input="handleInput(($event.target as HTMLInputElement).value)"
+				:aria-label="props.label" />
+			<button v-if="modelValue"
+				@click="clearInput">
 				<font-awesome-icon icon="fa-solid fa-xmark" />
 			</button>
 		</div>
@@ -111,5 +119,4 @@ function clearInput() {
 			}
 		}
 	}
-}
-</style>
+}</style>
