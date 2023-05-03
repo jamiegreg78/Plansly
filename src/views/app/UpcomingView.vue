@@ -8,7 +8,7 @@
 				:list="list"
 				:key="index" />
 		</div>
-		<h1 v-if="!upcomingTaskStore.taskCount && loaded">
+		<h1 v-if="(!upcomingTaskStore.taskCount) && loaded">
 			You currently have no upcoming tasks!
 		</h1>
 		<LoadingSpinner v-if="!loaded" />
@@ -35,6 +35,8 @@ function scrollListener(event: Event) {
 onMounted(async () => {
 	await upcomingTaskStore.loadUpcomingTasks();
 	loaded.value = true;
+	console.log(upcomingTaskStore.taskCount)
+	console.log(upcomingTaskStore.tasksFarFuture);
 });
 </script>
 

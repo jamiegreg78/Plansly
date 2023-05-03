@@ -13,6 +13,9 @@ export const useUpcomingTaskStore = defineStore('upcomingTasksState', () => {
 		currentAndFutureDates.value.forEach(list => {
 			count += list.tasks.length
 		})
+		tasksFarFuture.value.forEach(task => {
+			count++
+		})
 		return count
 	})
 
@@ -96,15 +99,16 @@ export const useUpcomingTaskStore = defineStore('upcomingTasksState', () => {
 		})
 	}
 
-	// TODO: adjust type for extra information
-	// TODO: Very verbose - refactor the query for module and board id when the supabase update is released
+	// TODO: Very verbose - refactor the query for module and board id when the supabase update is released - likely not going to happen before project submission...
 	async function loadUpcomingTasks() {
 		const { data, error } = await supabase
 			.from('tasks')
 			.select(`
 				*,
 				moduleId: lists(boards(module(id))),
-				boardId: lists(boards(id))
+				boardId: lists(boards(id)),
+				blocking:blocking_dependencies!blocking_dependencies_blocking_task_fkey (*, information:tasks!blocking_dependencies_blocked_task_fkey (id, name, description, list)),
+				blocked:blocking_dependencies!blocking_dependencies_blocked_task_fkey (*, information:tasks!blocking_dependencies_blocking_task_fkey (id, name, description, list))
 				)
 			`)
 			.not('expected_finish_date', 'is', null)
@@ -154,5 +158,6 @@ export const useUpcomingTaskStore = defineStore('upcomingTasksState', () => {
 		updateDate,
 		addMoreDates,
 		loadUpcomingTasks,
+		tasksFarFuture
 	}
 })
