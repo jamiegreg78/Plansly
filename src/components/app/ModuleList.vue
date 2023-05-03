@@ -58,15 +58,17 @@ async function deleteModule() {
 <style lang="scss">
 .module-list-container {
 	width: 100%;
-	max-width: toRem(1200);
 	border-radius: toRem(8);
+	overflow-y: auto;
 
 	@include breakpoint(desktop) {
-		width: 50%;
 		@include drop-shadow;
 	}
 
 	.title-container {
+		position: sticky;
+		background-color: var(--background);
+		top: 0;
 		width: 100%;
 		border-bottom: 1px solid var(--border);
 		padding: toRem(16);
