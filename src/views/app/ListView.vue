@@ -44,6 +44,7 @@ const currentBoardStore = useCurrentBoardStore();
 const router = useRouter();
 
 onBeforeMount(async () => {
+	currentBoardStore.currentBoard = undefined
 	const results = await currentBoardStore.loadCurrentBoard()
 	if (results?.data.length === 0) {
 		router.push(AppRoutes.notFound)
