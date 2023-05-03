@@ -10,6 +10,7 @@
 				@click="() => {
 						if (isCompletable) {
 							currentBoardStore.toggleTaskCompleted(props.task)
+							$emit('toggleCompleted', props.task)
 						}
 					}">
 				<font-awesome-icon v-if="!isCompletable"
