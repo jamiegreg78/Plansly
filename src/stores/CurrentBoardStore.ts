@@ -61,13 +61,14 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 				)
 			`)
 			.eq('id', router.currentRoute.value.params.boardId)
+			.returns<Board[]>()
 
 		if (error) {
 			console.error(error)
 		} else {
 			if (data.length !== 0) {
 				// create a copy of the data so I can set the type
-				const obtainedBoard: Board = data[0] as Board
+				const obtainedBoard: Board = data[0]
 
 				obtainedBoard.lists.sort((a, b) => {
 					if (a.order < b.order) {
@@ -108,10 +109,11 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 					order: currentBoard.value!.lists.length + 1
 				}
 			]).select('*, tasks(*)')
+			.returns<List[]>()
 		if (error) {
 			console.error(error)
 		} else {
-			currentBoard.value?.lists.push(data[0] as List)
+			currentBoard.value?.lists.push(data[0])
 		}
 	}
 
@@ -134,10 +136,11 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 						blocked:blocking_dependencies!blocking_dependencies_blocked_task_fkey (*, information:tasks!blocking_dependencies_blocking_task_fkey (id, name, description, list))
 					`
 				)
+				.returns<Task[]>()
 			if (error) {
 				console.error(error)
 			} else {
-				currentBoard.value?.lists[listIndex].tasks?.push(data[0] as Task)
+				currentBoard.value?.lists[listIndex].tasks?.push(data[0])
 			}
 
 		}
@@ -160,12 +163,13 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 			.update({...copiedBoard, ...newDetails})
 			.eq('id', copiedBoard.id)
 			.select(`*, lists(*, tasks(*))`)
+			.returns<Board[]>()
 			
 		if (error) {
 			console.error(error)
 		} else {
-			currentBoard.value = data[0] as Board
-			userData.replaceBoard(data[0].module, data[0] as Board)
+			currentBoard.value = data[0]
+			userData.replaceBoard(data[0].module, data[0])
 		}
 	}
 	
@@ -186,13 +190,13 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 						blocked:blocking_dependencies!blocking_dependencies_blocked_task_fkey (*, information:tasks!blocking_dependencies_blocking_task_fkey (id, name, description, list))
 					)
 				`)
+				.returns<List[]>()
 		
 			if (error) {
 				console.error(error)
 			} else {
 				if (currentBoard.value) {
-					console.log(data[0])
-					currentBoard.value.lists[listIndex] = data[0] as List
+					currentBoard.value.lists[listIndex] = data[0]
 				}
 			}
 		}
@@ -330,12 +334,13 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 						blocking:blocking_dependencies!blocking_dependencies_blocking_task_fkey (*, information:tasks!blocking_dependencies_blocked_task_fkey (id, name, description, list)),
 						blocked:blocking_dependencies!blocking_dependencies_blocked_task_fkey (*, information:tasks!blocking_dependencies_blocking_task_fkey (id, name, description, list))
 				`)
+				.returns<Task[]>()
 
 			if (error) {
 				console.error(error)
 			} else {
 				if (currentBoard.value && taskIndex !== undefined) {
-					currentBoard.value.lists[listIndex].tasks![taskIndex] = data[0] as Task
+					currentBoard.value.lists[listIndex].tasks![taskIndex] = data[0]
 
 					repairDependencyPairings(data[0] as Task)
 				}
@@ -350,6 +355,7 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 			.update({completed: !task.completed})
 			.eq('id', task.id)
 			.select()
+			.returns<Task[]>()
 
 		if (error) {
 			console.error(error)
@@ -358,7 +364,7 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 				if (list.id === task.list) {
 					list.tasks?.forEach((foundTask) => {
 						if (foundTask.id === task.id) {
-							foundTask.completed = (data[0] as Task).completed
+							foundTask.completed = data[0].completed
 						}
 					})
 				}
@@ -464,11 +470,12 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 						blocked:blocking_dependencies!blocking_dependencies_blocked_task_fkey (*, information:tasks!blocking_dependencies_blocking_task_fkey (id, name, description, list))
 				`)
 				.order('order')
+				.returns<Task[]>()
 		
 			if (error) {
 				console.error(error)
 			} else {
-				currentBoard.value!.lists[listIndex].tasks = data as Array<Task>
+				currentBoard.value!.lists[listIndex].tasks = data
 			}
 		}
 	}
