@@ -11,7 +11,7 @@
 				:required="props.required"
 				:value="modelValue"
 				@change="$emit('update:modelValue', ($event.target as HTMLInputElement).value)"
-				@input="$emit('update:modelValue', ($event.target as HTMLInputElement).value)" />
+				@keydown.prevent>
 			<button v-if="modelValue.length"
 				@click="clearInput">
 				<font-awesome-icon icon="fa-solid fa-xmark" />
