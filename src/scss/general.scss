@@ -79,9 +79,11 @@
 	.overview, .modal{
 		max-width: calc(100% - 32px);
 		width: toRem(340);
+		max-height: calc(100% - 32px);
 		padding: toRem(16);
-		background-color: var(--background);
+		overflow: scroll;
 
+		background-color: var(--background);
 		border: 1px solid var(--border);
 		border-radius: 8px;
 		@include drop-shadow;
