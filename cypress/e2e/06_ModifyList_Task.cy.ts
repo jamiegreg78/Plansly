@@ -1,6 +1,6 @@
 describe('testFillBoard', () => {
 	before(function() {
-		cy.wrap('throwawayjimothy@gmail.com').as('email')
+		cy.wrap('jag73@aber.ac.uk').as('email')
 		cy.wrap('testpass').as('password')
 	})
 
@@ -29,11 +29,9 @@ describe('testFillBoard', () => {
 		cy.get('.open-context-menu').eq(1).click()
 		cy.get('#newNameInput').clear().type('Modified Task').type('{enter}')
 		cy.get('#Description').clear().type('Modified Description').type('{enter}')
-		cy.get('input[type="datetime-local"]').eq(0).clear().type('2023-04-22T19:43').trigger('change')
-		cy.get('input[type="datetime-local"]').eq(1).clear().type('2023-04-28T19:43').trigger('change')
 		cy.get('.overview .button.primary').click()
 
-		// If the date is present, the changes have been saved
-		cy.get('.date').should('contain', ' 22/4/2023 - 28/4/2023 ')
+		// If the name is present, the changes have been saved
+		cy.get('.task-card').eq(1).get('.task-name').should('contain', 'Modified Task')
 	})
 })

@@ -1,6 +1,6 @@
 describe('testCreateBoard', () => {
 	before(function() {
-		cy.wrap('throwawayjimothy@gmail.com').as('email')
+		cy.wrap('jag73@aber.ac.uk').as('email')
 		cy.wrap('testpass').as('password')
 	})
 
