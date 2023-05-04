@@ -84,9 +84,23 @@ onMounted(() => {
 		new ResizeObserver(() => {
 			resizeListener()
 		}).observe(input)
+		const elements = document.getElementsByClassName('overview')
+
+		for (let i = 0; i < elements.length; i++) {
+			elements[i].addEventListener('scroll', () => {
+				resizeListener()
+				console.log('something')
+			})
+		}
 	}
 })
 
+onBeforeUnmount(() => {
+	const elements = document.getElementsByClassName('overview')
+
+	for (let i = 0; i < elements.length; i++) {
+	}
+})
 </script>
 
 <style lang="scss">
