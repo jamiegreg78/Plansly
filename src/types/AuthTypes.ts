@@ -1,3 +1,4 @@
+// This file contains the types for the authentication process
 import type { Ref } from 'vue'
 
 export interface RegistrationFormValues {

@@ -1,3 +1,5 @@
+// Used to sort an array of objects by a specified key
+// Not Currently in use, since filters were not implemented
 export function sortArrayByKey(array: any[], key: string): Array<any> {
 	let arrayCopy = [...array]
 	arrayCopy.sort((a, b) => {

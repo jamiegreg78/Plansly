@@ -4,6 +4,7 @@ import type { Board, Module, Task } from '@/types/DatabaseTypes'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
+// This store contains the global state for the user. It is used to store the modules and boards that the user has created.
 export const useUserDataStore = defineStore('userDataState', () => {
 	const hasInitialised = ref<boolean>(false)
 	const userData = ref<Array<Module>>([])
@@ -39,6 +40,7 @@ export const useUserDataStore = defineStore('userDataState', () => {
 		}
 	}
 	
+	// Creates a new module and adds it to the userData array
 	async function createNewModule(title: string, description: string) {
 		const { data, error } = await supabase
 			.from('modules')
@@ -59,6 +61,7 @@ export const useUserDataStore = defineStore('userDataState', () => {
 	}
 	
 	// Search for the correct board by and return it 
+	// No backend interaction
 	function getBoardById(moduleId: number, boardId: number): Board | null {
 		let foundBoard = null
 
@@ -97,6 +100,7 @@ export const useUserDataStore = defineStore('userDataState', () => {
 		return foundIndex
 	} 
 	
+	// Creates a new board and adds it to the correct module
 	async function createNewBoardForModule(name: string, description: string, color: ColorPickerOptions | null, currentModuleIndex: number) {
 		const { data, error } = await supabase
 			.from('boards')

@@ -3,6 +3,7 @@ import type { Task, UpcomingList } from "@/types/DatabaseTypes"
 import { defineStore } from "pinia"
 import { ref, computed } from "vue"
 
+// This store contains the global state for the upcoming tasks.
 export const useUpcomingTaskStore = defineStore('upcomingTasksState', () => {
 	const dateIncrement = 10 // How many days are added each time
 	// State	
@@ -20,6 +21,7 @@ export const useUpcomingTaskStore = defineStore('upcomingTasksState', () => {
 	})
 
 	// Initialise the current and future dates
+	// Creates a batch of dates to start with
 	function initialiseCurrentAndFutureDates() {
 		const dates: UpcomingList[] = []
 		const today = new Date()
@@ -36,6 +38,7 @@ export const useUpcomingTaskStore = defineStore('upcomingTasksState', () => {
 		currentAndFutureDates.value = dates
 	}
 
+	// Handles changing the date of a task when it is dragged to a new date
 	async function updateDate(task: Task, oldIndex: number, newIndex: number) {
 		// Set the tasks date to the new date
 		const date = new Date(currentAndFutureDates.value[newIndex].date)
@@ -67,6 +70,8 @@ export const useUpcomingTaskStore = defineStore('upcomingTasksState', () => {
 		}
 	}
 
+	// Adds another batch of dates to the current and future dates
+	// Typically called when the user scrolls to the bottom of the list
 	function addMoreDates() {
 		const startDate = new Date(currentAndFutureDates.value[currentAndFutureDates.value.length - 1].date)
 
@@ -99,7 +104,9 @@ export const useUpcomingTaskStore = defineStore('upcomingTasksState', () => {
 		})
 	}
 
-	// TODO: Very verbose - refactor the query for module and board id when the supabase update is released - likely not going to happen before project submission...
+	// Loads the upcoming tasks from the database
+	// TODO: When the PostgREST update is released, refactor this to use the new spread operator
+	// This may not be released prior to deadline, so may not be possible
 	async function loadUpcomingTasks() {
 		const { data, error } = await supabase
 			.from('tasks')
@@ -145,6 +152,7 @@ export const useUpcomingTaskStore = defineStore('upcomingTasksState', () => {
 	}
 
 	// Remove the task from the current and future dates
+	// Typically called when a task is completed
 	function removeTask(task: Task) {
 		currentAndFutureDates.value.forEach(date => {
 			date.tasks = date.tasks.filter(t => t.id !== task.id)

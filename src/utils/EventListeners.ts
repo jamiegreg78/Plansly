@@ -1,5 +1,6 @@
 import { onBeforeUnmount, onMounted } from 'vue'
-import type { Ref } from 'vue'
+
+// This function attaches an event listener to the window that will call the callback function when the user clicks outside of the component
 export function attachClickAwayEvent(component: any, callback: Function, exclude: HTMLElement) {
 	if (!component) return
 	const listener = async (event: Event) => {
