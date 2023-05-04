@@ -32,7 +32,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 export interface TagInputProps {
 	label: string
 	required?: boolean
@@ -70,6 +70,10 @@ function selectTag(selectedTag: string) {
 function clearInput() {
 	input.value = ''
 }
+
+watch(props, () => {
+	resizeListener()
+})
 
 // Calculates the dropdown position
 const resizeListener = () => {
@@ -173,6 +177,7 @@ onBeforeUnmount(() => {
 		position: absolute;
 		background-color: var(--background);
 		border: 1px solid var(--border);
+		z-index: 4;
 
 		border-radius: 0 0 8px 8px;
 		overflow: hidden;
