@@ -81,7 +81,7 @@
 		width: toRem(340);
 		max-height: calc(100% - 32px);
 		padding: toRem(16);
-		overflow: scroll;
+		overflow-y: auto;
 
 		background-color: var(--background);
 		border: 1px solid var(--border);
