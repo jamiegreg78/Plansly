@@ -66,6 +66,8 @@ function clearInput() {
 		input {
 			@include number-input;
 			width: 100%;
+			opacity: 1;
+			-webkit-text-fill-color: var(--text-input);
 
 			&:focus {
 				outline: none;

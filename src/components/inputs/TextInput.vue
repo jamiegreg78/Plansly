@@ -34,21 +34,29 @@
 			</button>
 		</div>
 		<div v-else
-			class="input-wrapper">
+			class="input-wrapper"
+			:class="{ focus: isFocused, error: props.hasError }">
 			<textarea :value="modelValue"
-				@blur="$emit('blur')"
+				@blur="() => {
+						isFocused = false
+						$emit('blur')
+					}"
+				@focus="() => {
+						isFocused = true
+						$emit('focus')
+					}"
 				:class="{ error: props.hasError }"
 				:tabindex="props.tabIndex"
 				:placeholder="props.placeholder"
 				:id="props.label.replace(' ', '')"
 				:required="props.required"
+				:aria-label="props.label"
 				@input="$emit('update:modelValue', ($event.target as HTMLInputElement).value)" />
-
 		</div>
 	</div>
 </template>
 
-<script setup lang="ts">
+<script setup lang="ts" scoped>
 import { ref } from 'vue'
 
 export type TextInputProps = {
@@ -105,6 +113,12 @@ defineEmits(['update:modelValue', 'blur', 'focus'])
 			&:focus {
 				outline: none;
 				border: none;
+				box-shadow: none;
+			}
+
+			&.focus {
+				box-shadow: 0 0 0 2px var(--primary);
+				border: 1px solid var(--primary);
 			}
 		}
 

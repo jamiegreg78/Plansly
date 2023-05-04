@@ -12,8 +12,9 @@
 
     &.focus, &:focus {
         border: 1px solid var(--primary);
-        outline: 1px solid var(--primary);
-    }
+        // outline: 1px solid var(--primary);
+				box-shadow: 0 0 0 2px var(--primary);
+		}
 
     &.error {
         background-color: var(--error-background);

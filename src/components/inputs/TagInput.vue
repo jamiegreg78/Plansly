@@ -73,8 +73,13 @@ function clearInput() {
 
 const resizeListener = () => {
 	const input = document.querySelector('.tag-input-container') as HTMLElement
+	console.log('bruih')
 	if (input) {
-		dropdownPosition.value = { top: input.getBoundingClientRect().top, left: input.getBoundingClientRect().left, width: `${input.getBoundingClientRect().width}px` }
+		dropdownPosition.value = {
+			top: `${input.getBoundingClientRect().y + input.getBoundingClientRect().height}px`,
+			left: `${input.getBoundingClientRect().x}px`,
+			width: `${input.getBoundingClientRect().width}px`
+		}
 	}
 }
 
@@ -83,10 +88,26 @@ onMounted(() => {
 	if (input) {
 		new ResizeObserver(() => {
 			resizeListener()
-		}).observe(input)
+		}).observe(document.querySelector('body')!)
+		const elements = document.getElementsByClassName('overview')
+
+		for (let i = 0; i < elements.length; i++) {
+			elements[i].addEventListener('scroll', () => {
+				resizeListener()
+			})
+		}
 	}
 })
 
+onBeforeUnmount(() => {
+	const elements = document.getElementsByClassName('overview')
+
+	for (let i = 0; i < elements.length; i++) {
+		elements[i].removeEventListener('scroll', () => {
+			resizeListener()
+		})
+	}
+})
 </script>
 
 <style lang="scss">
