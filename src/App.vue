@@ -23,29 +23,6 @@ onBeforeMount(async () => {
 	}
 })
 
-//TODO: Implement this properly
-
-// Detect the user color scheme and attach a listener to update the scheme in future
-// onBeforeMount(() => {
-// 	const themeAttribute: string = 'data-darkMode'
-// 	const mediaQuery: string = '(prefers-color-scheme: dark)'
-// 	const docBody = document.querySelector('body')
-
-// 	// check if this css rule is supported
-// 	if (window.matchMedia) {
-// 		// initial value
-// 		docBody?.setAttribute(themeAttribute, window.matchMedia(mediaQuery).matches.toString())
-
-// 		// event listener for future changes
-// 		window.matchMedia(mediaQuery).addEventListener('change', event => {
-// 			document.querySelector('body')?.setAttribute(themeAttribute, event.matches.toString())
-// 		})
-// 	} else {
-// 		docBody?.setAttribute('data-darkMode', 'false')
-// 	}
-
-// })
-
 </script>
 
 <style>

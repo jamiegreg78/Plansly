@@ -8,10 +8,10 @@
 					tabindex="0"
 					:class="{ completed: currentBoardStore.currentTaskOverview?.completed, locked: !isCompletable }"
 					@click="() => {
-						if (isCompletable) {
-							currentBoardStore.toggleTaskCompleted(currentBoardStore.currentTaskOverview as Task)
-						}
-					}">
+							if (isCompletable) {
+								currentBoardStore.toggleTaskCompleted(currentBoardStore.currentTaskOverview as Task)
+							}
+						}">
 					<font-awesome-icon v-if="!isCompletable"
 						icon="fa-solid fa-lock" />
 					<font-awesome-icon v-else-if="currentBoardStore.currentTaskOverview?.completed"
@@ -127,6 +127,7 @@ const tags = ref<Array<string>>([])
 const dependencyArray = ref<Array<any>>([])
 const deletedDependencies = ref<Array<any>>([])
 
+// calculates whehter the current task is completable
 const isCompletable = computed(() => {
 	// If the current task is already complete, just show it - don't forcibly un-complete it
 	if (currentBoardStore.currentTaskOverview?.completed) {
@@ -162,6 +163,7 @@ function deleteDependency(deletedDependency: Dependency) {
 	}
 }
 
+// Toggles the mode of an existing dependency
 function toggleDependencyMode(dependency: Dependency) {
 	const dependencyIndex: number = dependencyArray.value.indexOf(dependency)
 	const copiedDependency = { ...dependencyArray.value[dependencyIndex] }
@@ -173,6 +175,8 @@ function toggleDependencyMode(dependency: Dependency) {
 	}
 }
 
+// Contains a list of all tags that are currently in use on the board
+// This is used to populate the tag input
 const tagPool = computed(() => {
 	let tagArray: Array<string> = []
 	currentBoardStore.currentBoard?.lists.forEach(list => {
@@ -207,6 +211,8 @@ async function saveChanges() {
 	closeOverview()
 }
 
+// Populates the state with the current task's information
+// Rather verbose, but not much can be changed here
 onBeforeMount(() => {
 	name.value = currentBoardStore.currentTaskOverview!.name
 	// Populate the state if there is any existing data

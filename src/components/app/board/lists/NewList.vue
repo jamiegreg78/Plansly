@@ -1,8 +1,14 @@
 <template>
 	<div class="list new-list">
-		<button v-if="!isInputActive" @click="openInput">Create list</button>
-		<input :class="{ visible: isInputActive }" @blur="closeInput" v-model="inputValue" id="newListInput"
-			@keydown.enter="closeInput" @keydown.esc="closeInput" type="text" />
+		<button v-if="!isInputActive"
+			@click="openInput">Create list</button>
+		<input :class="{ visible: isInputActive }"
+			@blur="closeInput"
+			v-model="inputValue"
+			id="newListInput"
+			@keydown.enter="closeInput"
+			@keydown.esc="closeInput"
+			type="text" />
 	</div>
 </template>
 
@@ -14,6 +20,7 @@ const currentBoardStore = useCurrentBoardStore()
 const isInputActive = ref<boolean>(false)
 const inputValue = ref<string>('')
 
+// Opens and focuses the input, using nextTick to ensure the input is rendered first before focus
 async function openInput() {
 	isInputActive.value = true
 	await nextTick()

@@ -11,6 +11,8 @@
 </template>
 
 <script setup lang="ts">
+// This page is rendered whenever the route cannot be found
+// The button will return the user to the dashboard
 import { AppRoutes } from '@/router/RouteNames';
 import ButtonComponent from './ButtonComponent.vue';
 import { useRouter } from 'vue-router';

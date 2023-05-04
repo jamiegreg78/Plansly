@@ -7,6 +7,7 @@ import { useRouter } from 'vue-router'
 import { useUserDataStore } from './UserDataStore'
 export type FilterType = 'by_created' | 'by_due_date' | 'by_start_date' | ''
 
+// This store contains the global state for the board currently being viewed.
 export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 	const router = useRouter()
 	const userData = useUserDataStore()
@@ -45,7 +46,7 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 		}
 	})
 
-	
+	// Loads the board from the database
 	async function loadCurrentBoard() {
 		const { data, error } = await supabase
 			.from('boards')
@@ -99,6 +100,7 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 		}
 	}
 	
+	// Creates a new list within the board, with the correct order value
 	async function createNewList(name: string) {
 		const { data, error } = await supabase
 			.from('lists')
@@ -117,6 +119,7 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 		}
 	}
 
+	// Creates a new task card within the list, with the correct order value
 	async function createNewCard(name: string, listIndex: number) {
 		if (currentBoard.value !== undefined) {
 			const listId = currentBoard.value?.lists[listIndex].id
@@ -146,14 +149,17 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 		}
 	}
 
+	// Sets the current task overview to the task provided. This will typically open the task overview
 	function setCurrentTaskOverview(task: Task | undefined) {
 		currentTaskOverview.value = task
 	}
 	
+	// Sets the current list overview to the list provided. This will typically open the list overview
 	function setCurrentListOverview(list: List | undefined) {
 		currentListOverview.value = list
 	}
 	
+	// Sets the data within the board such as name, description, etc.
 	async function changeBoardDetails(newDetails: UpdatedBoardInformation) {
 		const copiedBoard = JSON.parse(JSON.stringify(currentBoard.value))
 		delete copiedBoard.lists
@@ -172,7 +178,8 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 			userData.replaceBoard(data[0].module, data[0])
 		}
 	}
-	
+
+	// Sets the data within the list such as name, description, etc.
 	async function changeListDetails(newDetails: UpdatedListInformation) {
 		const listIndex: number | undefined = currentBoard.value?.lists.indexOf(currentListOverview.value!)
 		const copiedList: List = JSON.parse(JSON.stringify(currentListOverview.value))
@@ -202,6 +209,7 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 		}
 	}
 	
+	// Deletes all provided dependencies from the database
 	async function deleteDependencies(deletedDependencies: Dependency[]) {
 		const deletedDependencyIds = deletedDependencies.map((dependency: Dependency) => dependency.id)
 		const { data, error } = await supabase
@@ -233,6 +241,7 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 		}
 	}
 	
+	// Adds all provided dependencies to the database
 	async function addDependencies(newDependencies: Dependency[]) {
 		// clone dependencies then remove the information object
 		const dependencies = JSON.parse(JSON.stringify(newDependencies))
@@ -310,6 +319,7 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 		tempFunction(task.blocked, 'blocked')
 	}
 	
+	// Updates the task details and dependencies in the database
 	async function changeTaskDetails(newDetails: UpdatedTaskInformation, newDependencies?: Dependency[], deletedDependencies?: Dependency[]) {
 		const listIndex: number | undefined = currentBoard.value?.lists.findIndex(x => x.id === currentTaskOverview.value?.list)
 		const copiedTask: any = JSON.parse(JSON.stringify(currentTaskOverview.value)) // Casted to any since I'm removing the blocking and blocked properties - it will be reassigned later
@@ -348,7 +358,7 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 		}
 	}
 	
-
+	// toggles the completed status of a task
 	async function toggleTaskCompleted(task: Task) {
 		const { data, error } = await supabase
 			.from('tasks')
@@ -373,6 +383,7 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 		return { data, error }
 	}
 	
+	// Deletes a List from the database
 	async function deleteList(list: List) {
 		let listIndex
 		currentBoard.value?.lists.forEach((foundList, index) => {
@@ -409,6 +420,7 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 		
 	}
 	
+	// Deletes a Task from the database
 	async function deleteTask(task: Task) {
 		// Find the list
 		let listIndex
@@ -480,6 +492,7 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 		}
 	}
 	
+	// Moves the card between lists
 	async function moveCardsBetweenLists(oldListIndex: number, newListIndex: number, oldIndex: number, newIndex: number) {
 		// create a copy of the moved task first
 		const task: Task = {...currentBoard.value!.lists[oldListIndex].tasks?.[oldIndex]!}
@@ -551,9 +564,11 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 		}
 	}
 	
+	// Moves the list
 	async function moveList(oldIndex: number, newIndex: number) {
+		// If the list is being moved to the same index, do nothing
 		if (oldIndex === newIndex) {
-			return // do nothing
+			return
 		}
 
 		// Create a copy of the array
@@ -595,6 +610,7 @@ export const useCurrentBoardStore = defineStore('currentBoardState', () => {
 		}
 	}
 
+	// Repairs the order values, ensures no gaps
 	function fixOrderValues(taskArray: Array<Task | List>): Array<Task | List> {
 		const tempArray: Array<Task | List> = taskArray.slice()
 		for (let i = 0; i < tempArray.length; i++) {

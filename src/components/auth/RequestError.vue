@@ -1,5 +1,6 @@
 <template >
-	<div class="request-error" :class="{ empty: !props.message.length }">
+	<div class="request-error"
+		:class="{ empty: !props.message.length }">
 		<p>
 			{{ props.message }}
 		</p>
@@ -7,6 +8,8 @@
 </template>
 
 <script setup lang="ts">
+// This works similar to the authError component, but is used for displaying errors in the request forms
+// such as invalid login credentials and the like.
 
 export interface ErrorMessageProps {
 	message: string,

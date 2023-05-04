@@ -1,11 +1,10 @@
-import TaskCard from '@/components/app/board/tasks/TaskCard.vue';
-
 <template>
 	<header>
 		<span class="brand-name">Plansly</span>
 		<div class="links">
 			<RouterLink to="/auth/login">Login</RouterLink>
-			<RouterLink to="/auth/register" class="primary-link">Register</RouterLink>
+			<RouterLink to="/auth/register"
+				class="primary-link">Register</RouterLink>
 		</div>
 	</header>
 	<main>
@@ -20,9 +19,8 @@ import TaskCard from '@/components/app/board/tasks/TaskCard.vue';
 						game today!
 					</p>
 					<div class="link-container">
-						<RouterLink to="/auth/register" class="primary-link"
-							>Get Started</RouterLink
-						>
+						<RouterLink to="/auth/register"
+							class="primary-link">Get Started</RouterLink>
 						<RouterLink to="/auth/login">
 							Already have an account?
 							<font-awesome-icon icon="fa-solid fa-right-to-bracket" />

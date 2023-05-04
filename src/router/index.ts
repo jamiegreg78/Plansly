@@ -2,7 +2,9 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { GetUserSession } from '@/backend/Authentication'
 import { AuthRoutes, AppRoutes } from './RouteNames'
 
-import Home from '@/views/HomeView.vue'
+import Home from '@/views/HomeView.vue' // Auto imported by Vite
+
+// Lazy load views to reduce initial load time
 const AuthView = () => import('@/views/auth/AuthView.vue')
 const RegisterView = () => import('@/views/auth/RegisterView.vue')
 const OtpView = () => import('@/views/auth/OtpView.vue')
@@ -17,6 +19,7 @@ const ListView = () => import('@/views/app/ListView.vue')
 const BoardOverview = () => import('@/views/app/BoardOverview.vue')
 const NotFound = () => import('@/components/general/404.vue')
 
+// Defines the routes for the application
 const router = createRouter({
 	history: createWebHistory(import.meta.env.BASE_URL),
 	routes: [
@@ -96,7 +99,7 @@ const router = createRouter({
 	]
 })
 
-// Add guards for authenticated routes - redirect to authentication page 
+// Add guards for authenticated routes
 router.beforeEach(async (to) => {
 	// if auth is required - check if the user is logged in, otherwise redirect to login
 	if (to.meta.requiresAuth) {
@@ -109,6 +112,7 @@ router.beforeEach(async (to) => {
 		}
 	}
 	
+	// if auth is not required, check that the user is not logged in, otherwise redirect to dashboard
 	if (to.meta.requiresNotAuthenticated) {
 		const { data, error } = await GetUserSession()
 		

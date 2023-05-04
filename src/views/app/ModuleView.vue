@@ -28,7 +28,6 @@
 
 <script setup lang="ts">
 import BoardList from '@/components/app/BoardList.vue'
-import Delete from '@/components/app/Delete.vue'
 import NewBoardForm from '@/components/app/NewBoardForm.vue'
 import ButtonComponent from '@/components/general/ButtonComponent.vue'
 import { AppRoutes } from '@/router/RouteNames'
@@ -41,6 +40,7 @@ const currentModuleIndex = ref<number>(0)
 const sideContainerIsOpen = ref<boolean>(false)
 const router = useRouter()
 
+// Get the current module index from the route, otherwise redirect to the not found page
 onMounted(() => {
 	const currentModuleId = parseInt(router.currentRoute.value.params.moduleId as string)
 	currentModuleIndex.value = userData.getModuleIndex(currentModuleId)

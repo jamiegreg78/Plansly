@@ -42,6 +42,7 @@ import BoardInformation from '@/components/app/BoardInformation.vue'
 const router = useRouter()
 const currentBoardStore = useCurrentBoardStore()
 
+// Redirects the user to the not found page if the board does not exist
 onBeforeMount(async () => {
 	currentBoardStore.currentBoard = undefined
 	const results = await currentBoardStore.loadCurrentBoard()

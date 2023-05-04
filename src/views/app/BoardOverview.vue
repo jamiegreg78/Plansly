@@ -46,6 +46,7 @@ const boardName = ref<string>('')
 const boardDescription = ref<string>('')
 const chosenColor = ref<ColorPickerOptions | null>(null)
 
+// Either redirects the user to the not found page or loads the current board and sets the state
 onBeforeMount(async () => {
 	const results = await currentBoardStore.loadCurrentBoard()
 	if (results?.data.length === 0) {
@@ -57,6 +58,7 @@ onBeforeMount(async () => {
 	}
 })
 
+// Updates the board with the new information
 async function updateBoard() {
 	apiRequestInProgress.value = true
 	await currentBoardStore.changeBoardDetails({

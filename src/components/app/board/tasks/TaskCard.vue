@@ -6,10 +6,10 @@
 			<button class="completed-status"
 				:class="{ completed: props.task.completed, locked: !isCompletable }"
 				@click="() => {
-					if (isCompletable) {
-						currentBoardStore.toggleTaskCompleted(props.task)
-					}
-				}">
+						if (isCompletable) {
+							currentBoardStore.toggleTaskCompleted(props.task)
+						}
+					}">
 				<font-awesome-icon v-if="!isCompletable"
 					icon="fa-solid fa-lock" />
 				<font-awesome-icon v-else-if="props.task.completed"
@@ -53,7 +53,7 @@ export interface TaskCardProps {
 const props = defineProps<TaskCardProps>()
 const currentBoardStore = useCurrentBoardStore()
 
-
+// Calculates whether or not the task is completable based on dependencies
 const isCompletable = computed(() => {
 	// If the current task is already complete, just show it - don't forcibly un-complete it
 	if (props.task.completed) {
@@ -73,7 +73,8 @@ const isCompletable = computed(() => {
 	}
 })
 
-
+// builds a string depending on the expected start and finish dates
+// Either shows the only one that exists, or shows both in one string
 const computedDate = computed(() => {
 	if (props.task.expected_start_date?.length && !props.task.expected_finish_date?.length) {
 		const date = new Date(props.task.expected_start_date)

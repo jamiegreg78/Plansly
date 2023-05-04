@@ -43,6 +43,7 @@ function openCard(card: Task) {
 	boardSearch.value = ''
 }
 
+// Dynamically position the search dropdown
 const searchDropdownPosition = computed(() => {
 	const search: HTMLElement | null = document.getElementById('BoardSearch')
 
@@ -57,6 +58,7 @@ const searchDropdownPosition = computed(() => {
 })
 
 
+// Watch the search input and update the search results
 watch(boardSearch, () => {
 	if (fuse) {
 		const results = fuse.search(boardSearch.value)
@@ -75,6 +77,8 @@ watch(boardSearch, () => {
 })
 
 // casted to any because of a ts error
+// Whenever the current board changes, reinitialise the fuse search
+// Prevents the search from showing invalid state such as the wrong tasks
 watch(currentBoardStore.currentBoard as any, () => {
 	initialiseFuse()
 })
@@ -90,6 +94,7 @@ function initialiseFuse() {
 	})
 }
 
+// Handles the auto-close upon defocus
 const closeListener = async (event: Event) => {
 	const input: HTMLElement | null = document.getElementById('BoardSearch')
 	const inputContainer: HTMLElement | null = document.getElementById('BoardSearchContainer')
@@ -120,6 +125,7 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
+	// Makes sure to remove the event listener to prevent memory leaks
 	window.removeEventListener('click', closeListener)
 })
 </script>

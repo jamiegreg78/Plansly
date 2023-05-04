@@ -36,6 +36,8 @@ const props = defineProps<NumberInputProps>()
 const emit = defineEmits(['blur', 'update:modelValue'])
 const instance = getCurrentInstance()
 
+// Ensures that the input value is within the upper/lower limits
+// Also prevents non-numeric characters from being entered
 function handleInput(newValue: string | undefined) {
 	// If there are upper/lower limits, handle them
 	if (typeof newValue !== 'undefined') {
@@ -119,4 +121,5 @@ function clearInput() {
 			}
 		}
 	}
-}</style>
+}
+</style>

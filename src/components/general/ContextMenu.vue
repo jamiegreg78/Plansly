@@ -1,10 +1,14 @@
 <template>
-	<div id="contextMenu" ref="componentRef" :style="{
-		top: `${coordinates.y + 55}px`,
-		left: `${coordinates.x}px`,
+	<div id="contextMenu"
+		ref="componentRef"
+		:style="{
+			top: `${coordinates.y + 55}px`,
+			left: `${coordinates.x}px`,
 
-	}">
-		<span class="menu-item" v-for="item, index in props.items" :key="index"
+		}">
+		<span class="menu-item"
+			v-for="item, index in props.items"
+			:key="index"
 			@click="{ item.callback(); $emit('closeContextMenu') }">
 			<font-awesome-icon :icon="item.icon" />
 			{{ item.text }}
@@ -13,6 +17,7 @@
 </template>
 
 <script setup lang="ts">
+// A change of design rendered this component obsolete, but I'm keeping it here for potential future use
 import { attachClickAwayEvent } from '@/utils/EventListeners'
 import { ref, onMounted, onUnmounted } from 'vue'
 
@@ -100,5 +105,4 @@ const emit = defineEmits(['closeContextMenu'])
 			cursor: pointer;
 		}
 	}
-}
-</style>
+}</style>

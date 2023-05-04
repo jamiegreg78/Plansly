@@ -1,5 +1,10 @@
+// This file contains all the functions that are used to authenticate the user, and get their information
+
 import { createClient } from '@supabase/supabase-js'
 
+// This client is used throughout other files to access the database
+// It is created using the environment variables that are set in the .env file / server configuration
+// During compilation, the environment variables are replaced with their values
 export const supabase = createClient(import.meta.env.VITE_SUPABASE_URL, import.meta.env.VITE_SUPABASE_KEY)
 
 // Registers the user using their email, returning the new users data

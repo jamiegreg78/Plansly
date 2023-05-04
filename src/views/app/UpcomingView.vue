@@ -25,6 +25,7 @@ const upcomingTaskStore = useUpcomingTaskStore();
 
 
 // Handles adding new dates when at the bottom of the current dates
+// Uses a 10px buffer to prevent the user from having to scroll to the very bottom
 function scrollListener(event: Event) {
 	const target = event.target as HTMLElement;
 	if (target.scrollTop > (target.scrollHeight - target.offsetHeight) - 10) {

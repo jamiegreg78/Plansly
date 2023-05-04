@@ -45,6 +45,7 @@
 </template>
 
 <script setup lang="ts">
+// Would rather this be the same component as TaskList.vue, but it would make the template a nightmare to read
 import type { List } from '@/types/DatabaseTypes';
 import { useCurrentBoardStore } from '@/stores/CurrentBoardStore';
 import { computed, ref } from 'vue';
@@ -60,6 +61,8 @@ const currentBoardStore = useCurrentBoardStore()
 const contentsOpen = ref<boolean>(true)
 const newTaskFormIsOpen = ref<boolean>(false)
 
+// dynamically calculates the severity of the work in progress limit
+// used for the color of the work in progress limit
 const workInProgressSeverity = computed(() => {
 	if (typeof props.list.tasks !== 'undefined' && props.list.work_in_progress_limit) {
 		const currentWorkInProgressPercentage: number = props.list.tasks?.length / props.list.work_in_progress_limit
@@ -90,6 +93,7 @@ const listOptions = computed(() => {
 	}
 })
 
+// Handles moving cards between lists
 function handleCardMove(movementData: any) {
 	const fromListIndex: number = movementData.from.dataset.listIndex
 	const toListIndex: number = movementData.to.dataset.listIndex
