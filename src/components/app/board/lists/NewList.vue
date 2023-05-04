@@ -45,6 +45,7 @@ async function closeInput(event: Event) {
 <style lang="scss">
 .list.new-list {
 	padding: 0;
+	width: toRem(350);
 
 	button {
 		width: 100%;

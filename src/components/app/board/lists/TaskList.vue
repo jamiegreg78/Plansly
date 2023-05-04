@@ -174,7 +174,7 @@ function handleCardMove(movementData: any) {
 		flex-direction: column;
 		gap: toRem(10);
 		max-height: 85%;
-		overflow-y: scroll;
+		overflow-y: auto;
 	}
 
 	&.draggable {
