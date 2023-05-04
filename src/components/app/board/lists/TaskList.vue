@@ -45,6 +45,8 @@ export interface TaskListProps {
 const props = defineProps<TaskListProps>()
 const currentBoardStore = useCurrentBoardStore()
 
+// Calculates the class for the work in progress limit
+// used to handle the color of the work in progress limit
 const workInProgressSeverity = computed(() => {
 	if (typeof props.list.tasks !== 'undefined' && props.list.work_in_progress_limit) {
 		const currentWorkInProgressPercentage: number = props.list.tasks?.length / props.list.work_in_progress_limit

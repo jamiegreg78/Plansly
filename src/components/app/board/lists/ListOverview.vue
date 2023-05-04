@@ -96,6 +96,7 @@ async function saveChanges() {
 	closeOverview()
 }
 
+// Populates the form with the data for inputs
 onBeforeMount(() => {
 	name.value = currentBoardStore.currentListOverview!.name
 	// Populate the description - either empty if there isn't one, or the actual value
