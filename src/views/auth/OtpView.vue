@@ -36,7 +36,7 @@ const otpValue = ref<string>()
 const submitDisabled = ref<boolean>(false)
 const requestError = ref<string>('')
 
-// Ensure the value is never over 6 long & handle button disabled state
+// Ensure the value is never over 6 long
 watch(otpValue, () => {
 	requestError.value = ''
 
