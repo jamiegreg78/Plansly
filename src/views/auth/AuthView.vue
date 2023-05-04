@@ -19,7 +19,6 @@
 		width: 55vw;
 		display: none;
 		flex-shrink: 0;
-		display: flex;
 		justify-content: center;
 		align-items: center;
 		padding: toRem(16);
