@@ -25,7 +25,7 @@
 				@clicked="submitLogin($event)"
 				:is-primary="true" />
 			<Button text="Register"
-				@clicked="router.push(AuthRoutes.register)" />
+				@clicked.prevent="router.push(AuthRoutes.register)" />
 		</div>
 	</form>
 </template>
