@@ -71,9 +71,9 @@ function clearInput() {
 	input.value = ''
 }
 
+// Calculates the dropdown position
 const resizeListener = () => {
 	const input = document.querySelector('.tag-input-container') as HTMLElement
-	console.log('bruih')
 	if (input) {
 		dropdownPosition.value = {
 			top: `${input.getBoundingClientRect().y + input.getBoundingClientRect().height}px`,
@@ -83,6 +83,9 @@ const resizeListener = () => {
 	}
 }
 
+// Listens for resize events
+// This is necessary because the dropdown position is calculated based on the input's position
+// If the input's position changes, the dropdown position needs to be recalculated
 onMounted(() => {
 	const input = document.querySelector('.tag-input-container')
 	if (input) {
@@ -99,6 +102,7 @@ onMounted(() => {
 	}
 })
 
+// Removes the event listeners to prevent memory leaks
 onBeforeUnmount(() => {
 	const elements = document.getElementsByClassName('overview')
 

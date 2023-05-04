@@ -7,7 +7,7 @@
 			<font-awesome-icon icon="fa-solid fa-right-left" />
 		</button>
 		<span class="dependency">
-			{{ dependency.information.name }}
+			{{ dependency.information?.name }}
 			<button class="delete-dependency"
 				@click="$emit('deleteDependency', dependency)">
 				<font-awesome-icon icon="fa-solid fa-xmark" />
@@ -17,17 +17,18 @@
 </template>
 
 <script setup lang="ts">
+import type { Dependency } from '@/types/DatabaseTypes'
 import { computed } from 'vue'
 
-// TODO: Type for dependency
 export interface DepedencyProps {
-	dependency: any,
+	dependency: Dependency,
 	currentTaskId: number
 }
 const props = defineProps<DepedencyProps>()
 const emit = defineEmits(['deleteDependency', 'toggleDependencyMode'])
 
 
+// dynamic class based on dependency mode
 const computedClass = computed(() => {
 	return props.dependency.blocked_task === props.currentTaskId ? 'blocked' : 'blocking'
 })

@@ -61,6 +61,8 @@ const workInProgressSeverity = computed(() => {
 	return ''
 })
 
+// The options for the list. 
+// Delay on touch only is used to prevent the list from being dragged when scrolling
 const listOptions = computed(() => {
 	return {
 		group: 'tasks',
@@ -76,6 +78,8 @@ const listOptions = computed(() => {
 	}
 })
 
+// Handles the movement of the card
+// Calls different functions depending on if the card is moved within the same list or between lists
 function handleCardMove(movementData: any) {
 	const fromListIndex: number = movementData.from.dataset.listIndex
 	const toListIndex: number = movementData.to.dataset.listIndex
@@ -95,7 +99,6 @@ function handleCardMove(movementData: any) {
 
 <style lang="scss" scoped>
 .list {
-	// TODO: MAKE THIS A MIXIN
 	width: toRem(350);
 	max-width: 100%;
 	max-height: 100%;

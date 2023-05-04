@@ -48,6 +48,8 @@ function toggleNav() {
 	interfaceStore.toggleNav()
 }
 
+// Calls the backend to log the user out, then refreshes the page
+// the navigation guards will handle the redirect
 async function logOut() {
 	await LogOutUser()
 	router.go(0)

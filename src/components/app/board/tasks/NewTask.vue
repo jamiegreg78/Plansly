@@ -1,7 +1,14 @@
 <template>
-	<button class="new-task-button" v-if="!isInputActive" @click="openInput">New Task</button>
-	<div class="task-card new-task" v-if="isInputActive">
-		<input id="newTaskInput" type="text" v-model="inputValue" @blur="closeInput" @keydown.enter="closeInput"
+	<button class="new-task-button"
+		v-if="!isInputActive"
+		@click="openInput">New Task</button>
+	<div class="task-card new-task"
+		v-if="isInputActive">
+		<input id="newTaskInput"
+			type="text"
+			v-model="inputValue"
+			@blur="closeInput"
+			@keydown.enter="closeInput"
 			@keydown.esc="closeInput" />
 	</div>
 </template>
@@ -21,12 +28,14 @@ const currentBoardStore = useCurrentBoardStore()
 const isInputActive = ref<boolean>(false)
 const inputValue = ref<string>('')
 
+// Opens and focuses the input, using nextTick to ensure the input is rendered first before focus
 async function openInput() {
 	isInputActive.value = true
 	await nextTick()
 	document.getElementById('newTaskInput')?.focus()
 }
 
+// Closes the input and creates a new list if the input has a value
 async function closeInput(event: Event) {
 	isInputActive.value = false
 	await nextTick()
@@ -80,5 +89,4 @@ async function closeInput(event: Event) {
 			border-bottom: 2px solid var(--border);
 		}
 	}
-}
-</style>
+}</style>

@@ -1,13 +1,15 @@
 <template>
 	<div class="top-bar">
-		<button class="open-nav-button" @click="toggleNav">
+		<button class="open-nav-button"
+			@click="toggleNav">
 			<font-awesome-icon icon="fa-solid fa-bars" />
 		</button>
-
 	</div>
 </template>
 
 <script setup lang="ts">
+// Not much in this file currently - but it's here for future expansion
+// Likely to have account-wide search, notifications, etc.
 import { useInterfaceStore } from '@/stores/InterfaceStore'
 const interfaceStore = useInterfaceStore()
 

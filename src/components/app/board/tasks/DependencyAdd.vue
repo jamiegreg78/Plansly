@@ -28,11 +28,11 @@
 					v-for="item, index in taskOptions"
 					:key="index"
 					@click="$event => {
-						selectDependency(item)
-						$nextTick().then(() => {
-							searchDependencies()
-						})
-					}">
+							selectDependency(item)
+							$nextTick().then(() => {
+								searchDependencies()
+							})
+						}">
 					{{ item.name }}
 					<font-awesome-icon icon="fa-solid fa-plus" />
 				</span>
@@ -46,7 +46,7 @@ import TextInput from '@/components/inputs/TextInput.vue';
 import { useCurrentBoardStore } from '@/stores/CurrentBoardStore';
 import type { Dependency, Task } from '@/types/DatabaseTypes';
 import Fuse from 'fuse.js';
-import { ref, watch, onMounted, onBeforeUnmount, computed } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 
 export interface DependencyAddProps {
 	currentDependencies: Dependency[]
@@ -62,10 +62,12 @@ let fuse: any | null = null
 
 const emit = defineEmits(['addDependency', 'update:modelValue'])
 
+// Toggles the mode between blocking and blocked on the new dependency
 function toggleMode() {
 	mode.value = mode.value === 'blocking' ? 'blocked' : 'blocking'
 }
 
+// Adds the dependency to the task
 function selectDependency(chosenTask: Task) {
 	const newDependency = {
 		blocked_task: mode.value === 'blocking' ? chosenTask.id : currentBoardStore.currentTaskOverview?.id,
@@ -79,11 +81,12 @@ function selectDependency(chosenTask: Task) {
 	emit('addDependency', newDependency)
 }
 
-
+// Watch the search input for changes and call the search function
 watch(search, async () => {
 	searchDependencies()
 })
 
+// Searches the board for tasks that match the search input
 function searchDependencies() {
 	if (fuse) {
 		const results = fuse.search(search.value)
@@ -112,11 +115,12 @@ function searchDependencies() {
 
 }
 
-// casted to any because of a ts error
+// Casted due to a limitation with Vue.js + TypeScript
 watch(currentBoardStore.currentBoard as any, () => {
 	initialiseFuse()
 })
 
+// Initialise the fuse search
 function initialiseFuse() {
 	fuse = new Fuse(currentBoardStore.currentBoard?.lists as any, {
 		keys: [

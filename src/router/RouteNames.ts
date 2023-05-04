@@ -1,3 +1,7 @@
+// These routes are defined as objects
+// This is done to avoid typos and to make it easier to refactor
+// Changes to the route names will be reflected in the entire project
+
 export const AuthRoutes = {
 	register: '/auth/register',
 	login: '/auth/login',

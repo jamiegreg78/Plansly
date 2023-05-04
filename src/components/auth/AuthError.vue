@@ -5,6 +5,7 @@
 </template>
 
 <script setup lang="ts">
+// This component is used purely to display an error message in the auth forms
 
 export interface ErrorMessageProps {
 	message: string,

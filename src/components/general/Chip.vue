@@ -6,6 +6,7 @@
 </template>
 
 <script setup lang="ts">
+// Currently used to render tags on task cards
 export interface ChipProps {
 	text: string
 	class: string

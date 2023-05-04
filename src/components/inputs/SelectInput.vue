@@ -23,6 +23,8 @@
 </template>
 
 <script setup lang="ts">
+// Another component that was scrapped in favor of a different solution
+// Kept just in case it's needed in the future after refactoring
 import type { SelectOption } from '@/types/SelectInputTypes'
 export type SelectInputProps = {
 	containerClass?: string
