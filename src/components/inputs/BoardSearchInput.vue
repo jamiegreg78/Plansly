@@ -28,7 +28,7 @@
 
 <script setup lang="ts">
 import { useCurrentBoardStore } from '@/stores/CurrentBoardStore';
-import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue';
+import { ref, watch, onMounted, onBeforeUnmount } from 'vue';
 import Fuse from 'fuse.js';
 import TextInput from './TextInput.vue';
 import type { Task } from '@/types/DatabaseTypes';
@@ -44,18 +44,7 @@ function openCard(card: Task) {
 }
 
 // Dynamically position the search dropdown
-const searchDropdownPosition = computed(() => {
-	const search: HTMLElement | null = document.getElementById('BoardSearch')
-
-	if (search) {
-		return {
-			top: `${search.getBoundingClientRect().bottom}px`,
-			left: `${search.getBoundingClientRect().left}px`,
-			width: `${search.getBoundingClientRect().width}px`
-		}
-	}
-	return {}
-})
+const searchDropdownPosition = ref({})
 
 
 // Watch the search input and update the search results
@@ -111,6 +100,22 @@ const closeListener = async (event: Event) => {
 
 }
 
+watch(boardSearch, () => {
+	resizeListener()
+})
+
+const resizeListener = () => {
+	const search: HTMLElement | null = document.querySelector('.board-search')
+
+	if (search) {
+		searchDropdownPosition.value = {
+			top: `${search.getBoundingClientRect().bottom}px`,
+			left: `${search.getBoundingClientRect().left + 1}px`,
+			width: `${search.getBoundingClientRect().width - 2}px`
+		}
+	}
+}
+
 onMounted(() => {
 	fuse = new Fuse(currentBoardStore.currentBoard?.lists as any, {
 		keys: [
@@ -122,6 +127,11 @@ onMounted(() => {
 	})
 
 	window.addEventListener('click', closeListener)
+
+	const input = document.getElementById('BoardSearch')
+	if (input) {
+		new ResizeObserver(resizeListener).observe(document.querySelector('body')!)
+	}
 })
 
 onBeforeUnmount(() => {
@@ -135,15 +145,17 @@ onBeforeUnmount(() => {
 	&.has-results {
 		.input-wrapper {
 			border-radius: 8px 8px 0 0;
+			box-shadow: 0 0 0 2px var(--primary);
+			border-color: var(--primary);
 		}
 	}
 
 	.search-dropdown {
 		position: absolute;
-		z-index: 5;
+		z-index: 4;
 		background-color: var(--background);
 		border-radius: 0 0 8px 8px;
-		outline: 2px solid var(--primary);
+		box-shadow: 0 0 0 3px var(--primary);
 		overflow: hidden;
 
 		.result {
