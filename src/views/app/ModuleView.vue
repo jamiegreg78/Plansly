@@ -1,4 +1,5 @@
 <template v-if="userData.userData.length">
+	<h1 class="page-title">{{ userData.userData[currentModuleIndex].name }}</h1>
 	<section class="dashboard">
 		<div class="content"
 			:class="{ 'close-on-mobile': sideContainerIsOpen }">
@@ -57,6 +58,7 @@ onMounted(() => {
 
 	.content {
 		width: 100%;
+		padding: toRem(16);
 
 		@include breakpoint(desktop) {
 			display: flex;

@@ -21,6 +21,7 @@
 			<Button :disabled="submitDisabled"
 				:in-progress="submitDisabled"
 				text="Log In"
+				type="submit"
 				@clicked="submitLogin($event)"
 				:is-primary="true" />
 			<Button text="Register"

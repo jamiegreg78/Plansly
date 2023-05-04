@@ -64,6 +64,7 @@ const router = createRouter({
 					path: AppRoutes.module,
 					name: 'Module',
 					component: ModuleView,
+					meta: { noHeader: true, },
 				},
 				{
 					path: AppRoutes.board,
